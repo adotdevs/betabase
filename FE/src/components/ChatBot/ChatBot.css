@@ -1,0 +1,25 @@
+/* Additional CSS for ChatBot if needed */
+/* Most styles are handled by styled-components */
+
+/* Ensure chatbot is above other elements */
+.chatbot-container {
+  position: relative;
+  z-index: 9999;
+}
+
+/* Animation for chat window appearance */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-timing-function: ease-in-out;
+}

@@ -1,0 +1,127 @@
+.ticket-message {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.saasasa {
+    color: white !important;
+}
+
+.user-ticket-page .fla .badgea {
+    margin-left: 20px;
+    padding-block: 5px !important;
+}
+
+.user-ticket-page .border-infoas p span {
+    margin-left: 5px;
+}
+
+.user-ticket-page .border-infoas p {
+    margin-bottom: 10px;
+}
+
+.user-ticket-page .border-infoas {
+    height: auto;
+    padding: 0 10px;
+    background-color: #8c52ff;
+    color: white;
+}
+
+.user-ticket-page .tckt0mn {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding-bottom: 30px !important;
+    border: none;
+}
+
+.user-ticket-page .fla {
+    line-height: normal;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.user-ticket-page .ticket-msg-time {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.user-ticket-page .ticket-user-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background-image: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.user-ticket-page .ticket-user-action-btn--edit {
+    background-color: rgba(140, 82, 255, 0.2);
+    border-color: rgba(167, 139, 250, 0.55);
+    color: #ddd6fe;
+}
+
+.user-ticket-page .ticket-user-action-btn--edit:hover:not(:disabled) {
+    background-color: rgba(140, 82, 255, 0.35);
+    color: #fff;
+}
+
+.user-ticket-page .ticket-user-action-btn--save {
+    background-color: #8c52ff;
+    border-color: #8c52ff;
+    color: #fff;
+}
+
+.user-ticket-page .ticket-user-action-btn--save:hover:not(:disabled) {
+    background-color: #7a45e8;
+    border-color: #7a45e8;
+}
+
+.user-ticket-page .ticket-user-action-btn--cancel {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.user-ticket-page .ticket-user-action-btn--cancel:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.user-ticket-page .ticket-user-action-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.user-ticket-page .ticket-message-html {
+    line-height: 1.6;
+}
+
+.user-ticket-page .ticket-message-html p {
+    margin: 0 0 8px;
+}
+
+.user-ticket-page .ticket-message-html ul,
+.user-ticket-page .ticket-message-html ol {
+    padding-left: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.user-ticket-page .ticket-message-html a {
+    color: #c4b5fd;
+    text-decoration: underline;
+}

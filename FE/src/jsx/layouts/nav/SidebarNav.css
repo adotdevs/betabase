@@ -1,0 +1,40 @@
+.sidebar-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+  [data-sidebar-style="overlay"] .menu-toggle .dlabnav {
+    width: min(280px, 85vw);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  }
+
+  [data-sidebar-style="overlay"] .dlabnav .menu-scroll {
+    height: calc(100% - 1rem);
+  }
+
+  [data-sidebar-style="overlay"] .dlabnav .dlabnav-scroll {
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
+  }
+
+  [data-sidebar-style="overlay"] .dlabnav .metismenu > li > a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  [data-sidebar-style="overlay"] .dlabnav .support-box {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (min-width: 769px) {
+  [data-sidebar-style="full"] .dlabnav .dlabnav-scroll {
+    scrollbar-width: thin;
+  }
+}

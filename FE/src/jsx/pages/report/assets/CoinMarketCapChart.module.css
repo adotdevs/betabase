@@ -1,0 +1,49 @@
+.wrap {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chartHost {
+  width: 100%;
+  min-height: 320px;
+}
+
+.chartHost :global(.coinmarketcap-w-coin-price-chart) {
+  width: 100% !important;
+}
+
+.fallback {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fallbackTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.fallbackText {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .wrap,
+  .chartHost {
+    min-height: 260px;
+  }
+}

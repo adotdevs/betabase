@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Widget Integration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Betabase Chatbot Widget Integration Guide</h1>
+    
+    <h2>Basic Integration</h2>
+    <p>Add this script tag to your HTML before the closing <code>&lt;/body&gt;</code> tag:</p>
+    <div class="code-block">
+        <code>
+&lt;script src="https://your-domain.com/chatbot-widget.js"&gt;&lt;/script&gt;
+        </code>
+    </div>
+
+    <h2>With Custom Configuration</h2>
+    <p>You can customize the chatbot by setting a configuration object before loading the script:</p>
+    <div class="code-block">
+        <code>
+&lt;script&gt;
+  window.ChatbotConfig = {
+    apiUrl: 'https://api.betabase.pro/api/v1',
+    adminEmail: 'admin@betabase.pro',
+    botAvatar: 'https://your-domain.com/bot.jpg'
+  };
+&lt;/script&gt;
+&lt;script src="https://your-domain.com/chatbot-widget.js"&gt;&lt;/script&gt;
+        </code>
+    </div>
+
+    <h2>Configuration Options</h2>
+    <ul>
+        <li><strong>apiUrl</strong> (string): The API endpoint URL. Default: 'https://api.betabase.pro/api/v1'</li>
+        <li><strong>adminEmail</strong> (string): Admin email for receiving transcripts. Default: 'admin@betabase.pro'</li>
+        <li><strong>botAvatar</strong> (string): URL to the bot avatar image. Default: Uses default avatar</li>
+    </ul>
+
+    <h2>Complete Example</h2>
+    <div class="code-block">
+        <code>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;My Website&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+    &lt;p&gt;Your content here...&lt;/p&gt;
+    
+    &lt;!-- Chatbot Widget --&gt;
+    &lt;script&gt;
+      window.ChatbotConfig = {
+        apiUrl: 'https://api.betabase.pro/api/v1',
+        adminEmail: 'admin@betabase.pro',
+        botAvatar: 'https://your-domain.com/bot.jpg'
+      };
+    &lt;/script&gt;
+    &lt;script src="https://your-domain.com/chatbot-widget.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </code>
+    </div>
+
+    <h2>Notes</h2>
+    <ul>
+        <li>The widget automatically loads React from CDN if not already present</li>
+        <li>The chatbot will appear as a floating button in the bottom-right corner</li>
+        <li>All functionality from the original chatbot is preserved</li>
+        <li>The widget is self-contained and won't interfere with your existing website</li>
+        <li>Make sure your API endpoint allows CORS requests from your domain</li>
+    </ul>
+
+    <!-- Example: Load the widget on this page -->
+    <script>
+      window.ChatbotConfig = {
+        apiUrl: 'https://api.betabase.pro/api/v1',
+        adminEmail: 'admin@betabase.pro'
+      };
+    </script>
+    <script src="./chatbot-widget.js"></script>
+</body>
+</html>

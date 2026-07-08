@@ -1,0 +1,399 @@
+const mongoose = require("mongoose");
+const validator = require("validator");
+const jwt = require("jsonwebtoken");
+
+let userSchema = new mongoose.Schema({
+  firstName: {
+    type: String,
+    required: [true, "Please enter your name"],
+    maxLength: [30, "Name can't exceed 30 characters"],
+    minLength: [2, "Name will have more than 3 characters"],
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    required: [true, "Please enter your name"],
+    maxLength: [30, "Name can't exceed 30 characters"],
+    minLength: [2, "Name will have more than 3 characters"],
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: [true, "Please enter your email"],
+
+    lowercase: true,
+    unique: [true, "Email already exists"],
+    validate: [validator.isEmail, "Please enter a valid Email"],
+  },
+  phone: {
+    type: Number,
+    required: [true, "Please enter your Number"],
+    trim: true,
+  },
+  progress: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0,
+  },
+  password: {
+    type: String,
+    required: [true, "Please enter your Password"],
+    minLength: [8, "Password should be more than 8 characters"],
+    // It will not come in find() method
+  },
+  address: {
+    type: String,
+    required: [true, "Please enter your Address"],
+    trim: true,
+  },
+  city: {
+    type: String,
+    required: [true, "Please enter your City"],
+    trim: true,
+  },
+  country: {
+    type: String,
+    required: [true, "Please enter your Country"],
+    trim: true,
+  },
+  postalCode: {
+    type: String,
+    required: [true, "Please enter add postal code"],
+    trim: true,
+  },
+  note: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+
+  ticket: [
+    {
+      title: {
+        type: String,
+      },
+      description: {
+        type: String,
+      },
+      status: {
+        type: String,
+      },
+      answer: {
+        type: String,
+      },
+    },
+  ],
+  isShared: {
+    type: Boolean,
+    default: false,
+  },
+  isComplianceRestricted: {
+    type: Boolean,
+    default: false,
+  },
+  complianceRestrictedAt: {
+    type: Date,
+    default: null,
+  },
+  complianceRestrictedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    default: null,
+  },
+
+  role: {
+    type: String,
+    default: "user",
+    enum: ['superadmin', 'admin', 'subadmin', 'user']
+  },
+  submitDoc: {
+    status: {
+      type: String,
+      enum: ["pending", "completed"],
+      default: "pending",
+      trim: true,
+      required: true,
+    },
+    bill: {
+      type: String,
+    },
+    cnic: {
+      type: String,
+    },
+  },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  kyc: {
+    type: Boolean,
+    default: false,
+  },
+  AiTradingPercentage: {
+    type: Number,
+    default: 1.25,
+  },
+  currency: {
+    type: String,
+    default: "USD",
+    enum: ["USD", "EUR"]
+  },
+  euroBankAccount: {
+    bankName: { type: String, trim: true, default: "" },
+    accountNumber: { type: String, trim: true, default: "" },
+    iban: { type: String, trim: true, default: "" },
+    bankAddress: { type: String, trim: true, default: "" },
+    beneficiaryName: { type: String, trim: true, default: "" },
+    updatedAt: { type: Date, default: null },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+  },
+  assignedSubAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user", // Reference to the sub-admin
+    default: null,
+  },
+  payments: [
+    {
+      type: {
+        type: String,
+        enum: ["bank", "card"],
+        required: true,
+      },
+      bank: {
+        accountName: String,
+        accountNumber: String,
+        iban: String,
+        accountNotes: String,
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+      card: {
+        cardCategory: String,
+        cardName: String,
+        cardNumber: String,
+        cardNotes: String,
+        cardExpiry: String,
+        cardCvv: String,
+
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    },
+  ],
+  cryptoCard: {
+    cardNumber: {
+      type: Number,
+      required: false,
+    },
+    cardName: {
+      type: String,
+      required: false,
+    },
+    Exp: {
+      type: String,
+      required: false,
+    },
+    cvv: {
+      type: Number,
+      required: false,
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "applied"],
+      default: "inactive",
+      trim: true,
+      required: true,
+    }
+  }
+
+  ,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  permissions: {
+    editUserProfile: { type: Boolean, default: false },
+    viewClientDetails: { type: Boolean, default: false },
+    editUserWallet: { type: Boolean, default: false },
+    editWalletAddress: { type: Boolean, default: false },
+    addTransaction: { type: Boolean, default: false },
+    accessCrm: { type: Boolean, default: false },
+    accessWallet: { type: Boolean, default: true },
+    changeTicketStatus: { type: Boolean, default: false },
+    // add more when needed
+  },
+  adminPermissions: {
+    isProfileUpdate: { type: Boolean, default: false },
+    isTokenManagement: { type: Boolean, default: false },
+    isSubManagement: { type: Boolean, default: false },
+    isEditSubManagementPermissions: { type: Boolean, default: false },
+    isAddUsersToSubAdmin: { type: Boolean, default: false },
+    accessCrm: { type: Boolean, default: false },
+    canManageCrmLeads: { type: Boolean, default: false },
+    canUploadLeads: { type: Boolean, default: false },
+    canMakeCalls: { type: Boolean, default: false },
+    canAccessCallDashboard: { type: Boolean, default: false },
+    canAccessAiInstructions: { type: Boolean, default: false },
+    canManageReferrals: { type: Boolean, default: false },
+    canViewCallLogs: { type: Boolean, default: false },
+    accessWallet: { type: Boolean, default: true },
+    // add more when needed
+  },
+  
+  // Vapi AI Configuration (per-admin custom config)
+  // Super admin uses default from config.env, other admins can have their own
+  vapiConfig: {
+    apiKey: { type: String, default: null },
+    assistantId: { type: String, default: null },
+    phoneNumberId: { type: String, default: null },
+    enabled: { type: Boolean, default: false }, // Whether to use custom config or default
+  },
+  
+  // SIP Configuration (per-admin custom config)
+  // Uses default from config.env if not enabled, otherwise uses custom SIP credentials
+  sipConfig: {
+    server: { type: String, default: null },
+    username: { type: String, default: null },
+    password: { type: String, default: null },
+    port: { type: Number, default: 5060 },
+    enabled: { type: Boolean, default: false }, // Whether to use custom SIP config or default
+  },
+
+  // SMTP Configuration (per-admin custom config for CRM lead emails)
+  smtpConfig: {
+    host: { type: String, default: null },
+    port: { type: Number, default: 465 },
+    user: { type: String, default: null },
+    password: { type: String, default: null },
+    fromEmail: { type: String, default: null },
+    fromName: { type: String, default: null },
+    secure: { type: Boolean, default: true },
+    enabled: { type: Boolean, default: false },
+  },
+  
+  // ==================== MLM/REFERRAL SYSTEM FIELDS ====================
+  referralCode: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows null/undefined values to not be checked for uniqueness
+    uppercase: true,
+    trim: true,
+    index: true
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    default: null
+  },
+  affiliateStatus: {
+    type: String,
+    enum: ['inactive', 'active'],
+    default: 'inactive'
+  },
+  directReferrals: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user'
+  }],
+  totalCommissionEarned: {
+    type: Number,
+    default: 0
+  },
+  commissionsPaid: [{
+    fromUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user'
+    },
+    fromUserName: String,
+    fromUserEmail: String,
+    amount: {
+      type: Number,
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'paid'],
+      default: 'pending'
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user'
+    },
+    approvedByName: String,
+    notes: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    paidAt: Date
+  }],
+  // ==================== END MLM/REFERRAL SYSTEM FIELDS ====================
+  
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
+  online: {
+    type: Boolean,
+    default: false
+  },
+  lastOnline: {
+    type: Date,
+    default: null
+  },
+  lastActivity: { type: Date, default: null },
+
+});
+
+userSchema.methods.generateToken = function () {
+  return jwt.sign({ _id: this._id }, process.env.SECRET_JWT, {
+    expiresIn: process.env.SECRET_EXPIRE,
+  });
+};
+
+// MLM: Generate unique referral code
+userSchema.methods.generateReferralCode = async function () {
+  const User = mongoose.model('user');
+  const crypto = require('crypto');
+  
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    // Generate 8-character alphanumeric code
+    const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+    
+    // Check if code already exists
+    const existingUser = await User.findOne({ referralCode: code });
+    
+    if (!existingUser) {
+      return code;
+    }
+    
+    attempts++;
+  }
+  
+  throw new Error('Failed to generate unique referral code after 10 attempts');
+};
+
+userSchema.methods.resetPasswordTokenGenerator = async function () {
+  // generating token
+  let restToken = crypto.randomBytes(20).toString("hex");
+  // Making hash of restToken and add to userSchema
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(restToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+};
+
+let userModel = mongoose.model("user", userSchema);
+
+module.exports = userModel;

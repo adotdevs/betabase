@@ -1,0 +1,78 @@
+*** Update File: FE/src/jsx/Admin/CRM/FailedCalls.jsx
+@@
+-import {
+-    Phone,
+-    Error as ErrorIcon,
+-    Replay,
+-    Delete as DeleteIcon,
+-    Refresh,
+-    Menu as MenuIcon,
+-    Search,
+-    ChevronLeft,
+-    ChevronRight,
+-} from '@mui/icons-material';
++import {
++    Phone,
++    Error as ErrorIcon,
++    Replay,
++    Delete as DeleteIcon,
++    Refresh,
++    Menu as MenuIcon,
++    Search,
++    ChevronLeft,
++    ChevronRight,
++    Description,
++} from '@mui/icons-material';
+@@
+ import {
+     getCompletedCallsApi,
+     retryFailedCallApi,
+     deleteCallApi,
+     deleteCallsByStatusApi,
+     getCallStatisticsApi,
+ } from '../../../Api/Service';
++import CallLogsSection from './components/CallLogsSection';
+@@
+ const FailedCalls = () => {
+@@
+     const [retrying, setRetrying] = useState({});
+     const [deletingCall, setDeletingCall] = useState(null);
+     const [deleteCallConfirm, setDeleteCallConfirm] = useState(null);
+     const [deletingByStatus, setDeletingByStatus] = useState(null);
+     const [searchTerm, setSearchTerm] = useState('');
++    const [logsCallId, setLogsCallId] = useState(null);
+@@
+                                                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Failed At</TableCell>
+                                                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textAlign: 'center' }}>Actions</TableCell>
+                                                 </TableRow>
+                                             </TableHead>
+                                             <TableBody>
+@@
+                                                         <TableCell sx={{ textAlign: 'center' }}>
+                                                             <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
++                                                                <Tooltip title={call.metadata?.vapiCallId ? 'View Logs' : 'Logs not available'}>
++                                                                    <span>
++                                                                        <IconButton
++                                                                            size="small"
++                                                                            color="default"
++                                                                            onClick={() => setLogsCallId(call._id)}
++                                                                            disabled={!call.metadata?.vapiCallId}
++                                                                        >
++                                                                            <Description fontSize="small" />
++                                                                        </IconButton>
++                                                                    </span>
++                                                                </Tooltip>
+                                                                 <Tooltip title={(call.metadata?.retryAttempts || 0) >= 5 ? 'Max retries reached' : 'Retry Call'}>
+                                                                     <span>
+                                                                         <IconButton
+                                                                             size="small"
+                                                                             color="primary"
+@@
+                                         </Table>
+                                     </TableContainer>
++
++                                    {logsCallId && (
++                                        <Box sx={{ mt: 3 }}>
++                                            <CallLogsSection callId={logsCallId} />
++                                        </Box>
++                                    )}

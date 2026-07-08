@@ -1,0 +1,23 @@
+[2025-11-20T10:38:53.041Z] Session start
+[2025-11-20T10:38:53.042Z] Dial request -> phone=+923077857130, voice=shimmer
+[2025-11-20T10:38:53.970Z] Signaling IP=103.134.3.216, Contact IP=103.134.3.216, RTP IP=103.134.3.216
+[2025-11-20T10:38:53.982Z] Ports -> SIP=10000, RTP=10002 (symmetric)
+[2025-11-20T10:38:53.984Z] SDP Offer:
+v=0
+o=agent105.wave@pbx.globalcall.tel 483326030 483326030 IN IP4 103.134.3.216
+s=AI Voice Call
+c=IN IP4 103.134.3.216
+t=0 0
+m=audio 10002 RTP/AVP 0 8 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+a=sendrecv
+a=ptime:20
+
+[2025-11-20T10:38:53.987Z] INVITE built with Via IP=103.134.3.216, Contact IP=103.134.3.216, RTP port=10002
+[2025-11-20T10:38:53.997Z] Sending INVITE -> 65.109.172.127:5060 (local 103.134.3.216:10000)
+[2025-11-20T10:38:54.001Z] INVITE sent successfully
+[2025-11-20T10:39:24.007Z] Call timeout - no response from PBX
+[2025-11-20T10:39:24.009Z] Call error: Call timeout

@@ -1,0 +1,160 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: min(480px, 100%);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #111827, #0b1220);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0.75rem;
+}
+
+.stepLabel {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.25rem;
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.receiveBody,
+.sendBody {
+  padding: 0.75rem 1.25rem 1.35rem;
+}
+
+.qrWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.qrFallback {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.helperText {
+  margin: 0 0 1rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.addressBox {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.addressBox code {
+  flex: 1;
+  font-size: 0.72rem;
+  color: #e2e8f0;
+  word-break: break-all;
+}
+
+.copyBtn,
+.primaryBtn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.copyBtn {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.primaryBtn {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  padding: 0.85rem 1rem;
+}
+
+.sendBody {
+  text-align: center;
+}
+
+.sendIcon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 0.75rem;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.sendBody h3 {
+  margin: 0 0 0.5rem;
+  color: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    border-radius: 20px;
+  }
+
+  .addressBox {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

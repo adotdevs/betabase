@@ -1,0 +1,480 @@
+.admin .active.datas {
+  --tw-text-opacity: 1 !important;
+  color: #8b5cf6 !important;
+  color: rgb(139 92 246 / var(--tw-text-opacity)) !important;
+}
+
+.admin .active.datas {
+  background-color: #8b5cf61a !important;
+}
+
+.admin .active.datas {
+  --tw-text-opacity: 1 !important;
+  color: #8b5cf6 !important;
+  color: rgb(139 92 246 / var(--tw-text-opacity)) !important;
+}
+
+.admin .font-large {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.admin .emt {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.admin .image-row-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  row-gap: 15px;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.admin .image-row {
+  justify-content: start;
+
+  row-gap: 15px;
+  column-gap: 15px;
+
+  border-radius: 10px;
+  display: flex;
+  min-height: 80px;
+  align-items: center;
+}
+
+.admin .w-1001 {
+  width: 100%;
+}
+
+.admin .w-102 {
+  width: 120px;
+  display: inline;
+}
+
+.admin .active.datas {
+  background-color: #8b5cf61a !important;
+}
+
+.admin .justify {
+  justify-content: center;
+}
+
+.admin
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button, .admin input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.admin input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.admin .hideother:not(:first-child) {
+  display: none;
+}
+
+.admin .align-center {
+  align-items: center;
+}
+
+.admin .bg-danger-400a {
+  background-color: rgb(244 63 94) !important;
+  color: white !important;
+}
+
+.admin
+
+/* Firefox */
+.abspain {
+  position: absolute;
+  left: 20px;
+  top: 13px;
+  z-index: 58;
+}
+
+.admin .flex-wraps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: center;
+  gap: 50px;
+}
+
+.admin .fluxb li:hover {
+  background-color: rgb(237 233 254);
+  color: rgb(76 29 149);
+}
+
+.admin .bolda {
+  /* font-weight: bold; */
+  font-size: 22px;
+}
+
+.admin .bg-g {
+  background-image: url("../../../assets/images/img/home-hero-gradient.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.admin .react-responsive-modal-modal {
+  border-radius: 20px;
+  text-align: center;
+}
+
+.admin .react-responsive-modal-modal .rounded2 {
+  padding-top: 30px;
+}
+
+@media (max-width: 420px) {
+
+  .admin .verified-btn a,
+  .admin .verified-btn span,
+  .admin .verified-btn p {
+    font-size: 11px;
+  }
+
+  .admin .verified-btn {
+    margin-inline-end: 0rem !important;
+  }
+}
+
+.admin .toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 14px;
+}
+
+.admin .toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 37px;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 14px;
+}
+
+.admin input:checked+.slider:before {
+  transform: translateX(22px);
+}
+
+.admin .chkbx:disabled~.slider {
+  opacity: 0.5 !important;
+  cursor: default;
+}
+
+.admin .slider:before {
+  position: absolute;
+  content: "";
+  height: 17px;
+  width: 17px;
+  left: -3px;
+  bottom: -1.5px;
+  background-color: rgb(234, 234, 234);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.admin input:checked+.slider {
+  background-color: #8b5cf6;
+}
+
+/* Loan application document cards — prevent global svg/img rules from stretching icons/previews */
+.admin .loan-doc-card .loan-doc-download-icon,
+.admin .loan-doc-card .loan-doc-fallback-icon {
+  display: block;
+  flex-shrink: 0;
+  max-width: none;
+}
+
+.admin .loan-doc-card .loan-doc-download-icon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.admin .loan-doc-card .loan-doc-fallback-icon {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.admin .loan-doc-card .loan-doc-preview-image {
+  display: block;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100%;
+  max-height: 132px;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.admin .loan-doc-card .loan-doc-download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loan status action buttons — override global .admin button { color: inherit; background: transparent } */
+.admin .loan-status-actions .loan-status-btn {
+  background-image: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.admin .loan-status-actions .loan-status-btn-inactive {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-inactive:hover:not(:disabled) {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-active {
+  color: #ffffff !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-active--submitted {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-active--review {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-active--approved {
+  background-color: #0ea5e9 !important;
+  border-color: #0ea5e9 !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-active--rejected {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-delete {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.admin .loan-status-actions .loan-status-btn-delete:hover:not(:disabled) {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.admin .loan-status-btn-delete {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  background-image: none !important;
+}
+
+.admin .loan-status-btn-delete:hover:not(:disabled) {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* Loan applications list page */
+.admin .loan-applications-table {
+  border-collapse: collapse;
+}
+
+.admin .loan-applications-table thead tr {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin .loan-applications-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.admin .loan-applications-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.admin .loan-applications-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.admin .loan-applications-table__actions {
+  width: 200px;
+  text-align: right !important;
+}
+
+.admin .loan-list-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.admin .loan-list-actions .loan-status-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none !important;
+  white-space: nowrap;
+  background-image: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.admin .loan-list-btn-review {
+  background-color: #ffffff !important;
+  border: 1px solid #0ea5e9 !important;
+  color: #0284c7 !important;
+}
+
+.admin .loan-list-btn-review:hover {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+}
+
+.admin .loan-list-btn-delete {
+  background-color: #dc2626 !important;
+  border: 1px solid #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.admin .loan-list-btn-delete:hover:not(:disabled) {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.admin .loan-list-btn-delete:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin .loan-status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.admin .loan-status-pill--submitted {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.admin .loan-status-pill--review {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.admin .loan-status-pill--approved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.admin .loan-status-pill--rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin .loan-status-pill--draft {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.admin .loan-applications-filter {
+  min-width: 180px;
+}
+
+.admin .loan-applications-pagination .loan-pagination-btn {
+  min-width: 96px;
+  height: 38px;
+}
+
+/* Single-user loan review — status button grid */
+.admin .loan-status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin .loan-status-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .admin .loan-status-actions-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin .loan-status-actions-grid .loan-status-btn {
+  width: 100%;
+  min-height: 40px;
+  padding-inline: 12px;
+  white-space: nowrap;
+}
+
+.admin .loan-status-delete-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin .loan-status-delete-row .loan-status-btn-delete {
+  min-width: 180px;
+}
+
+/* Euro account page — override global .admin button/input/textarea reset */
+.admin .euroAccountPage .euro-account-btn {
+  background-image: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+}

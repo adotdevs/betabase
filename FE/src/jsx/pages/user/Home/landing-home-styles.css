@@ -1,0 +1,211 @@
+/* Landing Home Styles - Scoped to avoid conflicts with existing system CSS */
+
+.landing-home-wrapper {
+  font-family: 'Poppins', sans-serif;
+  width: 100%;
+  background: #16161C;
+  background-repeat: repeat;
+  position: relative;
+  z-index: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.landing-home-wrapper h1 {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 40px;
+}
+
+.landing-home-wrapper h2 {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+}
+
+.landing-home-wrapper h3 {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  color: #DDDDDD;
+}
+
+.landing-home-wrapper h4 {
+  color: #ffffff;
+}
+
+.landing-home-wrapper p {
+  color: #DDDDDD;
+}
+
+.landing-home-wrapper a {
+  color: #DDDDDD;
+}
+
+.landing-home-wrapper .animate-on-scroll {
+  opacity: 0;
+}
+
+.landing-home-wrapper .animate-on-scroll.scrolled {
+  opacity: 1;
+}
+
+.landing-home-wrapper .animate-on-scroll.scrolled .line {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.landing-home-wrapper .animate-on-scroll.scrolled .line:last-child {
+  animation-delay: 0.1s;
+}
+
+.landing-home-wrapper .animate-on-scroll.scrolled .word {
+  opacity: 0;
+  animation: slide-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-fill-mode: forwards;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media screen and (min-width: 576px) {
+  .landing-home-wrapper h1 {
+    font-size: 60px;
+    line-height: 70px;
+  }
+}
+
+/* Ensure background overlays are transparent or styled appropriately */
+.landing-home-wrapper .elementor-background-overlay {
+  background: transparent;
+}
+
+/* Style text elements within the wrapper */
+.landing-home-wrapper .elementor-widget-text-editor,
+.landing-home-wrapper .elementor-widget-heading,
+.landing-home-wrapper .textwidget {
+  color: #DDDDDD;
+}
+
+.landing-home-wrapper .elementor-heading-title {
+  color: #ffffff;
+}
+
+/* Style buttons to match landing theme */
+.landing-home-wrapper .elementor-button {
+  transition: 0.3s;
+}
+
+.landing-home-wrapper .elementor-button:hover {
+  opacity: 0.9;
+}
+
+/* Ensure footer text is styled */
+.landing-home-wrapper footer,
+.landing-home-wrapper #site-footer {
+  background: transparent;
+}
+
+.landing-home-wrapper .footer-copyright,
+.landing-home-wrapper .widget-title {
+  color: #DDDDDD;
+}
+
+/* Style navigation */
+.landing-home-wrapper nav {
+  background: transparent;
+}
+
+/* Ensure all text within sections maintains landing colors */
+.landing-home-wrapper .elementor-section,
+.landing-home-wrapper .elementor-column,
+.landing-home-wrapper .elementor-widget-wrap {
+  color: inherit;
+}
+
+/* Gradient backgrounds matching Landing page */
+.landing-home-wrapper .elementor-section[data-settings*="gradient"] .elementor-background-overlay,
+.landing-home-wrapper .elementor-section[data-settings*='"background_background":"gradient"'] .elementor-background-overlay {
+  background: linear-gradient(228deg, rgba(127, 244, 222, 0.95), rgba(56, 199, 225, 1));
+  opacity: 0.1;
+}
+
+/* Button gradient styles */
+.landing-home-wrapper .elementor-button.elementor-animation-float {
+  background: linear-gradient(139.48deg, #FEA63E 6.99%, #F03131 53.88%, #ED05AC 99.96%);
+  border: none;
+  color: #ffffff;
+}
+
+.landing-home-wrapper .elementor-button.elementor-animation-float:hover {
+  background: linear-gradient(139.48deg, #FB9E48 6.99%, #D84B43 53.88%, #971F49 99.96%);
+  opacity: 0.9;
+}
+
+/* Ensure sections with classic background maintain dark theme */
+.landing-home-wrapper .elementor-section[data-settings*='"background_background":"classic"'] {
+  background: transparent;
+}
+
+/* Style links to match landing theme */
+.landing-home-wrapper a:hover {
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+/* Ensure proper text contrast */
+.landing-home-wrapper .elementor-widget-text-editor div,
+.landing-home-wrapper .elementor-widget-container {
+  color: #DDDDDD;
+}
+
+/* Style headings within elementor widgets */
+.landing-home-wrapper .elementor-widget-heading h1,
+.landing-home-wrapper .elementor-widget-heading h2,
+.landing-home-wrapper .elementor-widget-heading h3,
+.landing-home-wrapper .elementor-widget-heading h4 {
+  color: #ffffff;
+}
+
+/* Ensure navigation maintains landing theme */
+.landing-home-wrapper .primary-menu,
+.landing-home-wrapper .navbar {
+  background: transparent !important;
+}
+
+/* Footer styling */
+.landing-home-wrapper #site-footer {
+  background: transparent;
+}
+
+.landing-home-wrapper .footer-bg {
+  background: transparent;
+}
+
+/* Ensure all text elements are visible */
+.landing-home-wrapper .elementor-toggle-title {
+  color: #DDDDDD;
+}
+
+.landing-home-wrapper .elementor-tab-content {
+  color: #DDDDDD;
+}
+
+/* Image box titles and descriptions */
+.landing-home-wrapper .elementor-image-box-title {
+  color: #ffffff;
+}
+
+.landing-home-wrapper .elementor-image-box-description {
+  color: #DDDDDD;
+}

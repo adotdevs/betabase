@@ -1,0 +1,121 @@
+/* Override global .admin button reset for ticket message actions */
+.admin .ticket-msg-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.admin .ticket-msg-action-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: auto !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  background-image: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none !important;
+}
+
+.admin .ticket-msg-action-btn .MuiSvgIcon-root {
+  font-size: 15px !important;
+}
+
+.admin .ticket-msg-action-btn--edit {
+  background-color: rgba(66, 165, 245, 0.18) !important;
+  border: 1px solid rgba(100, 181, 246, 0.55) !important;
+  color: #90caf9 !important;
+}
+
+.admin .ticket-msg-action-btn--edit:hover:not(:disabled) {
+  background-color: rgba(66, 165, 245, 0.32) !important;
+  color: #e3f2fd !important;
+}
+
+.admin .ticket-msg-action-btn--delete {
+  background-color: rgba(244, 67, 54, 0.16) !important;
+  border: 1px solid rgba(239, 83, 80, 0.55) !important;
+  color: #ff8a80 !important;
+}
+
+.admin .ticket-msg-action-btn--delete:hover:not(:disabled) {
+  background-color: rgba(244, 67, 54, 0.28) !important;
+  color: #ffcdd2 !important;
+}
+
+.admin .ticket-msg-action-btn--save {
+  background-color: rgba(76, 175, 80, 0.22) !important;
+  border: 1px solid rgba(129, 199, 132, 0.55) !important;
+  color: #a5d6a7 !important;
+}
+
+.admin .ticket-msg-action-btn--save:hover:not(:disabled) {
+  background-color: rgba(76, 175, 80, 0.35) !important;
+  color: #e8f5e9 !important;
+}
+
+.admin .ticket-msg-action-btn--cancel {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.admin .ticket-msg-action-btn--cancel:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.admin .ticket-msg-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed !important;
+}
+
+.admin .ticket-edit-history-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin .ticket-edit-history .ticket-msg-action-btn {
+  margin-top: 2px;
+}
+
+.ticket-compose-quill .ql-toolbar {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.ticket-compose-quill .ql-container {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 0 0 8px 8px !important;
+  color: #eee !important;
+  min-height: 120px;
+}
+
+.ticket-compose-quill .ql-editor {
+  color: #eee !important;
+  min-height: 120px;
+}
+
+.ticket-compose-quill .ql-editor.ql-blank::before {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.ticket-compose-quill .ql-toolbar button,
+.ticket-compose-quill .ql-toolbar .ql-picker-label {
+  color: #90caf9 !important;
+}
+
+.ticket-compose-quill .ql-toolbar button svg,
+.ticket-compose-quill .ql-toolbar .ql-picker-label svg {
+  stroke: #90caf9 !important;
+}
