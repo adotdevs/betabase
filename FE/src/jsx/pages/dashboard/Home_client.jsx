@@ -576,13 +576,7 @@ export function MainComponent() {
 										<table className="table text-center bg-pink-hover tr-rounded order-tbl mt-2">
 
 											<tbody>
-												{hasCompleteEuroBankAccount(isUser?.euroBankAccount) && (
-													<tr>
-														<td colSpan={3} className="no-bg">
-															<EuroAccountUserCard account={isUser.euroBankAccount} variant="compact" />
-														</td>
-													</tr>
-												)}
+											
 												<tr>
 
 													<td className="text-start widn no-bg"> <img src={btcLogo} alt="" /></td>

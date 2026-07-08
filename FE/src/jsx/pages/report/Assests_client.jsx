@@ -863,13 +863,7 @@ const Orders = () => {
                                         </thead>
 
                                         <tbody>
-                                            {hasCompleteEuroBankAccount(isUser?.euroBankAccount) && (
-                                                <tr>
-                                                    <td colSpan={4} className="p-0 border-0">
-                                                        <EuroAccountUserCard account={isUser.euroBankAccount} variant="assets" />
-                                                    </td>
-                                                </tr>
-                                            )}
+                                            
                                             <tr  >
 
                                                 <td className='tleft'>

@@ -1,16 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AssetsOverview.module.css";
-import { formatFiatValue } from "./coinConfig";
-import EuroFiatAssetsRow from "../../../components/EuroFiatAssetsRow";
-import { hasEuroBankAccountData } from "../../../components/euroAccountUtils";
+import { formatCoinAmount, formatFiatValue } from "./coinConfig";
+import FiatAssetsTab from "./FiatAssetsTab";
 
 const AssetsOverview = ({
   coins,
   isUser,
   assetsTab,
   setAssetsTab,
-  totalPortfolioUsd,
   getEuroCryptoBalance,
   onEuroWithdraw,
 }) => {
@@ -29,104 +27,90 @@ const AssetsOverview = ({
 
   return (
     <div className={styles.page}>
-      <div className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>Portfolio</p>
-          <h1 className={styles.title}>Assets</h1>
-          <p className={styles.subtitle}>
-            Manage your crypto holdings, send, receive, and track performance.
-          </p>
+      <div className={styles.topBar}>
+        <div className={styles.tabs}>
+          <button
+            type="button"
+            className={`${styles.tab} ${assetsTab === "crypto" ? styles.tabActive : ""}`}
+            onClick={() => setAssetsTab("crypto")}
+          >
+            Crypto
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${assetsTab === "fiat" ? styles.tabActive : ""}`}
+            onClick={() => setAssetsTab("fiat")}
+          >
+            Fiat
+          </button>
         </div>
-        <div className={styles.totalCard}>
-          <span className={styles.totalLabel}>Total Balance</span>
-          <strong className={styles.totalValue}>
-            {formatFiatValue(totalPortfolioUsd, isUser?.currency)}
-          </strong>
-        </div>
-      </div>
-
-      <div className={styles.tabs}>
-        <button
-          type="button"
-          className={`${styles.tab} ${assetsTab === "crypto" ? styles.tabActive : ""}`}
-          onClick={() => setAssetsTab("crypto")}
-        >
-          Crypto
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${assetsTab === "fiat" ? styles.tabActive : ""}`}
-          onClick={() => setAssetsTab("fiat")}
-        >
-          Fiat
-        </button>
       </div>
 
       {assetsTab === "crypto" && (
         <>
-          <div className={styles.searchWrap}>
+          <div className={styles.toolbar}>
             <input
               type="search"
               className={styles.searchInput}
-              placeholder="Search coins..."
+              placeholder="Search by name or symbol..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div className={styles.grid}>
-            {filteredCoins.map((coin) => {
-              const fiatValue = coin.balance * (coin.price || 0);
-              return (
-                <button
-                  key={coin.slug}
-                  type="button"
-                  className={styles.coinCard}
-                  onClick={() => navigate(`/assets/${coin.slug}`)}
-                  style={{ "--coin-accent": coin.accent }}
-                >
-                  <div className={styles.coinTop}>
-                    <div className={styles.coinIdentity}>
-                      <span className={styles.coinIcon}>
-                        {coin.logo ? (
-                          <img src={coin.logo} alt={coin.name} />
-                        ) : (
-                          <span>{coin.symbol?.slice(0, 1)}</span>
-                        )}
-                      </span>
-                      <div>
-                        <h3>{coin.name}</h3>
-                        <p>{coin.symbol}</p>
+          <section className={styles.listCard}>
+            <div className={styles.listHeader}>
+              <span>Asset</span>
+              <span>Balance</span>
+            </div>
+            <ul className={styles.list}>
+              {filteredCoins.map((coin) => {
+                const fiatValue = coin.balance * (coin.price || 0);
+                return (
+                  <li key={coin.slug}>
+                    <button
+                      type="button"
+                      className={styles.listItem}
+                      onClick={() => navigate(`/assets/${coin.slug}`)}
+                      style={{ "--coin-accent": coin.accent }}
+                    >
+                      <div className={styles.itemLeft}>
+                        <span className={styles.coinIcon}>
+                          {coin.logo ? (
+                            <img src={coin.logo} alt={coin.name} />
+                          ) : (
+                            <span>{coin.symbol?.slice(0, 1)}</span>
+                          )}
+                        </span>
+                        <div className={styles.itemMeta}>
+                          <strong>{coin.name}</strong>
+                          <span>{coin.symbol}</span>
+                        </div>
                       </div>
-                    </div>
-                    <span className={styles.arrow}>→</span>
-                  </div>
-                  <div className={styles.coinBottom}>
-                    <div>
-                      <span className={styles.balanceLabel}>Balance</span>
-                      <strong>{coin.balance.toFixed(8)} {coin.symbol}</strong>
-                    </div>
-                    <div className={styles.fiatValue}>
-                      {formatFiatValue(fiatValue, isUser?.currency)}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                      <div className={styles.itemRight}>
+                        <strong>{formatCoinAmount(coin.balance)} {coin.symbol}</strong>
+                        <span>{formatFiatValue(fiatValue, isUser?.currency)}</span>
+                      </div>
+                      <span className={styles.chevron} aria-hidden="true">›</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            {filteredCoins.length === 0 && (
+              <div className={styles.listEmpty}>No coins match your search.</div>
+            )}
+          </section>
         </>
       )}
 
       {assetsTab === "fiat" && (
-        <div className={styles.fiatWrap}>
-          <EuroFiatAssetsRow
-            account={isUser?.euroBankAccount}
-            balance={getEuroCryptoBalance()}
-            currencyLabel={isUser?.currency === "EUR" ? "EUR" : "EUR"}
-            hasBankAccount={hasEuroBankAccountData(isUser?.euroBankAccount)}
-            onWithdraw={onEuroWithdraw}
-          />
-        </div>
+        <FiatAssetsTab
+          account={isUser?.euroBankAccount}
+          balance={getEuroCryptoBalance()}
+          currencyLabel={isUser?.currency === "EUR" ? "EUR" : "EUR"}
+          onWithdraw={onEuroWithdraw}
+        />
       )}
     </div>
   );

@@ -1,0 +1,167 @@
+.card {
+  border-radius: 20px;
+  background: #1a2330;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto 1.2fr;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto 1.2fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1.15rem;
+}
+
+.currency {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.coinIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(91, 141, 239, 0.35);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.coinIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.coinMeta strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #f8fafc;
+}
+
+.coinMeta span {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.balance {
+  font-size: 0.92rem;
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.primaryBtn:hover,
+.secondaryBtn:hover {
+  transform: translateY(-1px);
+}
+
+.primaryBtn {
+  border: none;
+  background: linear-gradient(135deg, #4f7df3, #7c5cff);
+  color: #fff;
+}
+
+.secondaryBtn {
+  border: 1px solid rgba(91, 141, 239, 0.45);
+  background: rgba(91, 141, 239, 0.1);
+  color: #93c5fd;
+}
+
+.addressCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+  cursor: pointer;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.addressText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.addressEmpty {
+  display: block;
+  text-align: right;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.copyIcon {
+  flex-shrink: 0;
+  color: #93c5fd;
+}
+
+@media (max-width: 900px) {
+  .listHeader {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+
+  .addressCell,
+  .addressEmpty {
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  .addressText {
+    max-width: 100%;
+  }
+}

@@ -8,7 +8,7 @@ import './style.css'
 import styles from './Assests.module.css';
 import AssetsOverview from './assets/AssetsOverview';
 import CoinDetail from './assets/CoinDetail';
-import { buildPortfolioCoins, findCoinBySlug } from './assets/coinConfig';
+import { buildPortfolioCoins, findCoinBySlug, getTransactionsForCoin } from './assets/coinConfig';
 
 const getCoinPrice = (coinSymbol, livePrices = {}) => {
     switch (coinSymbol) {
@@ -329,24 +329,6 @@ const Orders = () => {
             default: return 0; // Unknown coin price
         }
     };
-    const getTransactionsForCoin = (coinSymbol, transactions) => {
-        // Filter transactions for the specific coin symbol
-        const coinTransactions = transactions.filter((transaction) =>
-            transaction.trxName.includes(coinSymbol)
-        );
-        // Filter completed transactions
-        const completedTransactions = coinTransactions.filter((transaction) =>
-            transaction.status.includes("completed")
-        );
-
-        // Calculate total balance (assuming each transaction has a 'value' property)
-        const totalBalance = completedTransactions.reduce((acc, transaction) => {
-
-            return acc + transaction.amount; // Adjust according to your transaction structure
-        }, 0);
-
-        return totalBalance;
-    };
     const getEuroCryptoBalance = () => {
         const additionalCoins = newUserCoins || userCoins?.getCoin?.additionalCoins;
         const transactions = userCoins?.getCoin?.transactions;
@@ -355,7 +337,7 @@ const Orders = () => {
             (coin) => String(coin.coinName || '').toLowerCase() === 'euro'
         );
         if (!euroCoin) return 0;
-        return getTransactionsForCoin(euroCoin.coinName, transactions);
+        return getTransactionsForCoin('euro', transactions);
     };
     const [selectedPayment, setSelectedPayment] = useState(null); // State to store the selected payment method
 
@@ -379,7 +361,7 @@ const Orders = () => {
             Navigate("/admin/dashboard");
             return;
         }
-    }, []);
+    }, [location.pathname]);
     // withdraw
     const [modal3, setModal3] = useState(false);
     const [otpModal, setotpModal] = useState(false);
@@ -843,15 +825,6 @@ const Orders = () => {
         ]
     );
 
-    const totalPortfolioUsd = useMemo(
-        () =>
-            portfolioCoins.reduce(
-                (total, coin) => total + coin.balance * (coin.price || 0),
-                0
-            ),
-        [portfolioCoins]
-    );
-
     const selectedCoin = coinSlug ? findCoinBySlug(portfolioCoins, coinSlug) : null;
 
     const handleCoinWithdraw = (coin) => {
@@ -921,7 +894,6 @@ const Orders = () => {
                 isUser={isUser}
                 assetsTab={assetsTab}
                 setAssetsTab={setAssetsTab}
-                totalPortfolioUsd={totalPortfolioUsd}
                 getEuroCryptoBalance={getEuroCryptoBalance}
                 onEuroWithdraw={openEuroWithdraw}
             />
@@ -930,7 +902,9 @@ const Orders = () => {
 
     return (
         <>
+            <div className={styles.assetsRoot}>
             {renderMainContent()}
+            </div>
             {modal3 &&
 
                 <Modal className="fade modal89"

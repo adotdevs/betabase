@@ -1,3 +1,27 @@
+.shell,
+.emptyState,
+.assetsRoot {
+  --assets-bg: #141b24;
+  --assets-surface: #1a2330;
+  --assets-surface-2: #212d3d;
+  --assets-border: rgba(255, 255, 255, 0.08);
+  --assets-text: #f1f5f9;
+  --assets-muted: #94a3b8;
+  --assets-accent: #5b8def;
+  --assets-accent-2: #8b5cf6;
+  --assets-success: #34d399;
+  --assets-radius: 16px;
+  --assets-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+.assetsRoot {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem 0 2rem;
+}
+
 .shell {
   min-height: 360px;
   display: flex;
@@ -5,9 +29,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  border-radius: 22px;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--assets-radius);
+  background: var(--assets-surface);
+  border: 1px solid var(--assets-border);
+  box-shadow: var(--assets-shadow);
 }
 
 .spinner {
@@ -15,18 +40,18 @@
   height: 42px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.12);
-  border-top-color: #3b82f6;
+  border-top-color: var(--assets-accent);
   animation: spin 0.8s linear infinite;
 }
 
 .shell h4 {
   margin: 0;
-  color: #f8fafc;
+  color: var(--assets-text);
 }
 
 .shell p {
   margin: 0;
-  color: #94a3b8;
+  color: var(--assets-muted);
   font-size: 0.88rem;
 }
 
@@ -39,20 +64,29 @@
   gap: 0.5rem;
   text-align: center;
   padding: 1.5rem;
+  border-radius: var(--assets-radius);
+  background: var(--assets-surface);
+  border: 1px solid var(--assets-border);
 }
 
 .emptyState h4 {
   margin: 0;
-  color: #f8fafc;
+  color: var(--assets-text);
 }
 
 .emptyState p {
   margin: 0;
-  color: #94a3b8;
+  color: var(--assets-muted);
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .assetsRoot {
+    padding: 0 0 1.5rem;
   }
 }

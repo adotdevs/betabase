@@ -574,11 +574,7 @@ const RightWalletBar = () => {
                                     </div>
 
                                     <div className="card-body p-3 py-0">
-                                        {hasCompleteEuroBankAccount(isUser?.euroBankAccount) && (
-                                            <div className="mb-3">
-                                                <EuroAccountUserCard account={isUser.euroBankAccount} variant="compact" />
-                                            </div>
-                                        )}
+                                
                                         <div className="table-responsive">
                                             <table className="table text-center bg-pink-hover tr-rounded order-tbl mt-2">
 

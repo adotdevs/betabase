@@ -41,6 +41,53 @@ export const CMC_IDS = {
   tron: "1958",
 };
 
+export const COINGECKO_IDS = {
+  bitcoin: "bitcoin",
+  ethereum: "ethereum",
+  tether: "tether",
+  bnb: "binancecoin",
+  xrp: "ripple",
+  dogecoin: "dogecoin",
+  solana: "solana",
+  toncoin: "the-open-network",
+  chainlink: "chainlink",
+  polkadot: "polkadot",
+  "near-protocol": "near",
+  "usd-coin": "usd-coin",
+  tron: "tron",
+};
+
+export const getCoinGeckoId = (slug) => COINGECKO_IDS[slug] || "";
+
+export const getAdditionalCoinPrice = (coinSymbol, livePrices = {}) => {
+  switch (String(coinSymbol || "").toLowerCase()) {
+    case "bnb":
+      return livePrices.bnb || 210.25;
+    case "xrp":
+      return livePrices.xrp || 0.5086;
+    case "doge":
+      return livePrices.doge || 0.1163;
+    case "eur":
+      return 1;
+    case "sol":
+      return livePrices.sol || 245.01;
+    case "ton":
+      return livePrices.ton || 5.76;
+    case "link":
+      return livePrices.link || 12.52;
+    case "dot":
+      return livePrices.dot || 4.76;
+    case "near":
+      return livePrices.near || 5.59;
+    case "usdc":
+      return livePrices.usdc || 0.99;
+    case "trx":
+      return livePrices.trx || 0.1531;
+    default:
+      return 0;
+  }
+};
+
 export const CORE_COINS = [
   {
     slug: "bitcoin",
@@ -77,11 +124,42 @@ export const slugFromTrxName = (trxName) =>
     .trim()
     .replace(/\s+/g, "-");
 
+export const getTransactionsForCoin = (coinSymbol, transactions = []) => {
+  const needle = String(coinSymbol || "").toLowerCase();
+  if (!needle) return 0;
+
+  const coinTransactions = transactions.filter((transaction) =>
+    String(transaction.trxName || "").toLowerCase().includes(needle)
+  );
+  const completedTransactions = coinTransactions.filter((transaction) =>
+    String(transaction.status || "").toLowerCase().includes("completed")
+  );
+
+  return completedTransactions.reduce(
+    (total, transaction) => total + parseFloat(transaction.amount || 0),
+    0
+  );
+};
+
 export const formatFiatValue = (amountUsd, currency = "USD") => {
+  const num = Number(amountUsd);
+  const safe = Number.isFinite(num) ? num : 0;
   if (currency === "EUR") {
-    return `${(amountUsd * 0.92).toFixed(2)} EUR`;
+    return `${(safe * 0.92).toFixed(2)} EUR`;
   }
-  return `${amountUsd.toFixed(2)} USD`;
+  return `${safe.toFixed(2)} USD`;
+};
+
+export const formatCoinAmount = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "0.00";
+  return num.toFixed(2);
+};
+
+export const formatLivePrice = (price) => {
+  const num = Number(price);
+  if (!Number.isFinite(num)) return "0.00";
+  return num.toFixed(2);
 };
 
 export const buildPortfolioCoins = ({
@@ -148,7 +226,7 @@ export const buildPortfolioCoins = ({
         logo: coinLogos[trxName],
         cmcId: CMC_IDS[trxName] || "",
         accent: "#3B82F6",
-        balance: getTransactionsForCoin(coin.coinName, transactions),
+        balance: getTransactionsForCoin(trxName, transactions),
         price: getCoinPrice(coin.coinSymbol),
         address: coin.tokenAddress || "",
         coinData: coin,

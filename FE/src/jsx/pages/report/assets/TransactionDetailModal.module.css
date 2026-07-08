@@ -1,0 +1,141 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: min(520px, 100%);
+  max-height: min(85vh, 720px);
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #1a2330, #121922);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem 1.25rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.header h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.15rem;
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.body {
+  padding: 0.85rem 1.25rem 1.25rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.valueWrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.value {
+  color: #e2e8f0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  border: 1px solid rgba(91, 141, 239, 0.35);
+  background: rgba(91, 141, 239, 0.12);
+  color: #93c5fd;
+  border-radius: 8px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.statusCompleted {
+  color: #6ee7b7;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusPending {
+  color: #fcd34d;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusFailed {
+  color: #fca5a5;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusUnknown {
+  text-transform: capitalize;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}

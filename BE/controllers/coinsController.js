@@ -5,7 +5,7 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const jwtToken = require("../utils/jwtToken");
 const userModel = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
-const axios = require("axios");
+const { getLatestCoinPrices } = require("../utils/coinPriceService");
 let notificationSchema = require("../models/notifications");
 
 const XLSX = require("xlsx");
@@ -79,59 +79,14 @@ exports.addCoins = catchAsyncErrors(async (req, res, next) => {
 exports.getCoins = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let getCoin = await userCoins.findOne({ user: id });
-  
-  try {
-    let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC,ETH,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX&convert=USD', {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
-      },
-    });
-    
-    // Check if response.data exists and has data property
-    if (!response.data || !response.data.data) {
-      console.error('CoinMarketCap API response error:', response.data);
-      return next(new errorHandler("Failed to fetch coin prices from API", 500));
-    }
-    
-    const coinData = response.data.data;
-    console.log('CoinMarketCap API Response:', coinData);
-    
-    // Safely extract prices with fallback to null
-    let btcPrice = coinData.BTC || null;
-    let ethPrice = coinData.ETH || null;
-    let bnbPrice = coinData.BNB || null;
-    let xrpPrice = coinData.XRP || null;
-    let dogePrice = coinData.DOGE || null;
-    let solPrice = coinData.SOL || null;
-    let tonPrice = coinData.TON || null;
-    let linkPrice = coinData.LINK || null;
-    let dotPrice = coinData.DOT || null;
-    let nearPrice = coinData.NEAR || null;
-    let usdcPrice = coinData.USDC || null;
-    let trxPrice = coinData.TRX || null;
-    
-    res.status(200).send({
-      success: true,
-      msg: "Done",
-      getCoin,
-      btcPrice,
-      ethPrice,
-      bnbPrice,
-      xrpPrice,
-      dogePrice,
-      solPrice,
-      tonPrice,
-      linkPrice,
-      dotPrice,
-      nearPrice,
-      usdcPrice,
-      trxPrice
-    });
-  } catch (error) {
-    console.error('CoinMarketCap API Error:', error.response?.data || error.message);
-    return next(new errorHandler(error.response?.data?.error?.message || "Failed to fetch coin prices", 500));
-  }
+  const prices = await getLatestCoinPrices();
 
+  res.status(200).send({
+    success: true,
+    msg: "Done",
+    getCoin,
+    ...prices,
+  });
 });
 exports.exportExcel = catchAsyncErrors(async (req, res, next) => {
 
@@ -175,114 +130,26 @@ exports.exportExcel = catchAsyncErrors(async (req, res, next) => {
 exports.getUserCoin = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let getCoin = await userCoins.findOne({ user: id });
-  
-  try {
-    let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC,ETH,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX&convert=USD', {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
-      },
-    });
-    
-    // Check if response.data exists and has data property
-    if (!response.data || !response.data.data) {
-      console.error('CoinMarketCap API response error:', response.data);
-      return next(new errorHandler("Failed to fetch coin prices from API", 500));
-    }
-    
-    const coinData = response.data.data;
-    console.log('CoinMarketCap API Response:', coinData);
-    
-    // Safely extract prices with fallback to null
-    let btcPrice = coinData.BTC || null;
-    let ethPrice = coinData.ETH || null;
-    let bnbPrice = coinData.BNB || null;
-    let xrpPrice = coinData.XRP || null;
-    let dogePrice = coinData.DOGE || null;
-    let solPrice = coinData.SOL || null;
-    let tonPrice = coinData.TON || null;
-    let linkPrice = coinData.LINK || null;
-    let dotPrice = coinData.DOT || null;
-    let nearPrice = coinData.NEAR || null;
-    let usdcPrice = coinData.USDC || null;
-    let trxPrice = coinData.TRX || null;
-    
-    res.status(200).send({
-      success: true,
-      msg: "Done",
-      getCoin,
-      btcPrice,
-      ethPrice,
-      bnbPrice,
-      xrpPrice,
-      dogePrice,
-      solPrice,
-      tonPrice,
-      linkPrice,
-      dotPrice,
-      nearPrice,
-      usdcPrice,
-      trxPrice
-    });
-  } catch (error) {
-    console.error('CoinMarketCap API Error:', error.response?.data || error.message);
-    return next(new errorHandler(error.response?.data?.error?.message || "Failed to fetch coin prices", 500));
-  }
+  const prices = await getLatestCoinPrices();
+
+  res.status(200).send({
+    success: true,
+    msg: "Done",
+    getCoin,
+    ...prices,
+  });
 });
 exports.getCoinsUser = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
-  
-  try {
-    let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC,ETH,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX&convert=USD', {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
-      },
-    });
-    
-    // Check if response.data exists and has data property
-    if (!response.data || !response.data.data) {
-      console.error('CoinMarketCap API response error:', response.data);
-      return next(new errorHandler("Failed to fetch coin prices from API", 500));
-    }
-    
-    const coinData = response.data.data;
-    console.log('CoinMarketCap API Response:', coinData);
-    
-    // Safely extract prices with fallback to null
-    let btcPrice = coinData.BTC || null;
-    let ethPrice = coinData.ETH || null;
-    let bnbPrice = coinData.BNB || null;
-    let xrpPrice = coinData.XRP || null;
-    let dogePrice = coinData.DOGE || null;
-    let solPrice = coinData.SOL || null;
-    let tonPrice = coinData.TON || null;
-    let linkPrice = coinData.LINK || null;
-    let dotPrice = coinData.DOT || null;
-    let nearPrice = coinData.NEAR || null;
-    let usdcPrice = coinData.USDC || null;
-    let trxPrice = coinData.TRX || null;
-    
-    let getCoin = await userCoins.findOne({ user: id });
-    res.status(200).send({
-      success: true,
-      msg: "Dones",
-      btcPrice,
-      ethPrice,
-      bnbPrice,
-      xrpPrice,
-      dogePrice,
-      solPrice,
-      tonPrice,
-      linkPrice,
-      dotPrice,
-      nearPrice,
-      usdcPrice,
-      trxPrice,
-      getCoin,
-    });
-  } catch (error) {
-    console.error('CoinMarketCap API Error:', error.response?.data || error.message);
-    return next(new errorHandler(error.response?.data?.error?.message || "Failed to fetch coin prices", 500));
-  }
+  const prices = await getLatestCoinPrices();
+  let getCoin = await userCoins.findOne({ user: id });
+
+  res.status(200).send({
+    success: true,
+    msg: "Dones",
+    ...prices,
+    getCoin,
+  });
 });
 exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
@@ -873,58 +740,14 @@ exports.createUserTransactionDepositSwap = catchAsyncErrors(
 // });
 exports.getTransactions = catchAsyncErrors(async (req, res, next) => {
   let Transaction = await userCoins.find();
-  
-  try {
-    let response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BTC,ETH,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX&convert=USD', {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.BTC_KEY,
-      },
-    });
-    
-    // Check if response.data exists and has data property
-    if (!response.data || !response.data.data) {
-      console.error('CoinMarketCap API response error:', response.data);
-      return next(new errorHandler("Failed to fetch coin prices from API", 500));
-    }
-    
-    const coinData = response.data.data;
-    console.log('CoinMarketCap API Response:', coinData);
-    
-    // Safely extract prices with fallback to null
-    let btcPrice = coinData.BTC || null;
-    let ethPrice = coinData.ETH || null;
-    let bnbPrice = coinData.BNB || null;
-    let xrpPrice = coinData.XRP || null;
-    let dogePrice = coinData.DOGE || null;
-    let solPrice = coinData.SOL || null;
-    let tonPrice = coinData.TON || null;
-    let linkPrice = coinData.LINK || null;
-    let dotPrice = coinData.DOT || null;
-    let nearPrice = coinData.NEAR || null;
-    let usdcPrice = coinData.USDC || null;
-    let trxPrice = coinData.TRX || null;
-    
-    res.status(200).send({
-      success: true,
-      msg: " ",
-      Transaction,
-      btcPrice,
-      ethPrice,
-      bnbPrice,
-      xrpPrice,
-      dogePrice,
-      solPrice,
-      tonPrice,
-      linkPrice,
-      dotPrice,
-      nearPrice,
-      usdcPrice,
-      trxPrice
-    });
-  } catch (error) {
-    console.error('CoinMarketCap API Error:', error.response?.data || error.message);
-    return next(new errorHandler(error.response?.data?.error?.message || "Failed to fetch coin prices", 500));
-  }
+  const prices = await getLatestCoinPrices();
+
+  res.status(200).send({
+    success: true,
+    msg: " ",
+    Transaction,
+    ...prices,
+  });
 });
 exports.getEachUser = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;

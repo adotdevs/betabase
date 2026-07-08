@@ -87,18 +87,31 @@
 
 .addressBox {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.65rem;
   padding: 0.85rem;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0c1420;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.addressText {
+  flex: 1;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .addressBox code {
   flex: 1;
   font-size: 0.72rem;
-  color: #e2e8f0;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  padding: 0 !important;
   word-break: break-all;
 }
 
@@ -146,6 +159,10 @@
 .sendBody h3 {
   margin: 0 0 0.5rem;
   color: #f8fafc;
+}
+
+.sendBody strong {
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {

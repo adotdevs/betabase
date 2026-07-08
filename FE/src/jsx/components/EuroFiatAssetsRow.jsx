@@ -4,6 +4,7 @@ import Truncate from "react-truncate-inside/es";
 import EurIco from "../../assets/images/new/euro.svg";
 import EuroBankDetailsModal from "./EuroBankDetailsModal";
 import { hasEuroBankAccountData } from "./euroAccountUtils";
+import styles from "./EuroFiatAssetsRow.module.css";
 
 const CopyIcon = ({ success, light = false }) =>
   success ? (
@@ -67,7 +68,7 @@ const EuroFiatAssetsRow = ({
       .catch((err) => console.error("Failed to copy: ", err));
   };
 
-  const actionButtons = (
+  const bootstrapActionButtons = (
     <>
       <Button
         className="me-2"
@@ -91,9 +92,72 @@ const EuroFiatAssetsRow = ({
     </>
   );
 
+  const modernActionButtons = (
+    <div className={styles.actions}>
+      <button type="button" className={styles.primaryBtn} onClick={onWithdraw}>
+        Withdraw
+      </button>
+      {showBankDetails && (
+        <button type="button" className={styles.secondaryBtn} onClick={() => setAuthOpen(true)}>
+          Authorization
+        </button>
+      )}
+    </div>
+  );
+
+  const addressContent = showBankDetails ? (
+    <div
+      className={styles.addressCell}
+      style={{ cursor: displayAddress ? "pointer" : "default" }}
+      onClick={handleCopyClick}
+      role={displayAddress ? "button" : undefined}
+      tabIndex={displayAddress ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (displayAddress && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          handleCopyClick();
+        }
+      }}
+    >
+      <span className={styles.addressText}>
+        <Truncate offset={6} text={displayAddress || "—"} width="180" />
+      </span>
+      {displayAddress && (
+        <span className={styles.copyIcon}>
+          <CopyIcon success={copySuccess} light />
+        </span>
+      )}
+    </div>
+  ) : (
+    <span className={styles.addressEmpty}>—</span>
+  );
+
   return (
     <>
-      {variant === "home" ? (
+      {variant === "modern" ? (
+        <section className={styles.card}>
+          <div className={styles.listHeader}>
+            <span>Currency</span>
+            <span>Balance</span>
+            <span>Withdraw</span>
+            <span>Address</span>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.currency}>
+              <span className={styles.coinIcon}>
+                <img src={EurIco} alt="Euro" />
+              </span>
+              <div className={styles.coinMeta}>
+                <strong>Euro</strong>
+                <span>{currencyLabel}</span>
+              </div>
+            </div>
+            <div className={styles.balance}>{formattedBalance}</div>
+            {modernActionButtons}
+            {addressContent}
+          </div>
+        </section>
+      ) : variant === "home" ? (
         <tr>
           <td className="text-start no-bg widn">
             <img style={{ borderRadius: "100%" }} src={EurIco} alt="Euro" />
@@ -102,7 +166,7 @@ const EuroFiatAssetsRow = ({
             <p style={{ margin: 0 }} className="txt sml">
               {formattedBalance}
             </p>
-            <div className="d-flex flex-wrap gap-2 mt-2 justify-content-center">{actionButtons}</div>
+            <div className="d-flex flex-wrap gap-2 mt-2 justify-content-center">{bootstrapActionButtons}</div>
           </td>
           <td
             className="text-end no-bg"
@@ -121,7 +185,7 @@ const EuroFiatAssetsRow = ({
             </span>
           </td>
           <td className="fs-14 font-w400">{formattedBalance}</td>
-          <td>{actionButtons}</td>
+          <td>{bootstrapActionButtons}</td>
           <td>
             {showBankDetails ? (
               <p className="jas d-flex" disabled="false">

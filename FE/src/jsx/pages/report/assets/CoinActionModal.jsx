@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import styles from "./CoinActionModal.module.css";
+import { formatCoinAmount } from "./coinConfig";
 
 const CoinActionModal = ({ open, mode, coin, onClose, onSend }) => {
   const [copied, setCopied] = useState(false);
 
   if (!open || !coin) return null;
+
+  const hasAddress = Boolean(String(coin.address || "").trim());
+  if (mode === "receive" && !hasAddress) return null;
 
   const handleCopy = async () => {
     if (!coin.address) return;
@@ -34,17 +38,13 @@ const CoinActionModal = ({ open, mode, coin, onClose, onSend }) => {
         {mode === "receive" ? (
           <div className={styles.receiveBody}>
             <div className={styles.qrWrap}>
-              {coin.address ? (
-                <QRCodeSVG value={coin.address} size={200} bgColor="#ffffff" fgColor="#0f172a" level="M" />
-              ) : (
-                <div className={styles.qrFallback}>No address available</div>
-              )}
+              <QRCodeSVG value={coin.address} size={200} bgColor="#ffffff" fgColor="#0f172a" level="M" />
             </div>
             <p className={styles.helperText}>
               Scan this QR code or copy your {coin.symbol} wallet address below.
             </p>
             <div className={styles.addressBox}>
-              <code>{coin.address || "Address not available"}</code>
+              <span className={styles.addressText}>{coin.address}</span>
               <button type="button" className={styles.copyBtn} onClick={handleCopy}>
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -56,7 +56,7 @@ const CoinActionModal = ({ open, mode, coin, onClose, onSend }) => {
             <h3>Withdraw {coin.symbol}</h3>
             <p className={styles.helperText}>
               You will continue in the secure withdrawal flow. Available balance:{" "}
-              <strong>{coin.balance.toFixed(8)} {coin.symbol}</strong>
+              <strong>{formatCoinAmount(coin.balance)} {coin.symbol}</strong>
             </p>
             <button type="button" className={styles.primaryBtn} onClick={onSend}>
               Continue to Withdraw
