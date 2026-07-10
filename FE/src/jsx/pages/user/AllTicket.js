@@ -14,6 +14,12 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import { getIndivTicketApi, updateMessageApi, editTicketMessageApi } from '../../../Api/Service';
 import { messageContainsHtml } from '../../../utils/emailTemplateUtils';
 import { toast } from 'react-toastify';
+import {
+  TicketAttachmentInput,
+  TicketMessageAttachments,
+  TicketEditAttachments,
+  appendTicketAttachments,
+} from '../../components/tickets/TicketAttachments';
 
 const USER_MESSAGE_EDIT_WINDOW_MS = 15 * 60 * 1000;
 
@@ -37,8 +43,10 @@ const AllTicket = () => {
     let { ticketId } = useParams()
     const [messages, setMessages] = useState([]); // New state for messages
     const [newMessage, setNewMessage] = useState("");
+    const [replyAttachments, setReplyAttachments] = useState([]);
     const [editingMessageId, setEditingMessageId] = useState(null);
     const [editingText, setEditingText] = useState("");
+    const [editingRemovedAttachmentIndexes, setEditingRemovedAttachmentIndexes] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
     const [, setEditTick] = useState(0);
 
@@ -104,6 +112,9 @@ const AllTicket = () => {
         }
     };
     const renderMessageContent = (description) => {
+        const text = String(description || "").trim();
+        if (!text || text === "(Attachment)") return null;
+
         if (messageContainsHtml(description)) {
             return (
                 <div
@@ -141,27 +152,27 @@ const AllTicket = () => {
         }
     };
     const handleSendMessage = async () => {
-        if (!newMessage.trim()) {
-            toast.error("Message cannot be empty");
+        if (!newMessage.trim() && replyAttachments.length === 0) {
+            toast.error("Add a message or at least one attachment");
             return;
         }
 
         try {
             setIsDisable(true)
-            const messageData = {
-                status: "open",
-                userId: authUser().user._id,
-                ticketId,
-                sender: "user",
-                description: newMessage
-            };
+            const formData = new FormData();
+            formData.append("status", "open");
+            formData.append("userId", authUser().user._id);
+            formData.append("ticketId", ticketId);
+            formData.append("sender", "user");
+            formData.append("description", newMessage.trim());
+            appendTicketAttachments(formData, replyAttachments);
 
-            const response = await updateMessageApi(messageData); // Make the API call
+            const response = await updateMessageApi(formData);
 
             if (response.success) {
                 toast.success("Ticket updated successfully!");
-                // Update messages array
-                setNewMessage(""); // Clear the textarea
+                setNewMessage("");
+                setReplyAttachments([]);
                 getTickets()
             } else {
                 toast.error(response.msg);
@@ -180,24 +191,36 @@ const AllTicket = () => {
             return;
         }
         setEditingMessageId(message._id);
-        setEditingText(message.description);
+        setEditingText(message.description === "(Attachment)" ? "" : message.description);
+        setEditingRemovedAttachmentIndexes([]);
     };
 
     const handleCancelEdit = () => {
         setEditingMessageId(null);
         setEditingText("");
+        setEditingRemovedAttachmentIndexes([]);
     };
 
-    const handleSaveEdit = async (messageId) => {
-        if (!editingText.trim()) {
+    const handleRemoveEditAttachment = (index) => {
+        setEditingRemovedAttachmentIndexes((prev) =>
+            prev.includes(index) ? prev : [...prev, index]
+        );
+    };
+
+    const handleSaveEdit = async (message) => {
+        const remainingAttachments =
+            (message.attachments?.length || 0) - editingRemovedAttachmentIndexes.length;
+
+        if (!editingText.trim() && remainingAttachments <= 0) {
             toast.error("Message cannot be empty");
             return;
         }
         try {
             setActionLoading(true);
             const userId = authUser().user._id;
-            const response = await editTicketMessageApi(userId, ticketId, messageId, {
+            const response = await editTicketMessageApi(userId, ticketId, message._id, {
                 description: editingText.trim(),
+                removedAttachmentIndexes: editingRemovedAttachmentIndexes,
             });
             if (response.success) {
                 toast.success("Message updated");
@@ -288,10 +311,16 @@ const AllTicket = () => {
                                                 value={editingText}
                                                 onChange={(e) => setEditingText(e.target.value)}
                                             />
+                                            <TicketEditAttachments
+                                                attachments={message.attachments}
+                                                removedIndexes={editingRemovedAttachmentIndexes}
+                                                onRemove={handleRemoveEditAttachment}
+                                                disabled={actionLoading}
+                                            />
                                             <button
                                                 type="button"
                                                 className="ticket-user-action-btn ticket-user-action-btn--save me-2"
-                                                onClick={() => handleSaveEdit(message._id)}
+                                                onClick={() => handleSaveEdit(message)}
                                                 disabled={actionLoading}
                                             >
                                                 Save
@@ -306,7 +335,15 @@ const AllTicket = () => {
                                             </button>
                                         </div>
                                     ) : (
-                                        renderMessageContent(message.description)
+                                        <>
+                                            {renderMessageContent(message.description)}
+                                            <TicketMessageAttachments
+                                                attachments={message.attachments}
+                                                userId={authUser().user._id}
+                                                ticketId={ticketId}
+                                                messageId={message._id}
+                                            />
+                                        </>
                                     )}
                                     <p className="card-text mb-0">
                                         <small className="ticket-msg-time">{formatDate(message.createdAt)}</small>
@@ -335,7 +372,12 @@ const AllTicket = () => {
                                     placeholder="Type your message here..."
                                 />
                             </div>
-                            <button disabled={isDisable} onClick={handleSendMessage} className="btn btn-primary">
+                            <TicketAttachmentInput
+                                files={replyAttachments}
+                                onChange={setReplyAttachments}
+                                disabled={isDisable}
+                            />
+                            <button disabled={isDisable} onClick={handleSendMessage} className="btn btn-primary mt-3">
                                 {isDisable ? (
                                     <>
                                         <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" /> Submitting...

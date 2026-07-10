@@ -857,7 +857,7 @@ const Orders = () => {
             if (response.success) {
                 toast.success(response.msg);
                 getCoins(authUser().user);
-            } else {
+                                                        } else {
                 toast.error(response.msg || "Unable to request activation");
             }
         } catch (error) {
@@ -874,7 +874,7 @@ const Orders = () => {
                     <div className={styles.spinner} />
                     <h4>Loading Assets...</h4>
                     <p>Please wait while we load your portfolio.</p>
-                </div>
+                                                    </div>
             );
         }
 
@@ -883,19 +883,19 @@ const Orders = () => {
                 <div className={styles.emptyState}>
                     <h4>No Assets found!</h4>
                     <p>Your wallet assets will appear here once available.</p>
-                </div>
+                                                    </div>
             );
         }
 
         if (coinSlug && !selectedCoin) {
-            return (
+                                                    return (
                 <div className={styles.emptyState}>
                     <h4>Asset not found</h4>
                     <p>The selected coin is not available in your wallet.</p>
                     <Button variant="primary" onClick={() => Navigate("/assets")}>
                         Back to Assets
-                    </Button>
-                </div>
+                                                                    </Button>
+                                                                    </div>
             );
         }
 

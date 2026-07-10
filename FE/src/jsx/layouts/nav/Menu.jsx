@@ -379,13 +379,7 @@ const useMenuList = () => {
             ]
             : [])
         ,
-        {
-            title: 'Edit Profile',
-            classsChange: 'mm-active',
-            to: '/edit-profile',
-            iconStyle: <i className="material-symbols-outlined">apps_outage</i>,
-
-        },
+       
         ...(Array.isArray(Links) && Links[3]?.enabled
             ? [
                 {

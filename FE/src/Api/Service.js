@@ -180,6 +180,9 @@ export const deletePaymentApi = (id, pId) => {
   return getApi(`deletePayment/${id}/${pId}`);
 };
 export const createTicketApi = (data) => {
+  if (data instanceof FormData) {
+    return postFormApi(`createTicket`, data);
+  }
   return postApi(`createTicket`, data);
 };
 export const getUserTicketsApi = (id) => {
@@ -193,6 +196,9 @@ export const adminTicketsApi = (params = {}) => {
   return getApi(`admin/tickets${queryString ? `?${queryString}` : ''}`);
 };
 export const updateMessageApi = (ticketData) => {
+  if (ticketData instanceof FormData) {
+    return patchFormApi(`updateMessage`, ticketData);
+  }
   return patchApi(`updateMessage`, ticketData);
 };
 export const updateTicketStatusApi = (data) => {
@@ -203,6 +209,13 @@ export const editTicketMessageApi = (userId, ticketId, messageId, data) => {
 };
 export const deleteTicketMessageApi = (userId, ticketId, messageId) => {
   return deleteApi(`ticketMessage/${userId}/${ticketId}/${messageId}`);
+};
+export const getTicketAttachmentApi = (userId, ticketId, messageId, attachmentIndex) => {
+  return getBlobApi(
+    `ticketAttachment/${userId}/${ticketId}/${messageId}/${attachmentIndex}`,
+    {},
+    "application/pdf"
+  );
 };
 export const getTicketEmailTemplatesApi = () => getApi(`ticket-email-templates`);
 export const createTicketEmailTemplateApi = (data) => postApi(`ticket-email-templates`, data);

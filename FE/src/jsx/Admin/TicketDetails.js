@@ -15,6 +15,12 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './TicketDetails.css';
 import {
+  TicketAttachmentInput,
+  TicketMessageAttachments,
+  TicketEditAttachments,
+  appendTicketAttachments,
+} from '../components/tickets/TicketAttachments';
+import {
   Box,
   Card,
   CardContent,
@@ -59,11 +65,13 @@ const AllTicket = () => {
     const [messages, setMessages] = useState([]);
     const [status, setStatus] = useState("");
     const [newMessage, setNewMessage] = useState("");
+    const [replyAttachments, setReplyAttachments] = useState([]);
     const [TicketUser, setTicketUser] = useState("");
     const [Active, setActive] = useState(false);
     const [canChangeTicketStatus, setCanChangeTicketStatus] = useState(true);
     const [editingMessageId, setEditingMessageId] = useState(null);
     const [editingText, setEditingText] = useState("");
+    const [editingRemovedAttachmentIndexes, setEditingRemovedAttachmentIndexes] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
     const [openHistoryIds, setOpenHistoryIds] = useState({});
     const [templatesDialogOpen, setTemplatesDialogOpen] = useState(false);
@@ -245,26 +253,27 @@ const AllTicket = () => {
         }
     };
     const handleSendMessage = async () => {
-        if (isEmptyRichText(newMessage)) {
-            toast.error("Message cannot be empty");
+        if (isEmptyRichText(newMessage) && replyAttachments.length === 0) {
+            toast.error("Add a message or at least one attachment");
             return;
         }
         const ticketStatus = status || Ticket.status;
         try {
             setIsDisable(true)
-            const messageData = {
-                status: ticketStatus,
-                userId: id,
-                ticketId,
-                sender: "admin",
-                description: newMessage
-            };
+            const formData = new FormData();
+            formData.append("status", ticketStatus);
+            formData.append("userId", id);
+            formData.append("ticketId", ticketId);
+            formData.append("sender", "admin");
+            formData.append("description", newMessage);
+            appendTicketAttachments(formData, replyAttachments);
 
-            const response = await updateMessageApi(messageData);
+            const response = await updateMessageApi(formData);
 
             if (response.success) {
                 toast.success("Ticket updated successfully!");
                 setNewMessage("");
+                setReplyAttachments([]);
                 setStatus(ticketStatus);
                 setTimeout(() => {
                     getTickets(false);
@@ -310,23 +319,35 @@ const AllTicket = () => {
 
     const handleStartEdit = (message) => {
         setEditingMessageId(message._id);
-        setEditingText(message.description);
+        setEditingText(message.description === "(Attachment)" ? "" : message.description);
+        setEditingRemovedAttachmentIndexes([]);
     };
 
     const handleCancelEdit = () => {
         setEditingMessageId(null);
         setEditingText("");
+        setEditingRemovedAttachmentIndexes([]);
     };
 
-    const handleSaveEdit = async (messageId) => {
-        if (isEmptyRichText(editingText)) {
+    const handleRemoveEditAttachment = (index) => {
+        setEditingRemovedAttachmentIndexes((prev) =>
+            prev.includes(index) ? prev : [...prev, index]
+        );
+    };
+
+    const handleSaveEdit = async (message) => {
+        const remainingAttachments =
+            (message.attachments?.length || 0) - editingRemovedAttachmentIndexes.length;
+
+        if (isEmptyRichText(editingText) && remainingAttachments <= 0) {
             toast.error("Message cannot be empty");
             return;
         }
         try {
             setActionLoading(true);
-            const response = await editTicketMessageApi(id, ticketId, messageId, {
+            const response = await editTicketMessageApi(id, ticketId, message._id, {
                 description: editingText.trim(),
+                removedAttachmentIndexes: editingRemovedAttachmentIndexes,
             });
             if (response.success) {
                 toast.success("Message updated");
@@ -544,11 +565,17 @@ const AllTicket = () => {
                                                                                     }}
                                                                                 />
                                                                             </Box>
+                                                                            <TicketEditAttachments
+                                                                                attachments={message.attachments}
+                                                                                removedIndexes={editingRemovedAttachmentIndexes}
+                                                                                onRemove={handleRemoveEditAttachment}
+                                                                                disabled={actionLoading}
+                                                                            />
                                                                             <Stack direction="row" spacing={1} className="ticket-msg-actions">
                                                                                 <Button
                                                                                     size="small"
                                                                                     className="ticket-msg-action-btn ticket-msg-action-btn--save"
-                                                                                    onClick={() => handleSaveEdit(message._id)}
+                                                                                    onClick={() => handleSaveEdit(message)}
                                                                                     disabled={actionLoading}
                                                                                     startIcon={<CheckIcon />}
                                                                                 >
@@ -565,30 +592,40 @@ const AllTicket = () => {
                                                                                 </Button>
                                                                             </Stack>
                                                                         </Box>
-                                                                    ) : messageContainsHtml(message.description) ? (
-                                                                        <Box
-                                                                            className="ticket-message-html"
-                                                                            sx={{
-                                                                                color: 'rgba(255, 255, 255, 0.9)',
-                                                                                mb: 2,
-                                                                                lineHeight: 1.6,
-                                                                                '& p': { margin: '0 0 8px' },
-                                                                                '& ul, & ol': { pl: 2.5, mb: 1 },
-                                                                            }}
-                                                                            dangerouslySetInnerHTML={{ __html: message.description }}
-                                                                        />
                                                                     ) : (
-                                                                        <Typography 
-                                                                            variant="body1" 
-                                                                            sx={{ 
-                                                                                color: 'rgba(255, 255, 255, 0.9)', 
-                                                                                whiteSpace: 'pre-wrap',
-                                                                                mb: 2,
-                                                                                lineHeight: 1.6
-                                                                            }}
-                                                                        >
-                                                                            {message.description}
-                                                                        </Typography>
+                                                                        <>
+                                                                            {messageContainsHtml(message.description) ? (
+                                                                                <Box
+                                                                                    className="ticket-message-html"
+                                                                                    sx={{
+                                                                                        color: 'rgba(255, 255, 255, 0.9)',
+                                                                                        mb: 2,
+                                                                                        lineHeight: 1.6,
+                                                                                        '& p': { margin: '0 0 8px' },
+                                                                                        '& ul, & ol': { pl: 2.5, mb: 1 },
+                                                                                    }}
+                                                                                    dangerouslySetInnerHTML={{ __html: message.description }}
+                                                                                />
+                                                                            ) : String(message.description || "").trim() && String(message.description).trim() !== "(Attachment)" ? (
+                                                                                <Typography 
+                                                                                    variant="body1" 
+                                                                                    sx={{ 
+                                                                                        color: 'rgba(255, 255, 255, 0.9)', 
+                                                                                        whiteSpace: 'pre-wrap',
+                                                                                        mb: 2,
+                                                                                        lineHeight: 1.6
+                                                                                    }}
+                                                                                >
+                                                                                    {message.description}
+                                                                                </Typography>
+                                                                            ) : null}
+                                                                            <TicketMessageAttachments
+                                                                                attachments={message.attachments}
+                                                                                userId={id}
+                                                                                ticketId={ticketId}
+                                                                                messageId={message._id}
+                                                                            />
+                                                                        </>
                                                                     )}
                                                                     <Typography variant="caption" sx={{ color: 'grey.400' }}>
                                                                         {formatDate(message.createdAt)}
@@ -737,6 +774,14 @@ const AllTicket = () => {
                                                 </FormControl>
                                             )}
                                             </Stack>
+
+                                            <Box sx={{ mb: 2 }}>
+                                                <TicketAttachmentInput
+                                                    files={replyAttachments}
+                                                    onChange={setReplyAttachments}
+                                                    disabled={isDisable}
+                                                />
+                                            </Box>
 
                                             <Button
                                                 fullWidth

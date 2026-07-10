@@ -95,8 +95,16 @@ const Header = ({ onNote }) => {
     path = path.split("/");
     path = path[path.length - 1];
 
-    const pathtitle = window.location.pathname.split("/");
-    const name = pathtitle[pathtitle.length - 1].split("-");
+    const isRouteParamId = (segment = "") =>
+      /^[a-f0-9]{24}$/i.test(segment) || /^[0-9]+$/.test(segment);
+
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    let titleSegment = pathSegments[pathSegments.length - 1] || "dashboard";
+    if (isRouteParamId(titleSegment) && pathSegments.length > 1) {
+      titleSegment = pathSegments[pathSegments.length - 2];
+    }
+
+    const name = titleSegment.split("-");
     const filterName = name.length >= 3 ? name.filter((n, i) => i > 0) : name;
     const finalName = filterName.includes("app")
       ? filterName.filter((f) => f !== "app")

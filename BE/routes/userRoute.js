@@ -27,6 +27,7 @@ const {
   updateMessage,
   editTicketMessage,
   deleteTicketMessage,
+  downloadTicketAttachment,
   updateTicketStatus,
   adminTickets,
   getUserTickets, getIndivTicket, RegisterSubAdmin, addUserByEmail,
@@ -146,14 +147,17 @@ router.route("/addCard/:id").patch(isAuthorizedUser, checkWalletAccess, addCard)
 router.route("/sendEmail").post(isAuthorizedUser, checkWalletAccess, sendEmailCode);
 router.route("/userCryptoCard").post(isAuthorizedUser, checkWalletAccess, userCryptoCard);
 router.route("/deletePayment/:id/:pId").get(isAuthorizedUser, checkWalletAccess, deletePayment);
-router.route("/createTicket").post(isAuthorizedUser, checkWalletAccess, createTicket);
+router.route("/createTicket").post(isAuthorizedUser, checkWalletAccess, singleUpload, createTicket);
 router.route("/applyCreditCard").post(isAuthorizedUser, checkWalletAccess, applyCreditCard);
-router.route("/updateMessage").patch(isAuthorizedUser, checkWalletAccess, updateMessage);
+router.route("/updateMessage").patch(isAuthorizedUser, checkWalletAccess, singleUpload, updateMessage);
 router.route("/updateTicketStatus").patch(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), updateTicketStatus);
 router
   .route("/ticketMessage/:userId/:ticketId/:messageId")
   .patch(isAuthorizedUser, checkWalletAccess, editTicketMessage)
   .delete(isAuthorizedUser, checkWalletAccess, deleteTicketMessage);
+router
+  .route("/ticketAttachment/:userId/:ticketId/:messageId/:attachmentIndex")
+  .get(isAuthorizedUser, checkWalletAccess, downloadTicketAttachment);
 // router.route("/admin/tickets/:i/update-status").put(adminUpdateTicket);
 router.route("/admin/tickets").get(isAuthorizedUser, adminTickets);
 router.route("/getNotifications").get(isAuthorizedUser, checkWalletAccess, getNotifications);

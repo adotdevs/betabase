@@ -63,6 +63,7 @@ const {
   fetchCloudinaryPdfBuffer,
   isCloudinaryPdfUrl,
 } = require("../utils/cloudinaryKyc");
+const { uploadTicketAttachments } = require("../utils/cloudinaryTicket");
 exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
   const {
     firstName,
@@ -1330,10 +1331,10 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
 
 exports.createAccount = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
-  const { accountName, accountNumber, iban, accountNotes } = req.body;
+  const { accountName, accountNumber, iban, bicSwift, accountNotes } = req.body;
 
-  // Check if all required fields are provided
-  if (!accountName || !accountNumber || !iban || !accountNotes) {
+  // Only bank name is required; IBAN, account number, BIC/SWIFT, and notes are optional
+  if (!accountName) {
     return next(new errorHandler("Please fill all the required fields", 500));
   }
 
@@ -1349,6 +1350,7 @@ exports.createAccount = catchAsyncErrors(async (req, res, next) => {
               accountName,
               accountNumber,
               iban,
+              bicSwift,
               accountNotes,
             },
           },
@@ -1892,32 +1894,46 @@ const generateTicketId = async () => {
 exports.createTicket = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId, title, description, isAdmin } = req.body;
+    const isAdminFlag = isAdmin === true || isAdmin === "true";
 
-    // Validate input
-    if (!title || !description || !userId) {
-
-      return next(new errorHandler("Title and description are required", 400));
+    if (!title || !userId) {
+      return next(new errorHandler("Title and user are required", 400));
     }
+
+    const hasDescription = String(description || "").trim().length > 0;
+    const hasFiles = Array.isArray(req.files) && req.files.some((f) => f.fieldname === "attachments");
+
+    if (!hasDescription && !hasFiles) {
+      return next(new errorHandler("Description or at least one attachment is required", 400));
+    }
+
     const objectId = new mongoose.Types.ObjectId(userId);
     const signleUser = await UserModel.findById({ _id: objectId })
     if (!signleUser) {
       return next(new errorHandler("User not found", 404));
     }
     const ticketId = await generateTicketId();
-    // Create a new ticket object
+    let attachments = [];
+    try {
+      attachments = await uploadTicketAttachments(req.files, { userId, ticketId });
+    } catch (uploadError) {
+      return next(new errorHandler(uploadError.message, uploadError.statusCode || 500));
+    }
+
     const newTicket = new Ticket({
       user: userId,
       ticketId,
       title,
       status: 'open',
       ticketContent: [{
-        sender: isAdmin ? 'admin' : 'user', // Set to 'user' initially
-        description,
-        createdAt: Date.now() // Current timestamp
+        sender: isAdminFlag ? 'admin' : 'user',
+        description: String(description || "").trim() || "(Attachment)",
+        createdAt: Date.now(),
+        attachments,
       }]
     });
-    if (isAdmin === false) {
-      let checkNotification = await notificationSchema.create({
+    if (isAdminFlag === false) {
+      await notificationSchema.create({
         userId,
         ticketId,
         type: "ticket_message",
@@ -1927,12 +1943,10 @@ exports.createTicket = catchAsyncErrors(async (req, res, next) => {
         userName: `${signleUser.firstName} ${signleUser.lastName}`
       });
     }
-    // Save the ticket 
     await newTicket.save();
 
-    // Respond with the created ticket
     res.status(201).json({ success: true, ticket: newTicket });
-    if (isAdmin) {
+    if (isAdminFlag) {
 
       let subject = `${process.env.WebName} Customer Support - Re: ${ticketId} `;
       let text = `Hi there,
@@ -2036,14 +2050,18 @@ exports.getIndivTicket = catchAsyncErrors(async (req, res, next) => {
 exports.updateMessage = catchAsyncErrors(async (req, res, next) => {
   const { status, userId, ticketId, description, sender } = req.body;
 
+  const hasDescription = String(description || "").trim().length > 0;
+  const hasFiles = Array.isArray(req.files) && req.files.some((f) => f.fieldname === "attachments");
 
-  // Validate the input
-  if (!userId || !ticketId || !description || !sender) {
-    return next(new errorHandler("User ID, Ticket ID, message content, and sender are required.", 400));
+  if (!userId || !ticketId || !sender) {
+    return next(new errorHandler("User ID, Ticket ID, and sender are required.", 400));
+  }
+
+  if (!hasDescription && !hasFiles) {
+    return next(new errorHandler("Message content or at least one attachment is required.", 400));
   }
 
   try {
-    // Find the ticket by userId and ticketId
     const ticket = await Ticket.findOne({ ticketId: ticketId, user: userId });
 
     if (!ticket) {
@@ -2053,11 +2071,18 @@ exports.updateMessage = catchAsyncErrors(async (req, res, next) => {
       });
     }
 
-    // Create a new message object
+    let attachments = [];
+    try {
+      attachments = await uploadTicketAttachments(req.files, { userId, ticketId });
+    } catch (uploadError) {
+      return next(new errorHandler(uploadError.message, uploadError.statusCode || 500));
+    }
+
     const newMessage = {
-      description: description,
+      description: String(description || "").trim() || "(Attachment)",
       sender: sender,
       createdAt: new Date(),
+      attachments,
     };
 
     // Add the new message to the ticketContent array
@@ -2268,12 +2293,48 @@ const canEditTicketMessage = (reqUser, ticketUserId, message) => {
   return false;
 };
 
+const canAccessTicketResource = async (reqUser, ticketUserId) => {
+  if (reqUser.role === "user") {
+    return String(reqUser._id) === String(ticketUserId);
+  }
+
+  if (reqUser.role === "admin" || reqUser.role === "superadmin") {
+    return true;
+  }
+
+  if (reqUser.role === "subadmin") {
+    const user = await UserModel.findById(ticketUserId);
+    if (!user || user.role !== "user") {
+      return false;
+    }
+
+    return (
+      user.isShared === true ||
+      user.assignedSubAdmin?.toString() === reqUser._id.toString()
+    );
+  }
+
+  return false;
+};
+
 exports.editTicketMessage = catchAsyncErrors(async (req, res, next) => {
   const { userId, ticketId, messageId } = req.params;
-  const { description } = req.body;
+  const { description, removedAttachmentIndexes } = req.body;
 
-  if (!description || !description.trim()) {
-    return next(new errorHandler("Message content is required.", 400));
+  const parseRemovedIndexes = (value) => {
+    if (!value) return [];
+    const raw = typeof value === "string" ? JSON.parse(value) : value;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((entry) => parseInt(entry, 10))
+      .filter((entry) => !Number.isNaN(entry) && entry >= 0);
+  };
+
+  let removedIndexes = [];
+  try {
+    removedIndexes = parseRemovedIndexes(removedAttachmentIndexes);
+  } catch {
+    return next(new errorHandler("Invalid attachment removal data.", 400));
   }
 
   const ticket = await Ticket.findOne({ ticketId, user: userId });
@@ -2298,8 +2359,28 @@ exports.editTicketMessage = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
-  const trimmedDescription = description.trim();
-  if (trimmedDescription === message.description) {
+  const currentAttachments = Array.isArray(message.attachments) ? message.attachments : [];
+  const removedSet = new Set(removedIndexes);
+  const nextAttachments = currentAttachments.filter((_, index) => !removedSet.has(index));
+
+  if (removedIndexes.some((index) => index >= currentAttachments.length)) {
+    return next(new errorHandler("Invalid attachment index.", 400));
+  }
+
+  const trimmedDescription = String(description || "").trim();
+  const finalDescription =
+    trimmedDescription || (nextAttachments.length > 0 ? "(Attachment)" : "");
+
+  if (!finalDescription && nextAttachments.length === 0) {
+    return next(
+      new errorHandler("Message content or at least one attachment is required.", 400)
+    );
+  }
+
+  const descriptionChanged = finalDescription !== message.description;
+  const attachmentsChanged = removedSet.size > 0;
+
+  if (!descriptionChanged && !attachmentsChanged) {
     return next(new errorHandler("No changes were made to the message.", 400));
   }
 
@@ -2313,7 +2394,8 @@ exports.editTicketMessage = catchAsyncErrors(async (req, res, next) => {
     editedBy: req.user.role === "user" ? "user" : "admin",
   });
 
-  message.description = trimmedDescription;
+  message.description = finalDescription;
+  message.attachments = nextAttachments;
   message.editedAt = new Date();
   ticket.updatedAt = new Date();
 
@@ -2359,6 +2441,69 @@ exports.deleteTicketMessage = catchAsyncErrors(async (req, res, next) => {
     msg: "Message deleted successfully.",
     ticket,
   });
+});
+
+exports.downloadTicketAttachment = catchAsyncErrors(async (req, res, next) => {
+  const { userId, ticketId, messageId, attachmentIndex } = req.params;
+
+  if (!(await canAccessTicketResource(req.user, userId))) {
+    return next(new errorHandler("Access denied", 403));
+  }
+
+  const ticket = await Ticket.findOne({ ticketId, user: userId });
+
+  if (!ticket) {
+    return next(new errorHandler("Ticket not found.", 404));
+  }
+
+  const message = ticket.ticketContent.id(messageId);
+
+  if (!message) {
+    return next(new errorHandler("Message not found.", 404));
+  }
+
+  const index = parseInt(attachmentIndex, 10);
+  if (Number.isNaN(index) || index < 0) {
+    return next(new errorHandler("Invalid attachment index.", 400));
+  }
+
+  const attachment = message.attachments?.[index];
+
+  if (!attachment?.url) {
+    return next(new errorHandler("Attachment not found.", 404));
+  }
+
+  const attachmentIsPdf =
+    attachment.mimeType === "application/pdf" ||
+    isCloudinaryPdfUrl(attachment.url) ||
+    /\.pdf$/i.test(attachment.fileName || "");
+
+  if (!attachmentIsPdf) {
+    return next(new errorHandler("Only PDF attachments can be downloaded.", 400));
+  }
+
+  const safeName = String(attachment.fileName || `attachment-${index + 1}.pdf`)
+    .replace(/[^\w.\-() ]+/g, "_")
+    .replace(/^\.+/, "") || `attachment-${index + 1}.pdf`;
+
+  if (!isCloudinaryPdfUrl(attachment.url)) {
+    return res.redirect(normalizeCloudinaryPdfUrl(attachment.url) || attachment.url);
+  }
+
+  const pdfDocument = await fetchCloudinaryPdfBuffer(attachment.url);
+  if (!pdfDocument) {
+    return next(
+      new errorHandler(
+        "Failed to load PDF from Cloudinary. In Cloudinary Console go to Settings → Security and enable \"Allow delivery of PDF and ZIP files\", then try again.",
+        502
+      )
+    );
+  }
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${safeName}"`);
+  res.setHeader("Cache-Control", "private, max-age=3600");
+  res.send(pdfDocument.buffer);
 });
 
 // stocks

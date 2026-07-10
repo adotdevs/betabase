@@ -58,7 +58,25 @@ const ticketSchema = new mongoose.Schema({
         emailFailed: {
             type: Boolean,
             default: false
-        }
+        },
+        attachments: [{
+            url: {
+                type: String,
+                required: true
+            },
+            fileName: {
+                type: String,
+                default: ''
+            },
+            mimeType: {
+                type: String,
+                default: ''
+            },
+            uploadedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }]
     }],
     createdAt: {
         type: Date,

@@ -168,6 +168,7 @@ let userSchema = new mongoose.Schema({
         accountName: String,
         accountNumber: String,
         iban: String,
+        bicSwift: String,
         accountNotes: String,
         createdAt: {
           type: Date,

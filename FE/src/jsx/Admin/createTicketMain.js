@@ -1,43 +1,42 @@
-import React, { useContext, useEffect } from "react";
-import Nav from "../../jsx/layouts/nav/index.jsx";
-import RightWalletBar from "../layouts/nav/RightWalletBar_my.jsx";
-import Footer from "../../jsx/layouts/Footer.jsx";
-import { useSelector } from "react-redux";
-import { useAuthUser } from "react-auth-kit";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
 import CreateTicket from "./createTicket.js";
-import { ThemeContext } from "../../context/ThemeContext.jsx";
+import SideBar from "../layouts/AdminSidebar/Sidebar";
+import AdminHeader from "./adminHeader";
+
 const Supportpage = () => {
-  const { sidebariconHover, headWallet } = useContext(ThemeContext);
-  const sideMenu = useSelector((state) => state.sideMenu);
   const authUser = useAuthUser();
   const Navigate = useNavigate();
+  const [Active, setActive] = useState(false);
+
+  const toggleBar = () => setActive((prev) => !prev);
 
   useEffect(() => {
-    if (authUser().user.role === "user") {
+    const role = authUser()?.user?.role;
+    if (role === "user") {
       Navigate("/dashboard");
       return;
-    } else if (authUser().user.role === "admin") {
-      return;
+    }
+    if (!["admin", "superadmin", "subadmin"].includes(role)) {
+      Navigate("/login");
     }
   }, []);
+
   return (
-    <div
-      id="main-wrapper"
-      className={`show wallet-open ${headWallet ? "" : "active"} ${sidebariconHover ? "iconhover-toggle" : ""
-        } ${sideMenu ? "menu-toggle" : ""}`}
-    >
-      {/* <Nav /> */}
-      {/* <RightWalletBar /> */}
-      <div className="content-body new-bg-light">
-        <div
-          className="container-fluid"
-          style={{ minHeight: window.screen.height - 45 }}
-        >
-          <CreateTicket />
+    <div className="admin dark-new-ui">
+      <div className="bg-gray-900 min-h-screen">
+        <SideBar state={Active} toggle={toggleBar} />
+
+        <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+          <div className="mx-auto w-full max-w-4xl">
+            <AdminHeader toggle={toggleBar} pageName="Create Ticket" />
+            <div className="py-4 pb-8">
+              <CreateTicket />
+            </div>
+          </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

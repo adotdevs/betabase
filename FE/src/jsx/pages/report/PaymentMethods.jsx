@@ -112,6 +112,7 @@ const PaymentMethods = () => {
         accountName: "",
         accountNumber: "",
         iban: "",
+        bicSwift: "",
         accountNotes: "",
     });
     let handleTransactionId = (e) => {
@@ -153,17 +154,13 @@ const PaymentMethods = () => {
                 accountName: accountDetail.accountName,
                 accountNumber: accountDetail.accountNumber,
                 iban: accountDetail.iban,
+                bicSwift: accountDetail.bicSwift,
                 accountNotes: accountDetail.accountNotes,
             };
 
-            if (
-                !body.accountName ||
-                !body.accountNumber ||
-                !body.accountNotes ||
-                !body.iban
-            ) {
+            if (!body.accountName) {
                 toast.dismiss();
-                toast.error("Fill all the required fields");
+                toast.error("Bank name is required");
                 return;
             }
             const newAccount = await PaymentsApi(id, body);
@@ -174,6 +171,7 @@ const PaymentMethods = () => {
                     accountName: "",
                     accountNumber: "",
                     iban: "",
+                    bicSwift: "",
                     accountNotes: "",
                 });
                 toast.success(newAccount.msg);
@@ -446,8 +444,15 @@ const PaymentMethods = () => {
                                                                                         <p>
                                                                                             <b>   Bank IBAN:</b>
                                                                                             <br />
-                                                                                            {item.bank.iban}
+                                                                                            {item.bank.iban || "—"}
                                                                                         </p>{" "}
+                                                                                        {item.bank.bicSwift && (
+                                                                                            <p>
+                                                                                                <b>BIC / SWIFT Code:</b>
+                                                                                                <br />
+                                                                                                {item.bank.bicSwift}
+                                                                                            </p>
+                                                                                        )}
                                                                                     </>
                                                                                 ) : (
                                                                                     <>
@@ -599,6 +604,18 @@ const PaymentMethods = () => {
                                             />
                                         </div>
                                         <div className="form-group">
+                                            <label htmlFor="iban">IBAN <span className="text-muted"></span></label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="iban"
+                                                placeholder="Enter IBAN"
+                                                value={accountDetail.iban}
+                                                onChange={handleTransactionId}
+                                                name="iban"
+                                            />
+                                        </div>
+                                        <div className="form-group">
                                             <label htmlFor="accountNumber">Account Number</label>
                                             <input
                                                 type="number"
@@ -611,26 +628,30 @@ const PaymentMethods = () => {
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label htmlFor="iban">IBAN</label>
+                                            <label htmlFor="bicSwift">BIC / SWIFT Code</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                id="iban"
-                                                placeholder="Enter IBAN"
-                                                value={accountDetail.iban}
+                                                id="bicSwift"
+                                                placeholder="Enter BIC / SWIFT code"
+                                                value={accountDetail.bicSwift}
                                                 onChange={handleTransactionId}
-                                                name="iban"
+                                                name="bicSwift"
                                             />
                                         </div>
+                                       
                                         <div className="form-group">
                                             <label htmlFor="accountNotes">
-                                                * We take your privacy seriously. Bank-sensitive data undergoes thorough encryption procedures before being securely stored.
+                                                Notes <span className="text-muted">(optional)</span>
                                             </label>
+                                            <p className="text-muted mb-2" style={{ fontSize: "0.85rem" }}>
+                                                We take your privacy seriously. Bank-sensitive data undergoes thorough encryption procedures before being securely stored.
+                                            </p>
                                             <textarea
                                                 className="form-control"
                                                 id="accountNotes"
                                                 rows="3"
-                                                placeholder="Enter notes"
+                                                placeholder="Enter notes (optional)"
                                                 value={accountDetail.accountNotes}
                                                 onChange={handleTransactionId}
                                                 name="accountNotes"

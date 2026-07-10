@@ -11,6 +11,10 @@ import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner, Container } from 'react-bootstrap';
 import './style.css'
 import Truncate from 'react-truncate-inside/es';
+import {
+  TicketAttachmentInput,
+  appendTicketAttachments,
+} from "../../components/tickets/TicketAttachments";
 
 const CreateTicket = () => {
     const [Active, setActive] = useState(false);
@@ -31,6 +35,7 @@ const CreateTicket = () => {
     const [isDisable, setisDisable] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [attachments, setAttachments] = useState([]);
     const getsignUser = async () => {
         try {
             const formData = new FormData();
@@ -54,24 +59,25 @@ const CreateTicket = () => {
     const sendTicket = async (e) => {
         try {
             setisDisable(true);
-            let body = {
-                userId: authUser().user._id,
-                title: title,
-                description: description,
-                isAdmin: false
-            };
-            if (!title || !description) {
+            if (!title.trim()) {
                 toast.dismiss();
-                toast.error("Both the fields are required");
+                toast.error("Title is required");
                 return;
             }
-            // if (description.length < 20) {
-            //     toast.dismiss();
-            //     toast.error("Please provide a more detailed description");
-            //     return;
-            // }
+            if (!description.trim() && attachments.length === 0) {
+                toast.dismiss();
+                toast.error("Add a description or at least one attachment");
+                return;
+            }
 
-            const userCoins = await createTicketApi(body);
+            const formData = new FormData();
+            formData.append("userId", authUser().user._id);
+            formData.append("title", title.trim());
+            formData.append("description", description.trim());
+            formData.append("isAdmin", "false");
+            appendTicketAttachments(formData, attachments);
+
+            const userCoins = await createTicketApi(formData);
 
             if (userCoins.success) {
                 toast.success("Ticket created successfully");
@@ -161,6 +167,14 @@ const CreateTicket = () => {
                                             onChange={(e) => setDescription(e.target.value)}
                                             placeholder="Example: I'm trying to buy BTC with my credit card but I'm getting an error message."
                                             className="dark:bg-muted-900/75 new-bg-light dark:text-muted-200"
+                                        />
+                                    </Form.Group>
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className='text-white'>Attachments</Form.Label>
+                                        <TicketAttachmentInput
+                                            files={attachments}
+                                            onChange={setAttachments}
+                                            disabled={isDisable}
                                         />
                                     </Form.Group>
                                     <Button

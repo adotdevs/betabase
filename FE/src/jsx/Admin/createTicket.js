@@ -6,6 +6,10 @@ import { useAuthUser } from 'react-auth-kit';
 import { createTicketApi, getsignUserApi, getUserTicketsApi, sendTicketApi } from "../../Api/Service";
 import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner, Container } from 'react-bootstrap';
+import {
+  TicketAttachmentInput,
+  appendTicketAttachments,
+} from "../components/tickets/TicketAttachments";
 
 const CreateTicket = () => {
     const [Active, setActive] = useState(false);
@@ -27,28 +31,30 @@ const CreateTicket = () => {
     const [isDisable, setisDisable] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [attachments, setAttachments] = useState([]);
 
     const sendTicket = async (e) => {
         try {
             setisDisable(true);
-            let body = {
-                userId: param.id,
-                title: title,
-                description: description,
-                isAdmin: true
-            };
-            if (!title || !description) {
+            if (!title.trim()) {
                 toast.dismiss();
-                toast.error("Both the fields are required");
+                toast.error("Title is required");
                 return;
             }
-            // if (description.length < 20) {
-            //     toast.dismiss();
-            //     toast.error("Please provide a more detailed description");
-            //     return;
-            // }
+            if (!description.trim() && attachments.length === 0) {
+                toast.dismiss();
+                toast.error("Add a description or at least one attachment");
+                return;
+            }
 
-            const userCoins = await createTicketApi(body);
+            const formData = new FormData();
+            formData.append("userId", param.id);
+            formData.append("title", title.trim());
+            formData.append("description", description.trim());
+            formData.append("isAdmin", "true");
+            appendTicketAttachments(formData, attachments);
+
+            const userCoins = await createTicketApi(formData);
 
             if (userCoins.success) {
                 toast.success("Ticket created successfully");
@@ -71,11 +77,11 @@ const CreateTicket = () => {
 
     useEffect(() => {
         if (authUser().user.role === "user") {
-
             Navigate("/dashboard");
             return;
-        } else if (authUser().user.role === "admin") {
-            return;
+        }
+        if (!["admin", "superadmin", "subadmin"].includes(authUser().user.role)) {
+            Navigate("/login");
         }
     }, []);
     useEffect(() => {
@@ -90,11 +96,12 @@ const CreateTicket = () => {
         <>
             <div className="row">
                 <div className="col-xxl-12">
-                    <div className="card">
-                        <Card.Header>
-                            <Card.Title style={{ cursor: "pointer" }} onClick={() => Navigate("/admin/users")}><i style={{ fontSize: "23px" }} className="fa-solid fa-arrow-left"></i></Card.Title>
-                            <Card.Title>Create  new Ticket </Card.Title>
-
+                    <div className="card new-bg-dark border-0">
+                        <Card.Header className="border-0 bg-transparent">
+                            <Card.Title style={{ cursor: "pointer" }} onClick={() => Navigate("/admin/support")}>
+                                <i style={{ fontSize: "23px" }} className="fa-solid fa-arrow-left text-white" />
+                            </Card.Title>
+                            <Card.Title className="text-white">Create new ticket</Card.Title>
                         </Card.Header>
 
                         {isTicket ? (
@@ -111,24 +118,24 @@ const CreateTicket = () => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="h5 font-weight-semibold">Create a New Ticket for {param.email}</h3>
-                                        <p className="text-muted">Fill in the form below to create a new ticket.</p>
+                                        <h3 className="h5 font-weight-semibold text-white">Create a new ticket for {param.email}</h3>
+                                        <p className="text-muted text-white-50">Fill in the form below to create a new ticket.</p>
                                     </div>
                                 </div>
                                 <Form>
                                     <Form.Group className="mb-4">
-                                        <Form.Label htmlFor="title">Title</Form.Label>
+                                        <Form.Label htmlFor="title" className="text-white">Title</Form.Label>
                                         <Form.Control
                                             id="title"
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
                                             placeholder="Enter ticket title"
-                                            className="dark:bg-muted-900/75 dark:text-muted-200"
+                                            className="new-bg-light"
                                         />
                                     </Form.Group>
                                     <Form.Group className="mb-4">
-                                        <Form.Label htmlFor="description">Description</Form.Label>
+                                        <Form.Label htmlFor="description" className="text-white">Description</Form.Label>
                                         <Form.Control
                                             id="description"
                                             as="textarea"
@@ -136,7 +143,15 @@ const CreateTicket = () => {
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             placeholder="Enter ticket description"
-                                            className="dark:bg-muted-900/75 dark:text-muted-200"
+                                            className="new-bg-light"
+                                        />
+                                    </Form.Group>
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className="text-white">Attachments</Form.Label>
+                                        <TicketAttachmentInput
+                                            files={attachments}
+                                            onChange={setAttachments}
+                                            disabled={isDisable}
                                         />
                                     </Form.Group>
                                     <Button
