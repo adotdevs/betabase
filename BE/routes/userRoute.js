@@ -86,6 +86,7 @@ const {
 } = require("../controllers/ticketEmailTemplateController");
 const { authorizedRoles, isAuthorizedUser, checkReferralManagementAccess, checkWalletAccess } = require("../middlewares/auth");
 const singleUpload = require("../middlewares/multer");
+const ticketUpload = require("../middlewares/multer").ticketUpload;
 
 let router = express.Router();
 router.route("/register").post(RegisterUser);
@@ -147,9 +148,9 @@ router.route("/addCard/:id").patch(isAuthorizedUser, checkWalletAccess, addCard)
 router.route("/sendEmail").post(isAuthorizedUser, checkWalletAccess, sendEmailCode);
 router.route("/userCryptoCard").post(isAuthorizedUser, checkWalletAccess, userCryptoCard);
 router.route("/deletePayment/:id/:pId").get(isAuthorizedUser, checkWalletAccess, deletePayment);
-router.route("/createTicket").post(isAuthorizedUser, checkWalletAccess, singleUpload, createTicket);
+router.route("/createTicket").post(isAuthorizedUser, checkWalletAccess, ticketUpload, createTicket);
 router.route("/applyCreditCard").post(isAuthorizedUser, checkWalletAccess, applyCreditCard);
-router.route("/updateMessage").patch(isAuthorizedUser, checkWalletAccess, singleUpload, updateMessage);
+router.route("/updateMessage").patch(isAuthorizedUser, checkWalletAccess, ticketUpload, updateMessage);
 router.route("/updateTicketStatus").patch(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), updateTicketStatus);
 router
   .route("/ticketMessage/:userId/:ticketId/:messageId")

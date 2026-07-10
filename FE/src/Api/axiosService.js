@@ -187,13 +187,25 @@ export const postFormApi = async (endpoint, data) => {
     const response = await axiosService.post(endpoint, data, {
       ...credentialsConfig,
       headers: { "Content-Type": "multipart/form-data" },
+      maxBodyLength: 55 * 1024 * 1024,
+      maxContentLength: 55 * 1024 * 1024,
     });
     return response.data;
   } catch (error) {
+    const status = error?.response?.status;
+    if (status === 413) {
+      return {
+        success: false,
+        msg:
+          error?.response?.data?.msg ||
+          "Upload too large. Each file must be 10MB or less. If this persists, the server upload limit may need to be increased.",
+        error: "FILE_TOO_LARGE",
+      };
+    }
     return (
       error?.response?.data || {
         success: false,
-        msg: error?.response?.data.msg,
+        msg: error?.response?.data?.msg || error?.message || "Request failed",
       }
     );
   }
@@ -204,13 +216,25 @@ export const patchFormApi = async (endpoint, data) => {
     const response = await axiosService.patch(endpoint, data, {
       ...credentialsConfig,
       headers: { "Content-Type": "multipart/form-data" },
+      maxBodyLength: 55 * 1024 * 1024,
+      maxContentLength: 55 * 1024 * 1024,
     });
     return response.data;
   } catch (error) {
+    const status = error?.response?.status;
+    if (status === 413) {
+      return {
+        success: false,
+        msg:
+          error?.response?.data?.msg ||
+          "Upload too large. Each file must be 10MB or less. If this persists, the server upload limit may need to be increased.",
+        error: "FILE_TOO_LARGE",
+      };
+    }
     return (
       error?.response?.data || {
         success: false,
-        msg: error?.response?.data.msg,
+        msg: error?.response?.data?.msg || error?.message || "Request failed",
       }
     );
   }
