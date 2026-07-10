@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AssetsOverview.module.css";
-import { formatCoinAmount, formatFiatValue } from "./coinConfig";
+import { formatCoinAmount, formatFiatValue, getActivationStatusLabel, isCoinActive } from "./coinConfig";
 import FiatAssetsTab from "./FiatAssetsTab";
 
 const AssetsOverview = ({
@@ -11,6 +11,8 @@ const AssetsOverview = ({
   setAssetsTab,
   getEuroCryptoBalance,
   onEuroWithdraw,
+  onRequestActivation,
+  activatingCoinTrx = "",
 }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -66,11 +68,12 @@ const AssetsOverview = ({
             <ul className={styles.list}>
               {filteredCoins.map((coin) => {
                 const fiatValue = coin.balance * (coin.price || 0);
+                const active = isCoinActive(coin);
                 return (
-                  <li key={coin.slug}>
+                  <li key={coin.slug} className={styles.listRow}>
                     <button
                       type="button"
-                      className={styles.listItem}
+                      className={`${styles.listItem} ${!active ? styles.listItemInactive : ""}`}
                       onClick={() => navigate(`/assets/${coin.slug}`)}
                       style={{ "--coin-accent": coin.accent }}
                     >
@@ -85,6 +88,11 @@ const AssetsOverview = ({
                         <div className={styles.itemMeta}>
                           <strong>{coin.name}</strong>
                           <span>{coin.symbol}</span>
+                          {!active && (
+                            <em className={styles.statusBadge}>
+                              {getActivationStatusLabel(coin.activationStatus)}
+                            </em>
+                          )}
                         </div>
                       </div>
                       <div className={styles.itemRight}>
@@ -93,6 +101,21 @@ const AssetsOverview = ({
                       </div>
                       <span className={styles.chevron} aria-hidden="true">›</span>
                     </button>
+                    <div className={styles.rowAction}>
+                      {coin.activationStatus === "inactive" && (
+                        <button
+                          type="button"
+                          className={styles.activateRowBtn}
+                          disabled={activatingCoinTrx === coin.trxName}
+                          onClick={() => onRequestActivation?.(coin)}
+                        >
+                          {activatingCoinTrx === coin.trxName ? "Submitting..." : "Activate"}
+                        </button>
+                      )}
+                      {coin.activationStatus === "pending" && (
+                        <span className={styles.pendingRowBtn}>In progress</span>
+                      )}
+                    </div>
                   </li>
                 );
               })}

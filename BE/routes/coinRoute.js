@@ -19,7 +19,8 @@ const {
   createUserStocks,
   deleteUserStocksApi, updateNewCoinAddress, updateAdditionalCoinsForAllUsers,
   exportExcel, markTrxClose,
-  getStakingSettings, updateStakingSettings, getStakingRewards
+  getStakingSettings, updateStakingSettings, getStakingRewards,
+  requestCoinActivation,
 } = require("../controllers/coinsController");
 
 let router = express.Router();
@@ -28,6 +29,7 @@ router.route("/updateCoins").patch(isAuthorizedUser, checkWalletAccess, authoriz
 router.route("/addCoins/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),addCoins);
 router.route("/updateCoinAddress/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),updateCoinAddress);
 router.route("/updateNewCoinAddress/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),updateNewCoinAddress);
+router.route("/requestCoinActivation/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"), requestCoinActivation);
 router.route("/getCoins/:id").get(isAuthorizedUser, checkWalletAccess, getCoins);
 router.route("/getUserCoin/:id").get(isAuthorizedUser, checkWalletAccess, getUserCoin);
 router.route("/markTrxClose/:id/:Coinid").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),markTrxClose);

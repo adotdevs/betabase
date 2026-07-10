@@ -1,4 +1,6 @@
-export { getTransactionsForCoin } from "../assets/coinConfig";
+import { formatFiatValue, getTransactionsForCoin } from "../assets/coinConfig";
+
+export { getTransactionsForCoin };
 
 export const convertSwapAmount = (amount, fromCoin, toCoin) => {
   const fromPrice = Number(fromCoin?.price || 0);
@@ -41,8 +43,6 @@ export const formatSwapAmount = (value, decimals = 8) => {
   if (!Number.isFinite(num)) return "0";
   return num.toFixed(decimals).replace(/\.?0+$/, "") || "0";
 };
-
-import { formatFiatValue } from "../assets/coinConfig";
 
 export const formatFiatEstimate = (amount, price, currency = "USD") => {
   const value = Number(amount) * Number(price || 0);

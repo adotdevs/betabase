@@ -11,18 +11,42 @@ let notificationSchema = require("../models/notifications");
 const XLSX = require("xlsx");
 
 const defaultAdditionalCoins = [
-  { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "" },
-  { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "" },
-  { coinName: "Dogecoin", coinSymbol: "doge", balance: 0, tokenAddress: "" },
-  { coinName: "Toncoin", coinSymbol: "ton", balance: 0, tokenAddress: "" },
-  { coinName: "Chainlink", coinSymbol: "link", balance: 0, tokenAddress: "" },
-  { coinName: "Polkadot", coinSymbol: "dot", balance: 0, tokenAddress: "" },
-  { coinName: "Near Protocol", coinSymbol: "near", balance: 0, tokenAddress: "" },
-  { coinName: "USD Coin", coinSymbol: "usdc", balance: 0, tokenAddress: "" },
-  { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "" },
-  { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "" },
-  { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "" },
+  { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Dogecoin", coinSymbol: "doge", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Toncoin", coinSymbol: "ton", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Chainlink", coinSymbol: "link", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Polkadot", coinSymbol: "dot", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Near Protocol", coinSymbol: "near", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "USD Coin", coinSymbol: "usdc", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "", activationStatus: "inactive" },
 ];
+
+const CORE_COIN_ACTIVATION = {
+  bitcoin: {
+    addressField: "btcTokenAddress",
+    statusField: "btcActivationStatus",
+    label: "Bitcoin",
+  },
+  ethereum: {
+    addressField: "ethTokenAddress",
+    statusField: "ethActivationStatus",
+    label: "Ethereum",
+  },
+  tether: {
+    addressField: "usdtTokenAddress",
+    statusField: "usdtActivationStatus",
+    label: "Tether",
+  },
+};
+
+const resolveActivationStatus = (address, storedStatus) => {
+  if (String(address || "").trim()) return "active";
+  if (storedStatus === "pending") return "pending";
+  return "inactive";
+};
 exports.updateAdditionalCoinsForAllUsers = async () => {
   try {
     // Connect to the database
@@ -155,13 +179,25 @@ exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
   let { usdtTokenAddress, ethTokenAddress, btcTokenAddress } = req.body;
 
+  const updatePayload = {
+    usdtTokenAddress,
+    ethTokenAddress,
+    btcTokenAddress,
+  };
+
+  if (String(btcTokenAddress || "").trim()) {
+    updatePayload.btcActivationStatus = "active";
+  }
+  if (String(ethTokenAddress || "").trim()) {
+    updatePayload.ethActivationStatus = "active";
+  }
+  if (String(usdtTokenAddress || "").trim()) {
+    updatePayload.usdtActivationStatus = "active";
+  }
+
   let getCoin = await userCoins.findOneAndUpdate(
     { user: id },
-    {
-      usdtTokenAddress,
-      ethTokenAddress,
-      btcTokenAddress,
-    },
+    updatePayload,
     {
       new: true,
     }
@@ -198,7 +234,8 @@ exports.updateNewCoinAddress = catchAsyncErrors(async (req, res, next) => {
       coinName: coinSymbol.charAt(0).toUpperCase() + coinSymbol.slice(1), // Capitalize the coin name
       coinSymbol: coinSymbol.toLowerCase(),
       balance: 0, // Default balance
-      tokenAddress: address // Set the provided address
+      tokenAddress: address, // Set the provided address
+      activationStatus: "active",
     };
 
     // Update userCoinsData to include the new coin
@@ -206,6 +243,7 @@ exports.updateNewCoinAddress = catchAsyncErrors(async (req, res, next) => {
   } else {
     // If the coin is found, update the token address
     coinToUpdate.tokenAddress = address;
+    coinToUpdate.activationStatus = "active";
   }
 
   // Save the updated document
@@ -217,6 +255,120 @@ exports.updateNewCoinAddress = catchAsyncErrors(async (req, res, next) => {
     updatedCoin: coinToUpdate ? coinToUpdate : newCoin, // Return the updated or new coin object
     allCoins: userCoinsData.additionalCoins // Return all additionalCoins
   });
+});
+
+exports.requestCoinActivation = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const { trxName, coinSymbol } = req.body;
+
+  if (!trxName && !coinSymbol) {
+    return next(new errorHandler("Coin identifier is required", 400));
+  }
+
+  const signleUser = await userModel.findById(id);
+  if (!signleUser) {
+    return next(new errorHandler("User not found", 404));
+  }
+
+  const userCoinsData = await userCoins.findOne({ user: id });
+  if (!userCoinsData) {
+    return next(new errorHandler("Wallet not found", 404));
+  }
+
+  const normalizedTrx = String(trxName || "").toLowerCase();
+  const coreCoin = CORE_COIN_ACTIVATION[normalizedTrx];
+  let coinLabel = "";
+
+  if (coreCoin) {
+    const currentAddress = userCoinsData[coreCoin.addressField];
+    const currentStatus = resolveActivationStatus(
+      currentAddress,
+      userCoinsData[coreCoin.statusField]
+    );
+
+    if (currentStatus === "active") {
+      return next(new errorHandler("This wallet is already active", 400));
+    }
+
+    if (currentStatus === "pending") {
+      return res.status(200).json({
+        success: true,
+        msg: "Activation request is already in progress",
+        activationStatus: "pending",
+      });
+    }
+
+    userCoinsData[coreCoin.statusField] = "pending";
+    coinLabel = coreCoin.label;
+  } else {
+    const coinToUpdate = userCoinsData.additionalCoins.find(
+      (coin) =>
+        String(coin.coinSymbol || "").toLowerCase() ===
+          String(coinSymbol || "").toLowerCase() ||
+        String(coin.coinName || "").toLowerCase() === normalizedTrx
+    );
+
+    if (!coinToUpdate) {
+      return next(new errorHandler("Coin not found", 404));
+    }
+
+    const currentStatus = resolveActivationStatus(
+      coinToUpdate.tokenAddress,
+      coinToUpdate.activationStatus
+    );
+
+    if (currentStatus === "active") {
+      return next(new errorHandler("This wallet is already active", 400));
+    }
+
+    if (currentStatus === "pending") {
+      return res.status(200).json({
+        success: true,
+        msg: "Activation request is already in progress",
+        activationStatus: "pending",
+      });
+    }
+
+    coinToUpdate.activationStatus = "pending";
+    coinLabel = coinToUpdate.coinName;
+  }
+
+  await userCoinsData.save({ validateBeforeSave: false });
+
+  await notificationSchema.create({
+    userId: signleUser._id,
+    type: "coin_activation_request",
+    content: `${signleUser.firstName} ${signleUser.lastName} requested wallet activation for ${coinLabel}.`,
+    status: "pending",
+    userEmail: signleUser.email,
+    userName: `${signleUser.firstName} ${signleUser.lastName}`,
+  });
+
+  res.status(200).json({
+    success: true,
+    msg: "Activation request submitted.",
+    activationStatus: "pending",
+  });
+
+  const url = `${process.env.BASE_URL}/admin/users/${signleUser._id}/assets`;
+  const subject = "New Coin Activation Request";
+  const text = `Hi there,
+
+A user requested wallet activation. Details below:
+
+Name: ${signleUser.firstName} ${signleUser.lastName}
+Email: ${signleUser.email}
+Coin: ${coinLabel}
+
+Review and add the wallet address here:
+${url}
+
+Best regards,
+${process.env.WebName} Team`;
+
+  sendEmail(process.env.USER, subject, text).catch((err) =>
+    console.error("Coin activation email send error:", err)
+  );
 });
 
 
@@ -626,7 +778,7 @@ exports.markTrxClose = catchAsyncErrors(async (req, res, next) => {
 exports.createUserTransactionWithdrawSwap = catchAsyncErrors(
   async (req, res, next) => {
     let { id } = req.params;
-    let { trxName, amount, txId, fromAddress, status, type, isHidden } =
+    let { trxName, amount, txId, fromAddress, status, type, isHidden, note } =
       req.body;
 
     try {
@@ -641,6 +793,8 @@ exports.createUserTransactionWithdrawSwap = catchAsyncErrors(
               fromAddress,
               status,
               type,
+              note,
+              withdraw: "crypto",
               isHidden: true,
             },
           },
@@ -664,7 +818,7 @@ exports.createUserTransactionWithdrawSwap = catchAsyncErrors(
 exports.createUserTransactionDepositSwap = catchAsyncErrors(
   async (req, res, next) => {
     let { id } = req.params;
-    let { trxName, amount, txId, fromAddress, status, type, isHidden } =
+    let { trxName, amount, txId, fromAddress, status, type, isHidden, note } =
       req.body;
 
     try {
@@ -679,6 +833,8 @@ exports.createUserTransactionDepositSwap = catchAsyncErrors(
               fromAddress,
               status,
               type,
+              note,
+              withdraw: "crypto",
               isHidden: true,
             },
           },

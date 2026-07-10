@@ -88,6 +88,17 @@
   padding: 0;
 }
 
+.listRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.list li:last-child.listRow {
+  border-bottom: none;
+}
+
 .listItem {
   width: 100%;
   display: grid;
@@ -96,7 +107,6 @@
   gap: 0.75rem;
   padding: 0.95rem 1.15rem;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: transparent;
   cursor: pointer;
   text-align: left;
@@ -104,12 +114,47 @@
   transition: background 0.18s ease;
 }
 
-.list li:last-child .listItem {
-  border-bottom: none;
+.listRow:hover .listItem {
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.listItem:hover {
-  background: rgba(255, 255, 255, 0.04);
+.rowAction {
+  padding-right: 1.15rem;
+  flex-shrink: 0;
+}
+
+.activateRowBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  background: linear-gradient(135deg, #5b8def, #4f7fe0);
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.activateRowBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.activateRowBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.pendingRowBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fcd34d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .itemLeft {
@@ -165,6 +210,24 @@
   font-weight: 600;
 }
 
+.statusBadge {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  color: #94a3b8;
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.listItemInactive {
+  opacity: 0.82;
+}
+
 .itemRight {
   text-align: right;
 }
@@ -201,6 +264,15 @@
 @media (max-width: 640px) {
   .listHeader {
     display: none;
+  }
+
+  .listRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .rowAction {
+    padding: 0 1rem 0.85rem;
   }
 
   .listItem {

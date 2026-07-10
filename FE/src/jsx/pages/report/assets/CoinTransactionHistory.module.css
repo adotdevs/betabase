@@ -145,6 +145,11 @@
   color: #6ee7b7;
 }
 
+.badgeSwap {
+  background: rgba(91, 141, 239, 0.16);
+  color: #93c5fd;
+}
+
 .empty {
   padding: 2rem 1rem;
   text-align: center;

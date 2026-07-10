@@ -12,6 +12,14 @@ import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
 import './style.css'
 import Truncate from 'react-truncate-inside/es';
+import {
+    formatSwapAmountLabel,
+    formatSwapPairLabel,
+    getSwapDetails,
+    getSwapListSubtitle,
+    isSwapTransaction,
+    shouldShowTransaction,
+} from './assets/swapTransactionUtils';
 
 const TransactionSec = () => {
 
@@ -248,6 +256,40 @@ const TransactionSec = () => {
         tron:liveTrx || 0.1531,
     };
 
+    const renderSwapModalDetails = (transaction) => {
+        if (!isSwapTransaction(transaction)) return null;
+
+        const swapDetails = getSwapDetails(transaction, UserTransactions);
+        if (!swapDetails?.from || !swapDetails?.to) return null;
+
+        return (
+            <>
+                <div className="col-sm-6">
+                    <dt className="text-muted">Type</dt>
+                    <dd className="text-dark">Swap</dd>
+                </div>
+                <div className="col-sm-6">
+                    <dt className="text-muted">Swap pair</dt>
+                    <dd className="text-dark">{formatSwapPairLabel(swapDetails)}</dd>
+                </div>
+                <div className="col-sm-6">
+                    <dt className="text-muted">You sent</dt>
+                    <dd className="text-dark">
+                        {formatSwapAmountLabel(swapDetails.from.amount, swapDetails.from.symbol)}
+                    </dd>
+                </div>
+                <div className="col-sm-6">
+                    <dt className="text-muted">You received</dt>
+                    <dd className="text-dark">
+                        {formatSwapAmountLabel(swapDetails.to.amount, swapDetails.to.symbol)}
+                    </dd>
+                </div>
+            </>
+        );
+    };
+
+    const visibleTransactions = UserTransactions.filter(shouldShowTransaction);
+
     const eurConversionRate = USD_TO_EUR_RATE;
 
     const calculateTransactionValue = (transaction) => {
@@ -284,8 +326,12 @@ const TransactionSec = () => {
 
                                 <>
                                     <div className="d-grid gap-4">
-                                        {UserTransactions &&
-                                            UserTransactions.filter(Transaction => !Transaction.isHidden).map((Transaction, index) => (
+                                        {visibleTransactions.map((Transaction, index) => {
+                                            const swapDetails = isSwapTransaction(Transaction)
+                                                ? getSwapDetails(Transaction, UserTransactions)
+                                                : null;
+
+                                            return (
                                                 <Card
                                                     key={index}
                                                     className="transaction-card no-bg border-0 shadow-sm rounded-3 transition-all duration-300"
@@ -293,7 +339,13 @@ const TransactionSec = () => {
                                                     <Card.Body className="p-3">
                                                         <Row className="align-items-center">
                                                             <Col xs={2} className="text-center">
-                                                                {Transaction.type === 'deposit' ? (
+                                                                {isSwapTransaction(Transaction) ? (
+                                                                    <div className="icon-container bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                                            <path d="M6.99 11 3 15l3.99 4v-3H14v-2H6.99zM21 9l-3.99-4v3H10v2h7.01v3z" />
+                                                                        </svg>
+                                                                    </div>
+                                                                ) : Transaction.type === 'deposit' ? (
                                                                     <div className="icon-container   bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                                                             <path d="M11 20V7.825l-5.6 5.6L4 12l8-8 8 8-1.4 1.425-5.6-5.6V20z" />
@@ -309,9 +361,25 @@ const TransactionSec = () => {
                                                             </Col>
                                                             <Col>
                                                                 <Card.Title as="h6" className="mb-1 text-white">
-                                                                    {Transaction.trxName}{' '}
-                                                                    <small className="transaction-status text-white">({Transaction.status})</small>
+                                                                    {isSwapTransaction(Transaction) ? (
+                                                                        <>
+                                                                            Swap{' '}
+                                                                            {swapDetails?.from && swapDetails?.to
+                                                                                ? formatSwapPairLabel(swapDetails)
+                                                                                : Transaction.trxName}
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            {Transaction.trxName}{' '}
+                                                                            <small className="transaction-status text-white">({Transaction.status})</small>
+                                                                        </>
+                                                                    )}
                                                                 </Card.Title>
+                                                                {isSwapTransaction(Transaction) && (
+                                                                    <Card.Text className="mb-1 transaction-amount text-white-50">
+                                                                        {getSwapListSubtitle(Transaction, UserTransactions)}
+                                                                    </Card.Text>
+                                                                )}
                                                                 <Card.Text className="mb-1 transaction-amount text-white">
                                                                     {Transaction.amount.toFixed(8)}{' '}
                                                                     <small>
@@ -480,10 +548,11 @@ const TransactionSec = () => {
                                                         </Row>
                                                     </Card.Body>
                                                 </Card>
-                                            ))}
+                                            );
+                                        })}
 
                                     </div>
-                                    {UserTransactions.length === 0 ? (
+                                    {visibleTransactions.length === 0 ? (
                                         <div>
                                             <div>
                                                 <div className="flex min-h-[400px] items-center justify-center">
@@ -531,12 +600,16 @@ const TransactionSec = () => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title id="transaction-modal-title">
-                        Transaction Details
+                        {singleTransaction && isSwapTransaction(singleTransaction)
+                            ? "Swap Details"
+                            : "Transaction Details"}
                     </Modal.Title>
                 </Modal.Header>
                 {singleTransaction.by === "user" ? (
                     <Modal.Body>
                         <dl className="row main-modal" >
+                            {renderSwapModalDetails(singleTransaction)}
+                            {!isSwapTransaction(singleTransaction) ? (
                             <div className="col-sm-6">
                                 <dt className="text-muted">Transaction ID</dt>
                                 <dd className="text-dark ">
@@ -555,6 +628,21 @@ const TransactionSec = () => {
                                     </a>
                                 </dd>
                             </div>
+                            ) : singleTransaction.txId && String(singleTransaction.txId).startsWith("swap-") ? (
+                            <div className="col-sm-6">
+                                <dt className="text-muted">Swap reference</dt>
+                                <dd className="text-dark ">
+                                    <a
+                                        href="javascript:void(0)"
+                                        onClick={() => handleCopyToClipboard(singleTransaction.txId)}
+                                        className="text-dark d-flexa"
+                                    >
+                                        <Truncate text={singleTransaction.txId} offset={6} width="100" />
+                                    </a>
+                                </dd>
+                            </div>
+                            ) : null}
+                            {!isSwapTransaction(singleTransaction) ? (
                             <div className="col-sm-6">
                                 <dt className="text-muted">To</dt>
                                 <dd className="text-dark">
@@ -579,6 +667,7 @@ const TransactionSec = () => {
                                     )}
                                 </dd>
                             </div>
+                            ) : null}
                             <div className="col-sm-6">
                                 <dt className="text-muted">Timestamp</dt>
                                 <dd className="text-dark">
@@ -651,7 +740,7 @@ const TransactionSec = () => {
                                 </dd>
 
                             </div>
-                            {singleTransaction.note ?
+                            {singleTransaction.note && !isSwapTransaction(singleTransaction) ?
 
                                 <div className="col-sm-6">
                                     <dt className="text-muted">Note</dt>
@@ -863,7 +952,7 @@ const TransactionSec = () => {
                                     )}
                                 </dd>
                             </div>
-                            {singleTransaction.note ?
+                            {singleTransaction.note && !isSwapTransaction(singleTransaction) ?
 
                                 <div className="col-sm-6">
                                     <dt className="text-muted">Note</dt>

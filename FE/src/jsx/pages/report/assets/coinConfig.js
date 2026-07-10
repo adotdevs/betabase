@@ -59,6 +59,27 @@ export const COINGECKO_IDS = {
 
 export const getCoinGeckoId = (slug) => COINGECKO_IDS[slug] || "";
 
+export const resolveCoinActivationStatus = (address, storedStatus) => {
+  if (String(address || "").trim()) return "active";
+  if (storedStatus === "pending") return "pending";
+  return "inactive";
+};
+
+export const isCoinActive = (coin) => coin?.activationStatus === "active";
+
+export const getActivationStatusLabel = (status) => {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "pending":
+      return "Activation in progress";
+    default:
+      return "Inactive";
+  }
+};
+
+export const filterActiveCoins = (coins = []) => coins.filter(isCoinActive);
+
 export const getAdditionalCoinPrice = (coinSymbol, livePrices = {}) => {
   switch (String(coinSymbol || "").toLowerCase()) {
     case "bnb":
@@ -190,19 +211,32 @@ export const buildPortfolioCoins = ({
     let balance = 0;
     let price = 0;
     let address = "";
+    let activationStatus = "inactive";
 
     if (coin.trxName === "bitcoin") {
       balance = btcBalance;
       price = liveBtc || 0;
       address = UserData?.btcTokenAddress || "";
+      activationStatus = resolveCoinActivationStatus(
+        address,
+        UserData?.btcActivationStatus
+      );
     } else if (coin.trxName === "ethereum") {
       balance = ethBalance;
       price = liveEth || 2640;
       address = UserData?.ethTokenAddress || "";
+      activationStatus = resolveCoinActivationStatus(
+        address,
+        UserData?.ethActivationStatus
+      );
     } else if (coin.trxName === "tether") {
       balance = usdtBalance;
       price = 1;
       address = UserData?.usdtTokenAddress || "";
+      activationStatus = resolveCoinActivationStatus(
+        address,
+        UserData?.usdtActivationStatus
+      );
     }
 
     return {
@@ -210,6 +244,7 @@ export const buildPortfolioCoins = ({
       balance,
       price,
       address,
+      activationStatus,
       isAdditional: false,
     };
   });
@@ -229,6 +264,10 @@ export const buildPortfolioCoins = ({
         balance: getTransactionsForCoin(trxName, transactions),
         price: getCoinPrice(coin.coinSymbol),
         address: coin.tokenAddress || "",
+        activationStatus: resolveCoinActivationStatus(
+          coin.tokenAddress,
+          coin.activationStatus
+        ),
         coinData: coin,
         isAdditional: true,
       };

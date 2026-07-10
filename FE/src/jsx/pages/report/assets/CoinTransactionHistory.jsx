@@ -2,16 +2,28 @@ import React, { useMemo, useState } from "react";
 import styles from "./CoinTransactionHistory.module.css";
 import { formatCoinAmount } from "./coinConfig";
 import TransactionDetailModal from "./TransactionDetailModal";
+import {
+  formatSwapPairLabel,
+  getSwapDetails,
+  getSwapListSubtitle,
+  isSwapTransaction,
+} from "./swapTransactionUtils";
 
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "completed", label: "Completed" },
   { id: "pending", label: "Pending" },
+  { id: "swap", label: "Swap" },
   { id: "sent", label: "Sent" },
   { id: "received", label: "Received" },
 ];
 
-const CoinTransactionHistory = ({ transactions, symbol, getFiatValue }) => {
+const CoinTransactionHistory = ({
+  transactions,
+  allTransactions = [],
+  symbol,
+  getFiatValue,
+}) => {
   const [filter, setFilter] = useState("all");
   const [selectedTx, setSelectedTx] = useState(null);
 
@@ -22,8 +34,9 @@ const CoinTransactionHistory = ({ transactions, symbol, getFiatValue }) => {
 
       if (filter === "completed") return status.includes("completed");
       if (filter === "pending") return status.includes("pending");
-      if (filter === "sent") return amount < 0;
-      if (filter === "received") return amount > 0;
+      if (filter === "swap") return isSwapTransaction(tx);
+      if (filter === "sent") return amount < 0 && !isSwapTransaction(tx);
+      if (filter === "received") return amount > 0 && !isSwapTransaction(tx);
       return true;
     });
   }, [transactions, filter]);
@@ -58,6 +71,8 @@ const CoinTransactionHistory = ({ transactions, symbol, getFiatValue }) => {
             filtered.map((tx, index) => {
               const amount = parseFloat(tx.amount || 0);
               const isSend = amount < 0;
+              const isSwap = isSwapTransaction(tx);
+              const swapDetails = isSwap ? getSwapDetails(tx, allTransactions) : null;
               const fiat = getFiatValue ? getFiatValue(tx) : null;
 
               return (
@@ -68,12 +83,28 @@ const CoinTransactionHistory = ({ transactions, symbol, getFiatValue }) => {
                   onClick={() => setSelectedTx(tx)}
                 >
                   <div className={styles.itemLeft}>
-                    <span className={`${styles.badge} ${isSend ? styles.badgeSend : styles.badgeReceive}`}>
-                      {isSend ? "Sent" : "Received"}
+                    <span
+                      className={`${styles.badge} ${
+                        isSwap
+                          ? styles.badgeSwap
+                          : isSend
+                            ? styles.badgeSend
+                            : styles.badgeReceive
+                      }`}
+                    >
+                      {isSwap ? "Swap" : isSend ? "Sent" : "Received"}
                     </span>
                     <div>
-                      <strong>{formatCoinAmount(Math.abs(amount))} {symbol}</strong>
-                      <p>{tx.status || "Unknown"}</p>
+                      <strong>
+                        {isSwap && swapDetails?.from && swapDetails?.to
+                          ? formatSwapPairLabel(swapDetails)
+                          : `${formatCoinAmount(Math.abs(amount))} ${symbol}`}
+                      </strong>
+                      <p>
+                        {isSwap
+                          ? getSwapListSubtitle(tx, allTransactions)
+                          : tx.status || "Unknown"}
+                      </p>
                     </div>
                   </div>
                   <div className={styles.itemRight}>
@@ -99,6 +130,7 @@ const CoinTransactionHistory = ({ transactions, symbol, getFiatValue }) => {
         transaction={selectedTx}
         symbol={symbol}
         fiatValue={selectedTx && getFiatValue ? getFiatValue(selectedTx) : null}
+        allTransactions={allTransactions}
         onClose={() => setSelectedTx(null)}
       />
     </>

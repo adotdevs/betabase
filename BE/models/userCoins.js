@@ -15,6 +15,11 @@ let userCoins = new mongoose.Schema({
     type: String,
     default: "",
   },
+  btcActivationStatus: {
+    type: String,
+    enum: ["inactive", "pending", "active"],
+    default: "inactive",
+  },
 
   ethBalance: {
     type: Number,
@@ -23,6 +28,11 @@ let userCoins = new mongoose.Schema({
   ethTokenAddress: {
     type: String,
     default: "",
+  },
+  ethActivationStatus: {
+    type: String,
+    enum: ["inactive", "pending", "active"],
+    default: "inactive",
   },
 
   usdtBalance: {
@@ -36,6 +46,11 @@ let userCoins = new mongoose.Schema({
         coinSymbol: { type: String, required: true },
         balance: { type: Number, default: 0 },
         tokenAddress: { type: String, default: "" },
+        activationStatus: {
+          type: String,
+          enum: ["inactive", "pending", "active"],
+          default: "inactive",
+        },
       }
     ],
     default: [
@@ -55,6 +70,11 @@ let userCoins = new mongoose.Schema({
   usdtTokenAddress: {
     type: String,
     default: "",
+  },
+  usdtActivationStatus: {
+    type: String,
+    enum: ["inactive", "pending", "active"],
+    default: "inactive",
   },
   transactions: [
     {

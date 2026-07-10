@@ -21,7 +21,8 @@ import {
   Support as SupportIcon,
   VerifiedUser as VerifiedUserIcon,
   AccountBalanceWallet as AccountBalanceWalletIcon,
-  AccountBalance as AccountBalanceIcon
+  AccountBalance as AccountBalanceIcon,
+  CurrencyBitcoin as CurrencyBitcoinIcon
 } from '@mui/icons-material';
 
 const AdminHeader = (props) => {
@@ -269,6 +270,8 @@ const AdminHeader = (props) => {
                     return <AccountBalanceWalletIcon />;
                 case "loan_request":
                     return <AccountBalanceIcon />;
+                case "coin_activation_request":
+                    return <CurrencyBitcoinIcon />;
                 default:
                     return <NotificationsIcon />;
             }
@@ -286,6 +289,8 @@ const AdminHeader = (props) => {
                     return "withdraw";
                 case "loan_request":
                     return "kyc";
+                case "coin_activation_request":
+                    return "coin-activation";
                 default:
                     return "card";
             }
@@ -297,6 +302,7 @@ const AdminHeader = (props) => {
             notification.type === "ticket_message" ? `/admin/ticket/user/${notification.userId}/${notification.ticketId}` :
             notification.type === "KYC_request" ? `/admin/users/${notification.userId}/verifications` :
             notification.type === "loan_request" ? `/admin/users/${notification.userId}/loan-application` :
+            notification.type === "coin_activation_request" ? `/admin/users/${notification.userId}/assets` :
             notification.type === "withdraw_request" ? `/admin/users/${notification.userId}/transactions` :
             `/admin/dashboard`;
 

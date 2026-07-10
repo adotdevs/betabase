@@ -4,7 +4,13 @@ import styles from "./CoinDetail.module.css";
 import CoinMarketCapChart from "./CoinMarketCapChart";
 import CoinTransactionHistory from "./CoinTransactionHistory";
 import CoinActionModal from "./CoinActionModal";
-import { filterCoinTransactions, formatCoinAmount, formatFiatValue } from "./coinConfig";
+import {
+  filterCoinTransactions,
+  formatCoinAmount,
+  formatFiatValue,
+  getActivationStatusLabel,
+  isCoinActive,
+} from "./coinConfig";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -16,6 +22,8 @@ const CoinDetail = ({
   isUser,
   transactions,
   onWithdraw,
+  onRequestActivation,
+  activatingCoinTrx = "",
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
@@ -29,6 +37,9 @@ const CoinDetail = ({
 
   const fiatValue = coin.balance * (coin.price || 0);
   const hasAddress = Boolean(String(coin.address || "").trim());
+  const isActive = isCoinActive(coin);
+  const isPending = coin.activationStatus === "pending";
+  const isInactive = coin.activationStatus === "inactive";
 
   const getFiatValue = (tx) => {
     const amount = Math.abs(parseFloat(tx.amount || 0));
@@ -67,15 +78,55 @@ const CoinDetail = ({
           <span className={styles.balanceLabel}>Your balance</span>
           <strong>{formatCoinAmount(coin.balance)} {coin.symbol}</strong>
           <small>{formatFiatValue(fiatValue, isUser?.currency)}</small>
+          <span
+            className={`${styles.statusChip} ${
+              isActive
+                ? styles.statusActive
+                : isPending
+                  ? styles.statusPending
+                  : styles.statusInactive
+            }`}
+          >
+            {getActivationStatusLabel(coin.activationStatus)}
+          </span>
         </div>
       </section>
+
+      {!isActive && (
+        <section
+          className={`${styles.activationPanel} ${
+            isPending ? styles.activationPanelPending : styles.activationPanelInactive
+          }`}
+        >
+          <div>
+            <strong>
+              {isPending ? "Wallet activation in progress" : "Wallet not activated"}
+            </strong>
+            <p>
+              {isPending
+                ? "Your request was sent. You will be able to receive, send, and swap once your wallet address is assigned."
+                : "Activate this wallet to receive deposits, send funds, and use it in swaps."}
+            </p>
+          </div>
+          {isInactive && (
+            <button
+              type="button"
+              className={styles.activateBtn}
+              disabled={activatingCoinTrx === coin.trxName}
+              onClick={() => onRequestActivation?.(coin)}
+            >
+              {activatingCoinTrx === coin.trxName ? "Submitting..." : "Activate wallet"}
+            </button>
+          )}
+        </section>
+      )}
 
       <div className={styles.actions}>
         <button
           type="button"
           className={styles.actionBtn}
-          disabled={!hasAddress}
-          onClick={() => hasAddress && setActionModal("receive")}
+          disabled={!isActive || !hasAddress}
+          onClick={() => isActive && hasAddress && setActionModal("receive")}
         >
           <em>↓</em>
           <span>Receive</span>
@@ -83,17 +134,36 @@ const CoinDetail = ({
         <button
           type="button"
           className={`${styles.actionBtn} ${styles.actionQr}`}
-          disabled={!hasAddress}
-          onClick={() => hasAddress && setActionModal("receive")}
+          disabled={!isActive || !hasAddress}
+          onClick={() => isActive && hasAddress && setActionModal("receive")}
         >
           <em className={styles.qrIcon}>▦</em>
           <span>QR Code</span>
         </button>
-        <button type="button" className={`${styles.actionBtn} ${styles.actionSend}`} onClick={() => setActionModal("send")}>
+        <button
+          type="button"
+          className={`${styles.actionBtn} ${styles.actionSend}`}
+          disabled={!isActive}
+          onClick={() => isActive && setActionModal("send")}
+        >
           <em>↑</em>
           <span>Send</span>
         </button>
-        <button type="button" className={styles.actionBtn} onClick={() => navigate("/swap", { state: { fromCoin: coin.symbol, fromTrxName: coin.trxName, fromSlug: coin.slug } })}>
+        <button
+          type="button"
+          className={styles.actionBtn}
+          disabled={!isActive}
+          onClick={() =>
+            isActive &&
+            navigate("/swap", {
+              state: {
+                fromCoin: coin.symbol,
+                fromTrxName: coin.trxName,
+                fromSlug: coin.slug,
+              },
+            })
+          }
+        >
           <em>⇄</em>
           <span>Swap</span>
         </button>
@@ -140,7 +210,7 @@ const CoinDetail = ({
               </div>
             </div>
 
-            {hasAddress && (
+            {isActive && hasAddress && (
               <div className={styles.addressSection}>
                 <span className={styles.addressLabel}>Wallet address</span>
                 <div className={styles.addressBox}>
@@ -168,6 +238,7 @@ const CoinDetail = ({
         <section className={styles.panel}>
           <CoinTransactionHistory
             transactions={coinTransactions}
+            allTransactions={transactions}
             symbol={coin.symbol}
             isUser={isUser}
             getFiatValue={getFiatValue}

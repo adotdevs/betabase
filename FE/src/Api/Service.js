@@ -96,6 +96,9 @@ export const updateCoinAddressApi = (id, data) => {
 export const updateNewCoinAddressApi = (id, data) => {
   return patchApi(`updateNewCoinAddress/${id}`, data);
 };
+export const requestCoinActivationApi = (id, data) => {
+  return patchApi(`requestCoinActivation/${id}`, data);
+};
 export const createTransactionApi = (id, data) => {
   return patchApi(`createTransaction/${id}`, data);
 };

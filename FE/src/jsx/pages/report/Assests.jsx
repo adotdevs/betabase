@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
-import { createUserTransactionApi, getCoinsUserApi, getRestrictionsApi, getsignUserApi, patchCoinsApi, sendEmailCodeApi } from '../../../Api/Service';
+import { createUserTransactionApi, getCoinsUserApi, getRestrictionsApi, getsignUserApi, patchCoinsApi, requestCoinActivationApi, sendEmailCodeApi } from '../../../Api/Service';
 import { Button, Col, Form, DropdownDivider, InputGroup, Modal, Row } from 'react-bootstrap';
 import './style.css'
 import styles from './Assests.module.css';
@@ -85,6 +85,7 @@ const Orders = () => {
     const location = useLocation();
     const { coinSlug } = useParams();
     const [pendingEuroWithdraw, setPendingEuroWithdraw] = useState(false);
+    const [activatingCoinTrx, setActivatingCoinTrx] = useState("");
     const [isUser, setIsUser] = useState({});
     const [isUserRestriction, setIsUserRestriction] = useState(false);
     const getUserRestrcition = async () => {
@@ -845,6 +846,27 @@ const Orders = () => {
         }
     };
 
+    const handleRequestActivation = async (coin) => {
+        try {
+            setActivatingCoinTrx(coin.trxName);
+            const response = await requestCoinActivationApi(authUser().user._id, {
+                trxName: coin.trxName,
+                coinSymbol: coin.symbol,
+            });
+
+            if (response.success) {
+                toast.success(response.msg);
+                getCoins(authUser().user);
+            } else {
+                toast.error(response.msg || "Unable to request activation");
+            }
+        } catch (error) {
+            toast.error(error?.message || "Unable to request activation");
+        } finally {
+            setActivatingCoinTrx("");
+        }
+    };
+
     const renderMainContent = () => {
         if (isLoading) {
             return (
@@ -884,6 +906,8 @@ const Orders = () => {
                     isUser={isUser}
                     transactions={userCoins?.getCoin?.transactions || []}
                     onWithdraw={handleCoinWithdraw}
+                    onRequestActivation={handleRequestActivation}
+                    activatingCoinTrx={activatingCoinTrx}
                 />
             );
         }
@@ -896,6 +920,8 @@ const Orders = () => {
                 setAssetsTab={setAssetsTab}
                 getEuroCryptoBalance={getEuroCryptoBalance}
                 onEuroWithdraw={openEuroWithdraw}
+                onRequestActivation={handleRequestActivation}
+                activatingCoinTrx={activatingCoinTrx}
             />
         );
     };

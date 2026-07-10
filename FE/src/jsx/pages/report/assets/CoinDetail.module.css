@@ -98,6 +98,90 @@
   font-size: 0.88rem;
 }
 
+.statusChip {
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.statusActive {
+  background: rgba(52, 211, 153, 0.14);
+  color: #6ee7b7;
+}
+
+.statusPending {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fcd34d;
+}
+
+.statusInactive {
+  background: rgba(148, 163, 184, 0.14);
+  color: #94a3b8;
+}
+
+.activationPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.15rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.activationPanelInactive {
+  background: linear-gradient(135deg, rgba(91, 141, 239, 0.12), rgba(91, 141, 239, 0.04));
+}
+
+.activationPanelPending {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.04));
+  border-color: rgba(251, 191, 36, 0.22);
+}
+
+.activationPanel strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 0.92rem;
+  margin-bottom: 0.25rem;
+}
+
+.activationPanel p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  max-width: 52ch;
+}
+
+.activateBtn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.72rem 1.1rem;
+  background: linear-gradient(135deg, #5b8def, #4f7fe0);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.activateBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.activateBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .actions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
