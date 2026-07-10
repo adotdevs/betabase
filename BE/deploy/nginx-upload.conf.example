@@ -1,35 +1,66 @@
-# Nginx — allow ticket image/PDF uploads on api.betabase.pro
+# Hostinger VPS (Ubuntu) — fix 413 on file uploads
 #
-# 413 Content Too Large usually means nginx rejected the body before Node.js saw it.
-# Default client_max_body_size is 1m, which blocks most images.
+# Symptom: KYC, tickets, any multipart upload works locally but returns
+#          413 Content Too Large on https://api.betabase.pro
 #
-# Add inside the server { } block for api.betabase.pro (or in the location / block):
-
-client_max_body_size 55m;
-
-# Optional: increase timeouts for slow uploads
-client_body_timeout 120s;
-proxy_read_timeout 120s;
-proxy_send_timeout 120s;
-
-# Example location block (adjust upstream port):
+# Cause: nginx default client_max_body_size is 1MB.
 #
-# server {
-#   listen 443 ssl;
-#   server_name api.betabase.pro;
+# ─────────────────────────────────────────────────────────────
+# QUICK FIX (SSH into VPS, then run):
+# ─────────────────────────────────────────────────────────────
 #
-#   client_max_body_size 55m;
+#   cd /var/www/betabase   # or your project path
+#   git pull
+#   sudo bash BE/deploy/fix-nginx-uploads.sh
 #
-#   location / {
-#     proxy_pass http://127.0.0.1:5000;
-#     proxy_http_version 1.1;
-#     proxy_set_header Host $host;
-#     proxy_set_header X-Real-IP $remote_addr;
-#     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-#     proxy_set_header X-Forwarded-Proto $scheme;
-#   }
-# }
+# ─────────────────────────────────────────────────────────────
+# MANUAL FIX
+# ─────────────────────────────────────────────────────────────
 #
-# After editing:
-#   sudo nginx -t
-#   sudo systemctl reload nginx
+# 1. Find API nginx config:
+#      sudo grep -r "api.betabase" /etc/nginx/
+#
+# 2. Edit that file (sites-enabled or sites-available):
+#      sudo nano /etc/nginx/sites-available/api.betabase.pro
+#
+# 3. Inside BOTH server { } blocks (port 80 AND 443 if SSL), add:
+#
+#      client_max_body_size 55m;
+#      client_body_timeout 120s;
+#
+# 4. Inside location / { } that proxy_passes to Node, also add:
+#
+#      proxy_read_timeout 120s;
+#      proxy_send_timeout 120s;
+#
+# 5. Test and reload:
+#      sudo nginx -t
+#      sudo systemctl reload nginx
+#
+# 6. Restart Node backend:
+#      pm2 restart all
+#      # or: cd BE && npm start
+#
+# ─────────────────────────────────────────────────────────────
+# CERTBOT / HTTPS
+# ─────────────────────────────────────────────────────────────
+#
+# certbot often creates a NEW server { listen 443 ssl; } block.
+# You MUST add client_max_body_size 55m; to the HTTPS block too,
+# not only port 80.
+#
+# ─────────────────────────────────────────────────────────────
+# CLOUDFLARE
+# ─────────────────────────────────────────────────────────────
+#
+# If api.betabase.pro is proxied (orange cloud), uploads up to ~100MB
+# are usually fine. 413 with nginx HTML body = nginx on VPS, not CF.
+#
+# ─────────────────────────────────────────────────────────────
+# VERIFY
+# ─────────────────────────────────────────────────────────────
+#
+#   curl -I https://api.betabase.pro/api/v1/getLinks
+#   grep client_max_body_size /etc/nginx/conf.d/00-betabase-upload-limits.conf
+#
+# See also: nginx-api.betabase.pro.conf (full site example)
