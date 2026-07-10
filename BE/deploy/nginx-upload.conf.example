@@ -1,66 +1,93 @@
-# Hostinger VPS (Ubuntu) — fix 413 on file uploads
+# VPS-wide upload limits (nginx on Ubuntu / Hostinger)
 #
-# Symptom: KYC, tickets, any multipart upload works locally but returns
-#          413 Content Too Large on https://api.betabase.pro
+# ═══════════════════════════════════════════════════════════
+# ONE-TIME FIX FOR ALL SERVICES ON THE VPS
+# ═══════════════════════════════════════════════════════════
 #
-# Cause: nginx default client_max_body_size is 1MB.
+# Default nginx limit is 1MB — breaks KYC, tickets, CRM, any file API.
 #
-# ─────────────────────────────────────────────────────────────
-# QUICK FIX (SSH into VPS, then run):
-# ─────────────────────────────────────────────────────────────
+# SSH into VPS and run:
 #
-#   cd /var/www/betabase   # or your project path
-#   git pull
-#   sudo bash BE/deploy/fix-nginx-uploads.sh
+#   sudo bash /path/to/betabase/BE/deploy/fix-nginx-uploads.sh
 #
-# ─────────────────────────────────────────────────────────────
-# MANUAL FIX
-# ─────────────────────────────────────────────────────────────
+# Custom size (e.g. 200MB for all sites):
 #
-# 1. Find API nginx config:
-#      sudo grep -r "api.betabase" /etc/nginx/
+#   sudo LIMIT=200m bash BE/deploy/fix-nginx-uploads.sh
 #
-# 2. Edit that file (sites-enabled or sites-available):
-#      sudo nano /etc/nginx/sites-available/api.betabase.pro
+# ═══════════════════════════════════════════════════════════
+# MANUAL — GLOBAL (recommended, affects every site)
+# ═══════════════════════════════════════════════════════════
 #
-# 3. Inside BOTH server { } blocks (port 80 AND 443 if SSL), add:
+# Create /etc/nginx/conf.d/00-vps-upload-limits.conf :
 #
-#      client_max_body_size 55m;
-#      client_body_timeout 120s;
+#   client_max_body_size 100m;
+#   client_body_timeout 300s;
+#   client_body_buffer_size 256k;
+#   proxy_read_timeout 300s;
+#   proxy_send_timeout 300s;
 #
-# 4. Inside location / { } that proxy_passes to Node, also add:
+# Ubuntu nginx includes conf.d inside http { } — this applies to ALL vhosts.
 #
-#      proxy_read_timeout 120s;
-#      proxy_send_timeout 120s;
+#   sudo nginx -t
+#   sudo systemctl reload nginx
 #
-# 5. Test and reload:
-#      sudo nginx -t
-#      sudo systemctl reload nginx
+# ═══════════════════════════════════════════════════════════
+# MANUAL — inside nginx.conf (alternative)
+# ═══════════════════════════════════════════════════════════
 #
-# 6. Restart Node backend:
-#      pm2 restart all
-#      # or: cd BE && npm start
+# Edit /etc/nginx/nginx.conf , inside the http { } block add:
 #
-# ─────────────────────────────────────────────────────────────
-# CERTBOT / HTTPS
-# ─────────────────────────────────────────────────────────────
+#   http {
+#       client_max_body_size 100m;
+#       ...
+#   }
 #
-# certbot often creates a NEW server { listen 443 ssl; } block.
-# You MUST add client_max_body_size 55m; to the HTTPS block too,
-# not only port 80.
+# ═══════════════════════════════════════════════════════════
+# PER-SITE OVERRIDE (optional)
+# ═══════════════════════════════════════════════════════════
 #
-# ─────────────────────────────────────────────────────────────
+# Inside one server { } block only:
+#
+#   server {
+#       client_max_body_size 500m;   # bigger than global default
+#       ...
+#   }
+#
+# A smaller value in server {} can REDUCE limit for that site only.
+#
+# ═══════════════════════════════════════════════════════════
+# APACHE (if you use Apache instead of nginx)
+# ═══════════════════════════════════════════════════════════
+#
+# In apache config or .htaccess:
+#   LimitRequestBody 104857600
+#
+# Or in VirtualHost:
+#   <Directory /var/www/>
+#       LimitRequestBody 104857600
+#   </Directory>
+#
+#   sudo systemctl reload apache2
+#
+# ═══════════════════════════════════════════════════════════
+# NODE / EXPRESS (app level — already set in betabase BE)
+# ═══════════════════════════════════════════════════════════
+#
+# app.js: express.json({ limit: "50mb" })
+# multer: fileSize limits per route
+#
+# These only matter AFTER nginx lets the request through.
+#
+# ═══════════════════════════════════════════════════════════
 # CLOUDFLARE
-# ─────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════
 #
-# If api.betabase.pro is proxied (orange cloud), uploads up to ~100MB
-# are usually fine. 413 with nginx HTML body = nginx on VPS, not CF.
+# Proxied domains: usually up to 100MB on free plan.
+# 413 with nginx HTML page = fix VPS nginx first.
 #
-# ─────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════
 # VERIFY
-# ─────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════
 #
+#   sudo nginx -T | grep client_max_body_size
 #   curl -I https://api.betabase.pro/api/v1/getLinks
-#   grep client_max_body_size /etc/nginx/conf.d/00-betabase-upload-limits.conf
-#
-# See also: nginx-api.betabase.pro.conf (full site example)
