@@ -1,35 +1,80 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .attachBtn {
-  border: 1px solid rgba(91, 141, 239, 0.35);
-  background: rgba(91, 141, 239, 0.12);
-  color: #93c5fd;
-  border-radius: 8px;
-  padding: 0.38rem 0.75rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  margin: 0 !important;
+  padding: 0.58rem 1.05rem !important;
+  border: 1px solid rgba(96, 165, 250, 0.42) !important;
+  border-radius: 10px !important;
+  background: rgba(37, 99, 235, 0.14) !important;
+  background-image: none !important;
+  color: #e0f2fe !important;
+  font-family: inherit !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.01em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+}
+
+.attachBtn:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.24) !important;
+  border-color: rgba(147, 197, 253, 0.55) !important;
+  color: #f8fafc !important;
+}
+
+.attachBtn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.28) !important;
 }
 
 .attachBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  color: #94a3b8 !important;
+}
+
+.attachIcon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #93c5fd !important;
+  flex-shrink: 0 !important;
+}
+
+.attachIcon svg {
+  display: block !important;
+  stroke: currentColor !important;
+}
+
+.attachBtn:hover:not(:disabled) .attachIcon {
+  color: #bfdbfe !important;
 }
 
 .hint {
-  font-size: 0.72rem;
-  color: #64748b;
+  font-size: 0.74rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.4 !important;
 }
 
 .hiddenInput {
@@ -60,13 +105,18 @@
   z-index: 2;
   width: 22px;
   height: 22px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(15, 23, 42, 0.82);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  line-height: 1;
-  cursor: pointer;
+  border: none !important;
+  border-radius: 50% !important;
+  background: rgba(15, 23, 42, 0.88) !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
 }
 
 .pendingRemove:disabled {
@@ -146,10 +196,14 @@
 }
 
 .messageCardButton {
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  font: inherit;
+  cursor: pointer !important;
+  text-align: left !important;
+  width: 100% !important;
+  font: inherit !important;
+  color: inherit !important;
+  background-image: none !important;
+  padding: 0.45rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .messageCardButton:disabled {
