@@ -29,11 +29,9 @@ const Supportpage = () => {
         <SideBar state={Active} toggle={toggleBar} />
 
         <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-4xl">
+          <div className="mx-auto w-full max-w-7xl">
             <AdminHeader toggle={toggleBar} pageName="Create Ticket" />
-            <div className="py-4 pb-8">
-              <CreateTicket />
-            </div>
+            <CreateTicket />
           </div>
         </div>
       </div>
