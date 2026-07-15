@@ -95,6 +95,44 @@ function applyCountrySearchFilter(query, countrySearch) {
     }
 }
 
+function applyBrandSearchFilter(query, brandSearch) {
+    if (brandSearch && String(brandSearch).trim() !== '') {
+        const searchPattern = new RegExp(escapeRegex(String(brandSearch).trim()), 'i');
+        query.Brand = searchPattern;
+    }
+}
+
+async function applyLeadVisibilityToQuery(query, user) {
+    if (!user) return;
+
+    if (user.role === 'manager') {
+        const assignedAdmins = await User.find({
+            role: 'admin',
+            assignedManager: user._id
+        }).select('_id').lean();
+
+        const assignedAdminIds = assignedAdmins.map((admin) => admin._id);
+
+        if (assignedAdminIds.length === 0) {
+            query.agent = { $in: [] };
+        } else {
+            query.agent = { $in: assignedAdminIds };
+        }
+    } else if (user.role === 'superadmin') {
+        // Superadmin can see all leads
+    } else if (user.role === 'subadmin') {
+        query.agent = user._id;
+    } else if (user.role === 'admin') {
+        const userPerms = await getCachedUserPermissions(user._id);
+        if (userPerms?.adminPermissions?.canManageCrmLeads) {
+            const subadminIds = await getCachedSubadmins();
+            query.agent = { $in: [user._id, ...subadminIds] };
+        } else {
+            query.agent = user._id;
+        }
+    }
+}
+
 function escapeRegex(text) {
     return text && typeof text === 'string'
         ? text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -991,6 +1029,7 @@ exports.getLeads = async (req, res) => {
             status,
             country,
             countrySearch,
+            brandSearch,
             agent,
             callStatus, // NEW: Filter by call status
             page = 1,
@@ -1031,44 +1070,10 @@ exports.getLeads = async (req, res) => {
         if (status && status !== '') query.status = status;
         applyCountryFilter(query, country);
         applyCountrySearchFilter(query, countrySearch);
+        applyBrandSearchFilter(query, brandSearch);
         if (agent && agent !== '') query.agent = agent;
 
-        // Visibility rules - OPTIMIZED with caching
-        // Manager can only see leads from admins assigned to them
-        // Superadmin can see all leads (no filtering)
-         
-
-        if (req.user && req.user.role === 'manager') {
-            // Manager can only see leads from admins assigned to them
-            const assignedAdmins = await User.find({ 
-                role: 'admin', 
-                assignedManager: req.user._id 
-            }).select('_id').lean();
-            
-            const assignedAdminIds = assignedAdmins.map(admin => admin._id);
-            
-            if (assignedAdminIds.length === 0) {
-                // Manager has no assigned admins - return empty results
-                query.agent = { $in: [] };
-            } else {
-                // Filter leads to only show those assigned to the manager's admins
-                query.agent = { $in: assignedAdminIds };
-            }
-        } else if (req.user && req.user.role === 'superadmin') {
-            // Superadmin can see all leads - no filtering needed
-        } else if (req.user && req.user.role === 'subadmin') {
-            // Subadmin: only own leads
-            query.agent = req.user._id;
-        } else if (req.user && req.user.role === 'admin') {
-            // Admin: own leads + subadmins' leads only if allowed - OPTIMIZED with cache
-            const userPerms = await getCachedUserPermissions(req.user._id);
-            if (userPerms?.adminPermissions?.canManageCrmLeads) {
-                const subadminIds = await getCachedSubadmins();
-                query.agent = { $in: [req.user._id, ...subadminIds] };
-            } else {
-                query.agent = req.user._id;
-            }
-        }
+        await applyLeadVisibilityToQuery(query, req.user);
 
       
 
@@ -1839,11 +1844,39 @@ exports.editLead = async (req, res) => {
         });
     }
 };
+exports.getLeadBrands = async (req, res) => {
+    try {
+        const Lead = await getLeadModel();
+        const query = {
+            isDeleted: false,
+            Brand: { $exists: true, $nin: [null, ''] },
+        };
+
+        await applyLeadVisibilityToQuery(query, req.user);
+
+        const brandsRaw = await Lead.distinct('Brand', query);
+        const brands = [...new Set(
+            brandsRaw
+                .map((brand) => String(brand).trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+        res.status(200).json({ success: true, brands });
+    } catch (err) {
+        console.error('Error fetching lead brands:', err);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error',
+            error: err.message,
+        });
+    }
+};
+
 exports.exportLeads = async (req, res) => {
     try {
         console.log("an", req.query);
         const Lead = await getLeadModel();
-        const { search, status, country, countrySearch, agent, fields } = req.query;
+        const { search, status, country, countrySearch, brandSearch, agent, fields } = req.query;
 
         // Build query (same as getLeads)
         const query = { isDeleted: false };
@@ -1862,20 +1895,10 @@ exports.exportLeads = async (req, res) => {
         if (status && status !== '') query.status = status;
         applyCountryFilter(query, country);
         applyCountrySearchFilter(query, countrySearch);
+        applyBrandSearchFilter(query, brandSearch);
         if (agent && agent !== '') query.agent = agent;
 
-        // Export visibility
-        if (req.user && req.user.role === 'subadmin') {
-            query.agent = req.user._id;
-        } else if (req.user && req.user.role === 'admin') {
-            const userPerms = await getCachedUserPermissions(req.user._id);
-            if (userPerms?.adminPermissions?.canManageCrmLeads) {
-                const subadminIds = await getCachedSubadmins();
-                query.agent = { $in: [req.user._id, ...subadminIds] };
-            } else {
-                query.agent = req.user._id;
-            }
-        }
+        await applyLeadVisibilityToQuery(query, req.user);
 
         // Get all leads matching the filters (no pagination for export)
         const leads = await Lead.find(query).sort({ createdAt: -1 });

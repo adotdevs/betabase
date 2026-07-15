@@ -74,6 +74,7 @@ import {
     Close,
     SwapHoriz,
     LocationOn,
+    Business,
     NavigateBefore,
     NavigateNext,
     KeyboardArrowDown,
@@ -98,6 +99,7 @@ import {
 } from "@mui/icons-material";
 import {
     adminCrmLeadsApi,
+    getLeadBrandsApi,
     createLeadApi,
     uploadLeadsCsvApi,
     uploadLeadsCsvStreamApi,
@@ -1618,12 +1620,15 @@ const LeadsPage = () => {
         search: "",
         status: "",
         countrySearch: "",
+        brandSearch: "",
         agent: "",
         callStatus: "", // Filter by call status: 'completed', 'failed', 'cancelled', 'no-answer', 'no-calls', 'in-progress', 'ringing'
     });
     // Temporary search values (not applied until Search button is clicked)
     const [tempSearch, setTempSearch] = useState("");
     const [tempCountrySearch, setTempCountrySearch] = useState("");
+    const [tempBrandSearch, setTempBrandSearch] = useState("");
+    const [brandOptions, setBrandOptions] = useState([]);
     const [copiedPhones, setCopiedPhones] = useState(() => new Set());
     const handlePhoneCopied = useCallback((phoneNumber) => {
         setCopiedPhones((prev) => {
@@ -2479,6 +2484,20 @@ const LeadsPage = () => {
         return true; // subadmin unchanged
     }, [currentUserLatest]);
 
+    const fetchLeadBrands = useCallback(async () => {
+        try {
+            const response = await getLeadBrandsApi();
+            if (response.success) {
+                setBrandOptions(Array.isArray(response.brands) ? response.brands : []);
+            } else {
+                setBrandOptions([]);
+            }
+        } catch (err) {
+            console.error("Error fetching lead brands:", err);
+            setBrandOptions([]);
+        }
+    }, []);
+
     // OPTIMIZED: Fetch leads with filters and pagination - backend now handles callStatus filtering
     const fetchLeads = async (page = 1, limit = pagination.limit) => {
         try {
@@ -2537,6 +2556,10 @@ const LeadsPage = () => {
             console.error("Error fetching dropdown data:", err);
         }
     };
+
+    useEffect(() => {
+        fetchLeadBrands();
+    }, [fetchLeadBrands]);
 
     useEffect(() => {
         setSelectedLeads(new Set());
@@ -2641,10 +2664,12 @@ const LeadsPage = () => {
     // REMOVED: Frontend filtering is no longer needed - backend handles all filtering efficiently
 
     const handleLeadCreated = () => {
+        fetchLeadBrands();
         fetchLeads(pagination.currentPage);
     };
 
     const handleLeadUpdated = () => {
+        fetchLeadBrands();
         fetchLeads(pagination.currentPage);
     };
 
@@ -3270,8 +3295,9 @@ const LeadsPage = () => {
             ...prev,
             search: tempSearch,
             countrySearch: tempCountrySearch.trim(),
+            brandSearch: tempBrandSearch.trim(),
         }));
-    }, [tempSearch, tempCountrySearch]);
+    }, [tempSearch, tempCountrySearch, tempBrandSearch]);
 
     const applyCountrySearchOnBlur = useCallback(() => {
         const nextValue = tempCountrySearch.trim();
@@ -3286,6 +3312,19 @@ const LeadsPage = () => {
         });
     }, [tempCountrySearch]);
 
+    const applyBrandSearchOnBlur = useCallback(() => {
+        const nextValue = tempBrandSearch.trim();
+        setFilters((prev) => {
+            if (prev.brandSearch === nextValue) {
+                return prev;
+            }
+            return {
+                ...prev,
+                brandSearch: nextValue,
+            };
+        });
+    }, [tempBrandSearch]);
+
     // Handle Enter key in search field
     const handleSearchKeyPress = useCallback((e) => {
         if (e.key === 'Enter') {
@@ -3297,10 +3336,12 @@ const LeadsPage = () => {
     const handleClearFilters = () => {
         setTempSearch("");
         setTempCountrySearch("");
+        setTempBrandSearch("");
         setFilters({
             search: "",
             status: "",
             countrySearch: "",
+            brandSearch: "",
             agent: "",
             callStatus: "",
         });
@@ -3828,6 +3869,58 @@ const LeadsPage = () => {
                                                         <>
                                                             <InputAdornment position="start">
                                                                 <LocationOn fontSize="small" />
+                                                            </InputAdornment>
+                                                            {params.InputProps.startAdornment}
+                                                        </>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={3}>
+                                    <Autocomplete
+                                        freeSolo
+                                        fullWidth
+                                        size="small"
+                                        options={brandOptions}
+                                        inputValue={tempBrandSearch}
+                                        onInputChange={(event, newInputValue) => {
+                                            setTempBrandSearch(newInputValue);
+                                        }}
+                                        onChange={(event, newValue) => {
+                                            if (newValue === null || newValue === "") {
+                                                setTempBrandSearch("");
+                                                setFilters((prev) => ({ ...prev, brandSearch: "" }));
+                                                return;
+                                            }
+                                            const filterValue = String(newValue).trim();
+                                            setTempBrandSearch(filterValue);
+                                            setFilters((prev) => ({ ...prev, brandSearch: filterValue }));
+                                        }}
+                                        filterOptions={(options, { inputValue }) => {
+                                            const query = inputValue.trim().toLowerCase();
+                                            if (!query) return options;
+                                            return options.filter((option) =>
+                                                option.toLowerCase().includes(query)
+                                            );
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Brand"
+                                                placeholder="Search or select brand..."
+                                                onKeyPress={handleSearchKeyPress}
+                                                onBlur={(e) => {
+                                                    params.inputProps?.onBlur?.(e);
+                                                    applyBrandSearchOnBlur();
+                                                }}
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    startAdornment: (
+                                                        <>
+                                                            <InputAdornment position="start">
+                                                                <Business fontSize="small" />
                                                             </InputAdornment>
                                                             {params.InputProps.startAdornment}
                                                         </>

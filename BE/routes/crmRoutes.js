@@ -3,7 +3,7 @@ let express = require("express");
 const { authorizedRoles, isAuthorizedUser, checkCrmAccess, requireSuperAdmin } = require("../middlewares/auth");
 
 const singleUpload = require("../middlewares/multer");
-const { uploadCSV, loginCRM, getLeads, exportLeads, createLead, importUsersAsLeads, deleteLead, deleteAllLeads, bulkDeleteLeads, editLead, assignLeadsToAgent, bulkUpdateLeadStatus, getDeletedLeads, restoreLead, hardDeleteLead, bulkRestoreLeads, bulkHardDeleteLeads, restoreAllLeads, hardDeleteAllLeads, createPublicLead } = require("../controllers/crmController");
+const { uploadCSV, loginCRM, getLeads, getLeadBrands, exportLeads, createLead, importUsersAsLeads, deleteLead, deleteAllLeads, bulkDeleteLeads, editLead, assignLeadsToAgent, bulkUpdateLeadStatus, getDeletedLeads, restoreLead, hardDeleteLead, bulkRestoreLeads, bulkHardDeleteLeads, restoreAllLeads, hardDeleteAllLeads, createPublicLead } = require("../controllers/crmController");
 const { activateLead, bulkActivateLeads: bulkActivateLeadsOld, getActivationProgress, getFailedEmails, resendFailedEmails, deleteFailedEmails } = require("../controllers/activateLeads");
 const { bulkActivateLeads, getEmailQueueStatus, processEmailQueueNow, clearEmailQueue } = require("../controllers/activateLeadsNew");
 const { requirePublicLeadApiKey, rateLimitPublicLead, honeypotPublicLead } = require("../middlewares/publicLeadForm");
@@ -199,6 +199,7 @@ router.route('/crm/lead-statuses').post(isAuthorizedUser, authorizedRoles("super
 router.route('/crm/lead-statuses/:id').patch(isAuthorizedUser, authorizedRoles("superadmin", "admin"), checkCrmAccess, updateLeadStatus);
 router.route('/crm/lead-statuses/:id').delete(isAuthorizedUser, authorizedRoles("superadmin", "admin"), checkCrmAccess, deleteLeadStatus);
 router.route('/crm/getLeads').get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), checkCrmAccess, getLeads);
+router.route('/crm/lead-brands').get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), checkCrmAccess, getLeadBrands);
 // router.route('/crm/getLeads').get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), checkCrmAccess, getLeads);
 router.route('/crm/deleteLead/:id').delete(isAuthorizedUser,
     requireSuperAdmin, checkCrmAccess, deleteLead);
