@@ -82,6 +82,12 @@ function applyCountryFilter(query, country) {
     }
 }
 
+function escapeRegex(text) {
+    return text && typeof text === 'string'
+        ? text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        : text;
+}
+
 function applyCountrySearchFilter(query, countrySearch) {
     if (countrySearch && String(countrySearch).trim() !== '') {
         const searchPattern = new RegExp(escapeRegex(String(countrySearch).trim()), 'i');
@@ -133,10 +139,21 @@ async function applyLeadVisibilityToQuery(query, user) {
     }
 }
 
-function escapeRegex(text) {
-    return text && typeof text === 'string'
-        ? text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        : text;
+async function getDistinctLeadBrands(user) {
+    const Lead = await getLeadModel();
+    const brandsQuery = {
+        isDeleted: false,
+        Brand: { $exists: true, $nin: [null, ''] },
+    };
+
+    await applyLeadVisibilityToQuery(brandsQuery, user);
+
+    const brandsRaw = await Lead.distinct('Brand', brandsQuery);
+    return [...new Set(
+        brandsRaw
+            .map((brand) => String(brand).trim())
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 }
 
 exports.loginCRM = catchAsyncErrors(async (req, res, next) => {
@@ -1179,14 +1196,15 @@ exports.getLeads = async (req, res) => {
             });
         }
 
-        // OPTIMIZED: Fetch leads and count in parallel for better performance
-        const [leadsResult, totalFilteredResult] = await Promise.all([
+        // OPTIMIZED: Fetch leads, count, and brand options in parallel
+        const [leadsResult, totalFilteredResult, brands] = await Promise.all([
             Lead.find(query)
                 .sort(sort)
                 .skip(skip)
                 .limit(limitNum)
                 .lean(),
-            Lead.countDocuments(query)
+            Lead.countDocuments(query),
+            getDistinctLeadBrands(req.user),
         ]);
         
         leads = leadsResult;
@@ -1257,6 +1275,7 @@ exports.getLeads = async (req, res) => {
             success: true,
             data: {
                 leads: populatedLeads,
+                brands,
                 pagination: {
                     currentPage: pageNum,
                     totalPages,
@@ -1844,34 +1863,6 @@ exports.editLead = async (req, res) => {
         });
     }
 };
-exports.getLeadBrands = async (req, res) => {
-    try {
-        const Lead = await getLeadModel();
-        const query = {
-            isDeleted: false,
-            Brand: { $exists: true, $nin: [null, ''] },
-        };
-
-        await applyLeadVisibilityToQuery(query, req.user);
-
-        const brandsRaw = await Lead.distinct('Brand', query);
-        const brands = [...new Set(
-            brandsRaw
-                .map((brand) => String(brand).trim())
-                .filter(Boolean)
-        )].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-
-        res.status(200).json({ success: true, brands });
-    } catch (err) {
-        console.error('Error fetching lead brands:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: err.message,
-        });
-    }
-};
-
 exports.exportLeads = async (req, res) => {
     try {
         console.log("an", req.query);

@@ -74,7 +74,6 @@ import {
     Close,
     SwapHoriz,
     LocationOn,
-    Business,
     NavigateBefore,
     NavigateNext,
     KeyboardArrowDown,
@@ -99,7 +98,6 @@ import {
 } from "@mui/icons-material";
 import {
     adminCrmLeadsApi,
-    getLeadBrandsApi,
     createLeadApi,
     uploadLeadsCsvApi,
     uploadLeadsCsvStreamApi,
@@ -2484,20 +2482,6 @@ const LeadsPage = () => {
         return true; // subadmin unchanged
     }, [currentUserLatest]);
 
-    const fetchLeadBrands = useCallback(async () => {
-        try {
-            const response = await getLeadBrandsApi();
-            if (response.success) {
-                setBrandOptions(Array.isArray(response.brands) ? response.brands : []);
-            } else {
-                setBrandOptions([]);
-            }
-        } catch (err) {
-            console.error("Error fetching lead brands:", err);
-            setBrandOptions([]);
-        }
-    }, []);
-
     // OPTIMIZED: Fetch leads with filters and pagination - backend now handles callStatus filtering
     const fetchLeads = async (page = 1, limit = pagination.limit) => {
         try {
@@ -2518,6 +2502,7 @@ const LeadsPage = () => {
 
             if (res.success) {
                 setLeads(res.data.leads || []);
+                setBrandOptions(Array.isArray(res.data.brands) ? res.data.brands : []);
                 setAllLeadsForFiltering([]); // Not needed anymore - backend handles filtering
                 setFilteredLeads([]); // Not needed anymore
                 setPagination(res.data.pagination || {
@@ -2556,10 +2541,6 @@ const LeadsPage = () => {
             console.error("Error fetching dropdown data:", err);
         }
     };
-
-    useEffect(() => {
-        fetchLeadBrands();
-    }, [fetchLeadBrands]);
 
     useEffect(() => {
         setSelectedLeads(new Set());
@@ -2664,12 +2645,10 @@ const LeadsPage = () => {
     // REMOVED: Frontend filtering is no longer needed - backend handles all filtering efficiently
 
     const handleLeadCreated = () => {
-        fetchLeadBrands();
         fetchLeads(pagination.currentPage);
     };
 
     const handleLeadUpdated = () => {
-        fetchLeadBrands();
         fetchLeads(pagination.currentPage);
     };
 
@@ -3920,7 +3899,7 @@ const LeadsPage = () => {
                                                     startAdornment: (
                                                         <>
                                                             <InputAdornment position="start">
-                                                                <Business fontSize="small" />
+                                                                <Description fontSize="small" />
                                                             </InputAdornment>
                                                             {params.InputProps.startAdornment}
                                                         </>

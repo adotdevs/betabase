@@ -332,7 +332,6 @@ export const adminCrmLeadsApi = ({ params }) => {
   const queryString = new URLSearchParams(params).toString();
   return getApi(`/crm/getLeads?${queryString}`);
 };
-export const getLeadBrandsApi = () => getApi(`/crm/lead-brands`);
 export const createLeadApi = (leadData) => {
   return postApi(`/crm/createLead`, leadData);
 };

@@ -255,7 +255,7 @@ const AdminManagement = () => {
       ]
     },
     {
-      name: 'Sub-Admin Management',
+      name: 'Sub-Admin Management', 
       icon: <PeopleIcon />,
       color: '#f59e0b',
       permissions: [
