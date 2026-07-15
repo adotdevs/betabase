@@ -1,0 +1,15 @@
+.card {
+  overflow: hidden;
+}
+
+.embeddedOverview {
+  margin: 0 -0.25rem;
+}
+
+.embeddedOverview :global(.page) {
+  gap: 0.75rem;
+}
+
+.embeddedOverview :global(input[type="search"]) {
+  background: rgba(0, 0, 0, 0.25);
+}

@@ -1,4 +1,552 @@
-/* CryptoCard.css */
+/* Crypto Card landing page */
+.cc-page {
+    --cc-bg: #0a0e17;
+    --cc-surface: rgba(15, 22, 36, 0.85);
+    --cc-border: rgba(255, 255, 255, 0.08);
+    --cc-cyan: #22d3ee;
+    --cc-purple: #a855f7;
+    --cc-pink: #ec4899;
+    --cc-teal: #0d9488;
+    --cc-teal-light: #14b8a6;
+    --cc-gold: #f59e0b;
+    --cc-text: #f8fafc;
+    --cc-muted: #94a3b8;
+    color: var(--cc-text);
+    font-family: inherit;
+    padding: 0 0 2.5rem;
+    min-height: 100%;
+}
+
+.cc-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.cc-page-title-wrap {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+}
+
+.cc-page-title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+}
+
+.cc-page-welcome {
+    margin: 0;
+    color: var(--cc-gold);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.cc-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--cc-muted);
+    font-size: 0.9rem;
+}
+
+.cc-breadcrumb a {
+    color: var(--cc-muted);
+    text-decoration: none;
+}
+
+.cc-breadcrumb a:hover {
+    color: #fff;
+}
+
+.cc-breadcrumb span:last-child {
+    color: #fff;
+}
+
+/* Hero */
+.cc-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
+    gap: 2.5rem 3rem;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.cc-hero-headline {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 0.75rem;
+    color: #fff;
+}
+
+.cc-hero-tagline {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    margin: 0 0 1.75rem;
+    background: linear-gradient(90deg, var(--cc-cyan), var(--cc-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cc-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.cc-feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    color: #e2e8f0;
+}
+
+.cc-check-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background: rgba(34, 211, 238, 0.15);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--cc-cyan);
+}
+
+.cc-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 160px;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    background: linear-gradient(135deg, #6366f1, #a855f7 55%, #ec4899);
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.35);
+}
+
+.cc-cta-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(168, 85, 247, 0.45);
+}
+
+.cc-cta-btn:disabled {
+    opacity: 0.65;
+    cursor: default;
+    transform: none;
+}
+
+.cc-cta-btn--applied {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid rgba(34, 197, 94, 0.45);
+    color: #86efac;
+    box-shadow: none;
+}
+
+.cc-cta-btn--deactivated {
+    background: rgba(239, 68, 68, 0.18);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    box-shadow: none;
+}
+
+/* Card showcase */
+.cc-showcase {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 300px;
+    padding-top: 1.5rem;
+    width: 100%;
+}
+
+.cc-showcase-glow {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 360px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(34, 211, 238, 0.25) 0%, rgba(168, 85, 247, 0.12) 45%, transparent 70%);
+    pointer-events: none;
+}
+
+.cc-pedestal {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.6) 100%);
+    box-shadow:
+        0 0 0 3px rgba(34, 211, 238, 0.25),
+        0 0 0 6px rgba(168, 85, 247, 0.15),
+        0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.cc-virtual-card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 420px);
+    aspect-ratio: 1.586 / 1;
+    border-radius: 16px;
+    padding: 1.1rem 1.35rem;
+    background: linear-gradient(145deg, #0f766e 0%, #14b8a6 45%, #2dd4bf 100%);
+    box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.45),
+        0 0 40px rgba(45, 212, 191, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    margin-bottom: 56px;
+}
+
+.cc-virtual-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.cc-virtual-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.cc-virtual-card-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cc-virtual-card-badge {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cc-virtual-card-number {
+    position: relative;
+    z-index: 1;
+    font-family: "Inconsolata", "Courier New", monospace;
+    font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: #fff;
+    margin: 0.35rem 0;
+    text-align: left;
+}
+
+.cc-virtual-card-bottom {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.cc-virtual-card-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 1.25rem;
+}
+
+.cc-virtual-card-meta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.cc-virtual-card-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+    text-transform: uppercase;
+}
+
+.cc-virtual-card-value {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.cc-virtual-card-visa {
+    width: 48px;
+    opacity: 0.95;
+    flex-shrink: 0;
+}
+
+/* Floating chips */
+.cc-float-chip {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--cc-border);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.cc-float-chip--active {
+    top: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #86efac;
+}
+
+.cc-float-chip--instant {
+    top: 28%;
+    left: -2%;
+    color: #fde68a;
+}
+
+.cc-float-chip--alert {
+    top: 24%;
+    right: -2%;
+    color: var(--cc-cyan);
+}
+
+.cc-float-chip--pay {
+    bottom: 22%;
+    right: -4%;
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 12px;
+    padding: 0.55rem 0.75rem;
+    gap: 0.35rem;
+}
+
+.cc-pay-logos {
+    display: flex;
+    gap: 0.35rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Bottom features */
+.cc-features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.cc-feature-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    background: var(--cc-surface);
+    border: 1px solid var(--cc-border);
+    backdrop-filter: blur(8px);
+}
+
+.cc-feature-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cc-feature-card-icon--blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.cc-feature-card-icon--purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.cc-feature-card-icon--green { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.cc-feature-card-icon--pink { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+
+.cc-feature-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 0.15rem;
+    color: #fff;
+}
+
+.cc-feature-card-desc {
+    font-size: 0.78rem;
+    margin: 0;
+    color: var(--cc-muted);
+}
+
+/* Details panel */
+.cc-details-panel {
+    margin-top: 2.5rem;
+    padding: 1.75rem;
+    border-radius: 18px;
+    background: var(--cc-surface);
+    border: 1px solid var(--cc-border);
+    backdrop-filter: blur(12px);
+}
+
+.cc-details-panel h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    color: #fff;
+}
+
+.cc-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.cc-detail-item {
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--cc-border);
+}
+
+.cc-detail-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cc-muted);
+    margin-bottom: 0.35rem;
+}
+
+.cc-detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: "Inconsolata", monospace;
+    color: #fff;
+    word-break: break-all;
+}
+
+.cc-details-balance {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: rgba(34, 211, 238, 0.1);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    color: var(--cc-cyan);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.cc-terms {
+    padding-top: 1rem;
+    border-top: 1px solid var(--cc-border);
+}
+
+.cc-terms h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #e2e8f0;
+}
+
+.cc-terms p {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--cc-muted);
+    margin: 0;
+}
+
+/* Skeleton */
+.cc-skeleton {
+    animation: cc-pulse 1.5s ease-in-out infinite;
+}
+
+.cc-skeleton-block {
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+@keyframes cc-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+
+@media (max-width: 1199px) {
+    .cc-features-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cc-float-chip--instant { left: 0; }
+    .cc-float-chip--alert { right: 0; }
+    .cc-float-chip--pay { right: 0; }
+}
+
+@media (max-width: 991px) {
+    .cc-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .cc-showcase {
+        order: -1;
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 575px) {
+    .cc-features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cc-page-header {
+        flex-direction: column;
+    }
+
+    .cc-float-chip {
+        display: none;
+    }
+
+    .cc-float-chip--active {
+        display: flex;
+    }
+}
+
+/* Legacy class aliases kept for admin modal compatibility */
 .crypto-card {
     margin: auto;
     width: 350px;
@@ -14,223 +562,4 @@
     font-family: "Inconsolata", monospace;
     position: relative;
     overflow: hidden;
-}
-
-.thatv th,
-.thatv td {
-    color: white !important;
-    background-color: transparent !important;
-}
-
-.cc-button:hover {
-    transition: all 0.3s ease;
-    background-color: #029380;
-}
-
-.cc-button:disabled {
-    opacity: 0.7;
-    cursor: default;
-}
-
-.cc-button {
-    transition: all 0.3s ease;
-
-}
-
-.crypto-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.crypto-sim-chip {
-    width: 40px;
-    height: 30px;
-    margin-right: 10px;
-}
-
-.crypto-logo {
-    width: 50px;
-    height: 50px;
-}
-
-.crypto-balance {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.crypto-card-body {
-    text-align: center;
-    margin-top: 10px;
-}
-
-.crypto-card-number {
-    font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    font-family: "Inconsolata", monospace;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 10px;
-    display: inline-block;
-}
-
-.crypto-card-footer-2 {
-    font-size: 14px;
-}
-
-.crypto-card-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-top: 15px;
-}
-
-.crypto-card-holder,
-.crypto-card-expiry {
-    opacity: 0.8;
-}
-
-.crypto-card::before {
-    content: '';
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    top: -40px;
-    left: -40px;
-}
-
-.crypto-card::after {
-    content: '';
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    bottom: -20px;
-    right: -20px;
-}
-
-/*  */
-
-.crypto-card.skeleton {
-    background: linear-gradient(135deg, #004d40, #00bfa5);
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    animation: pulse 1.5s infinite ease-in-out;
-}
-
-.crypto-card .skeleton-box {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    display: inline-block;
-    animation: pulse 1.5s infinite ease-in-out;
-}
-
-.crypto-card .logo {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-}
-
-.crypto-card .text {
-    width: 70%;
-    height: 20px;
-}
-
-.crypto-card .small {
-    width: 30%;
-    height: 14px;
-}
-
-.reveal-button {
-    margin-top: 10px;
-    width: 100%;
-    padding: 8px 12px;
-    background-color: #029380;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    width: max-content;
-    margin: auto;
-
-    color: white;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-.rev-btn {
-    margin: 20px auto;
-    display: flex;
-    justify-content: center
-}
-
-.reveal-button:hover {
-    background-color: #004d40;
-}
-
-.card-term p {
-    font-size: 12px;
-}
-
-.card-term h2 {
-    font-size: 16px;
-}
-
-.card-term {
-    background-color: #ffd6cc;
-    max-width: 500px;
-    color: black;
-    width: 100%;
-    border-radius: 10px;
-    padding: 10px 20px;
-    margin: auto;
-}
-
-@keyframes pulse {
-    0% {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    50% {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    100% {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-}
-
-@media (max-width:768px) {
-    .crypto-card {
-        margin-top: 40px;
-        max-width: 350px;
-        width: 100%;
-    }
-}
-
-.maxnj {
-    height: 400px;
-    overflow: auto;
-}
-.main-satkat .card .card-title,
-.main-satkat .card{
-    color: white !important;
-    
-    
-}
-.main-satkat .card  .table thead th
-,.main-satkat .card  .table tbody tr td{
-    border: none ;
-    color: white;
-background-color: rgb(19, 26, 34);
-}
-.mnajas{
-    height: 430px;
-    overflow: auto;
 }

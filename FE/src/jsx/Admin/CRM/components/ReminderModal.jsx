@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,6 +11,10 @@ import {
   IconButton,
   Box,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { createReminderApi, updateReminderApi } from '../../../../Api/Service';
@@ -20,6 +24,43 @@ import {
   toReminderDateInput,
   toReminderTimeInput,
 } from '../../../../utils/reminderTimezone';
+
+const REMINDER_MINUTE_OPTIONS = [0, 15, 30, 45];
+const NOTIFY_BEFORE_OPTIONS = [0, 15, 30, 45, 60];
+
+const pad2 = (value) => String(value).padStart(2, '0');
+
+const snapToQuarterHour = (minutes) => {
+  const numeric = Number(minutes);
+  if (Number.isNaN(numeric)) return 0;
+  return REMINDER_MINUTE_OPTIONS.reduce((closest, option) =>
+    Math.abs(option - numeric) < Math.abs(closest - numeric) ? option : closest
+  );
+};
+
+const snapNotifyBeforeMinutes = (minutes) => {
+  const numeric = Number(minutes);
+  if (Number.isNaN(numeric)) return 15;
+  return NOTIFY_BEFORE_OPTIONS.reduce((closest, option) =>
+    Math.abs(option - numeric) < Math.abs(closest - numeric) ? option : closest
+  );
+};
+
+const parseTimeParts = (timeValue) => {
+  if (!timeValue) return { hour: '', minute: '' };
+  const [hourPart, minutePart] = timeValue.split(':');
+  return {
+    hour: pad2(Number(hourPart) || 0),
+    minute: pad2(snapToQuarterHour(minutePart)),
+  };
+};
+
+const buildTimeValue = (hour, minute) => {
+  if (hour === '' || minute === '') return '';
+  return `${pad2(hour)}:${pad2(minute)}`;
+};
+
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, index) => pad2(index));
 
 const ReminderModal = ({
   open,
@@ -32,9 +73,15 @@ const ReminderModal = ({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [notifyBeforeMinutes, setNotifyBeforeMinutes] = useState(10);
+  const [timeHour, setTimeHour] = useState('');
+  const [timeMinute, setTimeMinute] = useState('');
+  const [notifyBeforeMinutes, setNotifyBeforeMinutes] = useState(15);
   const [saving, setSaving] = useState(false);
+
+  const time = useMemo(
+    () => buildTimeValue(timeHour, timeMinute),
+    [timeHour, timeMinute]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -43,14 +90,17 @@ const ReminderModal = ({
       setTitle(reminder.title || '');
       setDescription(reminder.description || '');
       setDate(toReminderDateInput(reminder.reminderDateTime));
-      setTime(toReminderTimeInput(reminder.reminderDateTime));
-      setNotifyBeforeMinutes(reminder.notifyBeforeMinutes ?? 10);
+      const parts = parseTimeParts(toReminderTimeInput(reminder.reminderDateTime));
+      setTimeHour(parts.hour);
+      setTimeMinute(parts.minute);
+      setNotifyBeforeMinutes(snapNotifyBeforeMinutes(reminder.notifyBeforeMinutes ?? 15));
     } else {
       setTitle('');
       setDescription('');
       setDate('');
-      setTime('');
-      setNotifyBeforeMinutes(10);
+      setTimeHour('');
+      setTimeMinute('');
+      setNotifyBeforeMinutes(15);
     }
   }, [open, reminder]);
 
@@ -143,31 +193,61 @@ const ReminderModal = ({
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label={`Time (${REMINDER_TIMEZONE_LABEL})`}
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              required
-            />
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth required>
+              <InputLabel id="reminder-hour-label">Hour</InputLabel>
+              <Select
+                labelId="reminder-hour-label"
+                label={`Hour (${REMINDER_TIMEZONE_LABEL})`}
+                value={timeHour}
+                onChange={(e) => setTimeHour(e.target.value)}
+              >
+                {HOUR_OPTIONS.map((hour) => (
+                  <MenuItem key={hour} value={hour}>
+                    {hour}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth required>
+              <InputLabel id="reminder-minute-label">Minutes</InputLabel>
+              <Select
+                labelId="reminder-minute-label"
+                label="Minutes"
+                value={timeMinute}
+                onChange={(e) => setTimeMinute(e.target.value)}
+              >
+                {REMINDER_MINUTE_OPTIONS.map((minute) => (
+                  <MenuItem key={minute} value={pad2(minute)}>
+                    {pad2(minute)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="caption" color="text.secondary">
-              Reminder date and time are saved in {REMINDER_TIMEZONE_LABEL}.
+              Reminder date and time are saved in {REMINDER_TIMEZONE_LABEL}. Minutes are available in 15-minute intervals.
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Notify before (minutes)"
-              type="number"
-              value={notifyBeforeMinutes}
-              onChange={(e) => setNotifyBeforeMinutes(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              inputProps={{ min: 0 }}
-            />
+            <FormControl fullWidth>
+              <InputLabel id="notify-before-label">Notify before</InputLabel>
+              <Select
+                labelId="notify-before-label"
+                label="Notify before"
+                value={notifyBeforeMinutes}
+                onChange={(e) => setNotifyBeforeMinutes(Number(e.target.value))}
+              >
+                {NOTIFY_BEFORE_OPTIONS.map((minutes) => (
+                  <MenuItem key={minutes} value={minutes}>
+                    {minutes === 0 ? 'At reminder time' : `${minutes} minutes before`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
       </DialogContent>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
 import { getsignUserApi, getUserCoinApi } from "../../../Api/Service";
-import { isEuroCoin, USD_TO_EUR_RATE } from "../../../utils/euroCoinUtils";
+import { isFiatCoin, USD_TO_EUR_RATE, convertFiatToUserCurrency, getUserDisplayCurrency } from "../../../utils/euroCoinUtils";
 import { Spinner } from "react-bootstrap";
 import styles from "./TransactionSec.module.css";
 import TransactionDetailModal from "./assets/TransactionDetailModal";
@@ -151,8 +151,12 @@ const TransactionSec = () => {
   };
 
   const calculateTransactionValue = (transaction) => {
-    if (isEuroCoin(transaction.trxName)) {
-      return Math.abs(parseFloat(transaction.amount)).toFixed(2);
+    if (isFiatCoin(transaction.trxName)) {
+      return convertFiatToUserCurrency(
+        transaction.amount,
+        transaction.trxName,
+        isUser.currency
+      ).toFixed(2);
     }
 
     const price = prices[transaction.trxName.toLowerCase()] || 0;
@@ -166,7 +170,9 @@ const TransactionSec = () => {
   };
 
   const getFiatLabel = (trxName) => {
-    if (isEuroCoin(trxName)) return "EUR";
+    if (isFiatCoin(trxName)) {
+      return getUserDisplayCurrency(isUser.currency);
+    }
     return isUser.currency === "EUR" ? "EUR" : "USD";
   };
 

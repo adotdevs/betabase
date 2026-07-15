@@ -1,0 +1,265 @@
+.cryptoPage {
+  min-width: 0;
+}
+
+.heroCard {
+  background: linear-gradient(135deg, #042f2e 0%, #0f766e 45%, #14b8a6 100%);
+  border-radius: 20px;
+  padding: 28px;
+  color: #ffffff;
+  box-shadow: 0 18px 40px rgba(20, 184, 166, 0.22);
+}
+
+.heroTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.heroTitle {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.heroSubtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 640px;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.statusChipInactive {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+}
+
+.statusChipApplied {
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fde68a;
+}
+
+.statusChipActive {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #86efac;
+}
+
+.alertBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.alertBannerWarning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.alertBannerSuccess {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+:global(.dark) .alertBannerWarning {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.25);
+  color: #fde68a;
+}
+
+:global(.dark) .alertBannerSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.cardPreviewWrap {
+  position: sticky;
+  top: 24px;
+}
+
+.cardPreview {
+  aspect-ratio: 1.586 / 1;
+  border-radius: 16px;
+  padding: 18px 16px;
+  background: linear-gradient(145deg, #0f766e 0%, #14b8a6 50%, #2dd4bf 100%);
+  box-shadow: 0 20px 40px rgba(15, 118, 110, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+}
+
+.cardPreview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.cardPreviewTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.cardPreviewLogo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cardPreviewBadge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.cardPreviewNumber {
+  position: relative;
+  z-index: 1;
+  font-family: "Inconsolata", "Courier New", monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  margin: 12px 0;
+}
+
+.cardPreviewBottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.cardPreviewMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardPreviewLabel {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+
+.cardPreviewValue {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.cardPreviewVisa {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  opacity: 0.95;
+}
+
+.previewCaption {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+:global(.dark) .previewCaption {
+  color: #94a3b8;
+}
+
+.alertBannerDanger {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+:global(.dark) .alertBannerDanger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+.statusChipDeactivated {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.cardPreviewInactive {
+  opacity: 0.72;
+  filter: grayscale(0.25);
+}
+
+.formError {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+:global(.admin) .cryptoPage .formInputError {
+  border-color: #dc2626 !important;
+}
+
+@media (max-width: 992px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardPreviewWrap {
+    position: static;
+    order: -1;
+  }
+
+  .cardPreview {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroCard {
+    padding: 20px;
+  }
+}

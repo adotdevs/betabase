@@ -1544,16 +1544,7 @@ const EditLeadDialog = memo(({ lead, open, onClose, onLeadUpdated, allowManageSt
     );
 });
 
-const CopyPhoneButton = memo(({ phone }) => {
-    const [copied, setCopied] = useState(false);
-    const resetTimerRef = useRef(null);
-
-    useEffect(() => () => {
-        if (resetTimerRef.current) {
-            clearTimeout(resetTimerRef.current);
-        }
-    }, []);
-
+const CopyPhoneButton = memo(({ phone, isCopied = false, onCopy }) => {
     const handleCopy = async (event) => {
         event.stopPropagation();
         event.preventDefault();
@@ -1562,11 +1553,7 @@ const CopyPhoneButton = memo(({ phone }) => {
 
         try {
             await navigator.clipboard.writeText(String(phone));
-            setCopied(true);
-            if (resetTimerRef.current) {
-                clearTimeout(resetTimerRef.current);
-            }
-            resetTimerRef.current = setTimeout(() => setCopied(false), 1600);
+            onCopy?.(String(phone));
         } catch (error) {
             console.error("Copy phone error:", error);
             toast.error("Failed to copy phone number");
@@ -1576,30 +1563,30 @@ const CopyPhoneButton = memo(({ phone }) => {
     if (!phone) return null;
 
     return (
-        <Tooltip title={copied ? "Copied!" : "Copy phone number"} arrow>
+        <Tooltip title={isCopied ? "Copied" : "Copy phone number"} arrow>
             <IconButton
                 size="small"
                 onClick={handleCopy}
-                aria-label={copied ? "Phone number copied" : "Copy phone number"}
+                aria-label={isCopied ? "Phone number copied" : "Copy phone number"}
                 sx={{
                     p: 0.35,
                     ml: 0.25,
-                    color: copied ? "success.main" : "text.secondary",
-                    bgcolor: copied ? "rgba(46, 125, 50, 0.12)" : "transparent",
+                    color: isCopied ? "success.main" : "text.secondary",
+                    bgcolor: isCopied ? "rgba(46, 125, 50, 0.12)" : "transparent",
                     transition: "transform 0.25s ease, color 0.25s ease, background-color 0.25s ease",
-                    transform: copied ? "scale(1.15)" : "scale(1)",
-                    animation: copied ? "phoneCopyPop 0.45s ease" : "none",
+                    transform: isCopied ? "scale(1.15)" : "scale(1)",
+                    animation: isCopied ? "phoneCopyPop 0.45s ease" : "none",
                     "@keyframes phoneCopyPop": {
                         "0%": { transform: "scale(1)" },
                         "45%": { transform: "scale(1.28)" },
                         "100%": { transform: "scale(1.15)" },
                     },
                     "&:hover": {
-                        bgcolor: copied ? "rgba(46, 125, 50, 0.18)" : "action.hover",
+                        bgcolor: isCopied ? "rgba(46, 125, 50, 0.18)" : "action.hover",
                     },
                 }}
             >
-                {copied ? (
+                {isCopied ? (
                     <CheckCircle sx={{ fontSize: 16 }} />
                 ) : (
                     <ContentCopy sx={{ fontSize: 15 }} />
@@ -1637,6 +1624,15 @@ const LeadsPage = () => {
     // Temporary search values (not applied until Search button is clicked)
     const [tempSearch, setTempSearch] = useState("");
     const [tempCountrySearch, setTempCountrySearch] = useState("");
+    const [copiedPhones, setCopiedPhones] = useState(() => new Set());
+    const handlePhoneCopied = useCallback((phoneNumber) => {
+        setCopiedPhones((prev) => {
+            if (prev.has(phoneNumber)) return prev;
+            const next = new Set(prev);
+            next.add(phoneNumber);
+            return next;
+        });
+    }, []);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -4252,7 +4248,11 @@ const LeadsPage = () => {
                                                                 >
                                                                     {lead.phone}
                                                                 </Typography>
-                                                                <CopyPhoneButton phone={lead.phone} />
+                                                                <CopyPhoneButton
+                                                                    phone={lead.phone}
+                                                                    isCopied={copiedPhones.has(String(lead.phone))}
+                                                                    onCopy={handlePhoneCopied}
+                                                                />
                                                             </Box>
                                                         </TableCell>
                                                         <TableCell onClick={(e) => e.stopPropagation()}>

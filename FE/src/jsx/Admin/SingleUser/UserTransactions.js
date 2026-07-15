@@ -13,6 +13,12 @@ import {
   updateTransactionApi,
 } from "../../../Api/Service";
 import axios from "axios";
+import {
+  convertFiatToUserCurrency,
+  getFiatUsdEquivalent,
+  getUserDisplayCurrency,
+  isFiatCoin,
+} from "../../../utils/euroCoinUtils";
 
 import Truncate from "react-truncate-inside/es";
 import AdminHeader from "../adminHeader";
@@ -534,9 +540,17 @@ const UserTransactions = () => {
                                       </span>
                                     </p>
                                     <p className="font-alt text-xs font-normal leading-normal leading-normal text-muted-400 mt-1">
-                                      {transaction.amount.toFixed(8)}{" "}
+                                      {(isFiatCoin(transaction.trxName)
+                                        ? Math.abs(transaction.amount).toFixed(2)
+                                        : transaction.amount.toFixed(8))}{" "}
                                       <span className="text-muted-500">
-                                        {`($${(() => {
+                                        {isFiatCoin(transaction.trxName)
+                                          ? `(${convertFiatToUserCurrency(
+                                              transaction.amount,
+                                              transaction.trxName,
+                                              userDetail?.currency
+                                            ).toFixed(2)} ${getUserDisplayCurrency(userDetail?.currency)})`
+                                          : `($${(() => {
                                           switch (transaction.trxName.toLowerCase()) {
                                             case "bitcoin":
                                               return (transaction.amount * liveBtc).toFixed(2);
@@ -552,8 +566,6 @@ const UserTransactions = () => {
                                               return (transaction.amount * (liveDoge || 0.1163)).toFixed(2);
                                             case "solana":
                                               return (transaction.amount * (liveSol || 245.01)).toFixed(2);
-                                            case "euro":
-                                              return (transaction.amount * 1.08).toFixed(2);
                                             case "toncoin":
                                               return (transaction.amount * (liveTon || 5.76)).toFixed(2);
                                             case "chainlink":
@@ -1173,7 +1185,13 @@ const UserTransactions = () => {
                                       : singleTransaction.trxName.toLowerCase() === "bnb"
                                         ? " BNB"
                                         : singleTransaction.trxName.toLowerCase() === "euro"
-                                          ? "EUR"
+                                          ? " EUR"
+                                          : singleTransaction.trxName.toLowerCase() === "dollar"
+                                            ? " USD"
+                                            : singleTransaction.trxName.toLowerCase() === "swiss franc"
+                                              ? " CHF"
+                                              : singleTransaction.trxName.toLowerCase() === "danish krone"
+                                                ? " DKK"
                                           : singleTransaction.trxName.toLowerCase() === "solana"
                                             ? "SOL"
                                             : singleTransaction.trxName.toLowerCase() === "xrp"
@@ -1270,7 +1288,12 @@ const UserTransactions = () => {
                                                           parseFloat(singleTransaction.amount)
                                                         ) * (liveTrx || 0.1531) || 0
                                                       ).toFixed(2)
-                                                      : (0).toFixed(2)
+                                                      : isFiatCoin(singleTransaction.trxName)
+                                                        ? getFiatUsdEquivalent(
+                                                            singleTransaction.amount,
+                                                            singleTransaction.trxName
+                                                          )
+                                                        : (0).toFixed(2)
                                 })`}</span>
 
                             <svg

@@ -216,16 +216,23 @@ const AdminHeader = (props) => {
 
         try {
             setisDisable(true);
-            const response = await userCryptoCardApi(temporaryUser.userId, formData);
+            const response = await userCryptoCardApi({
+                userId: temporaryUser.userId,
+                ticketId: temporaryUser._id,
+                cardNumber: formData.cardNumber,
+                cardName: formData.cardHolder,
+                cardExpiry: formData.expiryDate,
+                cardCvv: formData.cvv,
+            });
             if (response.success) {
-                toast.success("Card created successfully!");
+                toast.success(response.msg || "Card created successfully!");
                 toggleModelClose();
                 notifications(1, 10);
             } else {
-                toast.error(response.msg);
+                toast.error(response.msg || "Failed to activate card");
             }
         } catch (error) {
-            toast.error("Error creating card");
+            toast.error(error?.response?.data?.msg || error?.message || "Error creating card");
         } finally {
             setisDisable(false);
         }
@@ -298,7 +305,7 @@ const AdminHeader = (props) => {
 
         const isUnread = !notification.isRead;
         const linkPath = 
-            notification.type === "card_request" ? null :
+            notification.type === "card_request" ? `/admin/users/${notification.userId}/crypto-card` :
             notification.type === "ticket_message" ? `/admin/ticket/user/${notification.userId}/${notification.ticketId}` :
             notification.type === "KYC_request" ? `/admin/users/${notification.userId}/verifications` :
             notification.type === "loan_request" ? `/admin/users/${notification.userId}/loan-application` :

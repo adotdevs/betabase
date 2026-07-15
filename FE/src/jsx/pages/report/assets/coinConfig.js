@@ -11,6 +11,7 @@ import Coin6 from "../../../../assets/images/new/6.png";
 import Coin7 from "../../../../assets/images/new/7.png";
 import Coin8 from "../../../../assets/images/new/8.png";
 import SolIco from "../../../../assets/images/new/solana.png";
+import { isFiatCoinHiddenFromCrypto } from "../../../../utils/euroCoinUtils";
 
 export const coinLogos = {
   bnb: BNBcoin,
@@ -89,6 +90,12 @@ export const getAdditionalCoinPrice = (coinSymbol, livePrices = {}) => {
     case "doge":
       return livePrices.doge || 0.1163;
     case "eur":
+      return 1;
+    case "usd":
+      return 1;
+    case "chf":
+      return 1;
+    case "dkk":
       return 1;
     case "sol":
       return livePrices.sol || 245.01;
@@ -250,7 +257,7 @@ export const buildPortfolioCoins = ({
   });
 
   const additionalCoins = (newUserCoins || [])
-    .filter((coin) => String(coin.coinName || "").toLowerCase() !== "euro")
+    .filter((coin) => !isFiatCoinHiddenFromCrypto(coin.coinName))
     .map((coin) => {
       const trxName = coin.coinName.toLowerCase();
       return {

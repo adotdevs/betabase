@@ -1180,7 +1180,7 @@ const AdminUsers = () => {
       const response = await addUserByEmailApi(body);
 
       if (response.success) {
-        toast.success("User assigned to subadmin successfully");
+        toast.success(response.msg || "User assigned to subadmin successfully");
         closeAssignModal();
         await getAllUsers();
       } else {
@@ -2278,7 +2278,10 @@ const AdminUsers = () => {
             <Box sx={{ p: 2, bgcolor: 'grey.800', borderRadius: 2 }}>
               <Typography variant="body2" sx={{ color: 'grey.300' }}>
                 <strong>Note:</strong> Enter the email of the user you want to assign to a subadmin.
-                The user must already exist in the system and must not be assigned to any other subadmin.
+                The user must already exist in the system.
+                {isSuperAdmin
+                  ? " If the user is already assigned to another subadmin, they will be moved to the selected subadmin."
+                  : " The user must not be assigned to any other subadmin."}
               </Typography>
             </Box>
           </Box>

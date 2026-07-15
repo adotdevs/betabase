@@ -79,11 +79,11 @@ const LeadRemindersSection = ({
   };
 
   const handleDelete = async (reminder) => {
-    if (!window.confirm('Delete this reminder?')) return;
+    if (!window.confirm('Move this reminder to trash?')) return;
     try {
       const response = await deleteReminderApi(reminder._id);
       if (response.success) {
-        toast.success('Reminder deleted');
+        toast.success('Reminder moved to trash');
         fetchReminders();
       } else {
         toast.error(response.msg || 'Failed to delete reminder');

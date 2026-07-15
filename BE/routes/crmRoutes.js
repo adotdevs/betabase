@@ -24,6 +24,9 @@ const {
   getReminderById,
   updateReminder,
   deleteReminder,
+  getTrashedReminders,
+  restoreReminder,
+  hardDeleteReminder,
   getReminderBadgeCount,
   getPendingNotifications,
   dismissNotification,
@@ -344,6 +347,12 @@ router.route('/crm/reminders/badge-count').get(
   checkCrmAccess,
   getReminderBadgeCount
 );
+router.route('/crm/reminders/trash').get(
+  isAuthorizedUser,
+  authorizedRoles("superadmin"),
+  checkCrmAccess,
+  getTrashedReminders
+);
 router.route('/crm/reminders/notifications/pending').get(
   isAuthorizedUser,
   authorizedRoles("superadmin", "admin", "subadmin"),
@@ -361,6 +370,18 @@ router.route('/crm/reminders/notifications/:id/read').patch(
   authorizedRoles("superadmin", "admin", "subadmin"),
   checkCrmAccess,
   markNotificationRead
+);
+router.route('/crm/reminders/:id/restore').patch(
+  isAuthorizedUser,
+  authorizedRoles("superadmin"),
+  checkCrmAccess,
+  restoreReminder
+);
+router.route('/crm/reminders/:id/hard-delete').delete(
+  isAuthorizedUser,
+  authorizedRoles("superadmin"),
+  checkCrmAccess,
+  hardDeleteReminder
 );
 router.route('/crm/reminders/:id').get(
   isAuthorizedUser,

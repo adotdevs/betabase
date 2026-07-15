@@ -291,7 +291,8 @@ const AdminManagement = () => {
       icon: <PeopleIcon />,
       color: '#f59e0b',
       permissions: [
-        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." }
+        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." },
+        { key: 'editWalletAddress', label: 'Wallet Addresses', desc: "Allow administrator to view and edit user wallet deposit addresses." }
       ]
     }
   ];

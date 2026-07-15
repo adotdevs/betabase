@@ -391,14 +391,6 @@ const useMenuList = () => {
             ]
             : [])
         ,
-        {
-            title: 'Logout',
-            classsChange: 'mm-active',
-            to: '#',
-            onClick: "onLogout",
-            iconStyle: <i className="material-symbols-outlined"> </i>,
-
-        },
     ];
 
     return filterMenuItems(menuItems);

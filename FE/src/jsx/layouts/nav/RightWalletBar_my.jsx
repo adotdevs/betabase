@@ -4,34 +4,18 @@ import Truncate from "react-truncate-inside";
 import Select from 'react-select';
 import btcLogo from "../../../assets/images/img/btc-logo.svg";
 import ethLogo from "../../../assets/images/img/ethereum-logo.svg";
-import BNBcoin from '../../../assets/images/new/bnb.png';
-import Coin1 from '../../../assets/images/new/1.png';
-import Coin2 from '../../../assets/images/new/2.png';
-import Coin3 from '../../../assets/images/new/3.png';
-import Coin4 from '../../../assets/images/new/4.png';
-import Coin5 from '../../../assets/images/new/5.png';
-import Coin6 from '../../../assets/images/new/6.png';
-import Coin7 from '../../../assets/images/new/7.png';
-import Coin8 from '../../../assets/images/new/8.png';
-import Dash from "../../../assets/images/svg/dash.svg"
-import Eth from "../../../assets/images/svg/eth.svg"
-import usdtLogo from "../../../assets/images/img/usdt-logo.svg";
-import EurIco from "../../../assets/images/new/euro.svg";
-import SolIco from "../../../assets/images/new/solana.png";
-import redArrow from "../../../assets/images/img/re-arriw.svg";
-import DropdownBlog from '../../elements/DropdownBlog';
+import dash from "../../../assets/images/svg/dash.svg"
+import eth from "../../../assets/images/svg/eth.svg"
 import { SVGICON } from '../../constant/theme';
 import './style.css'
-import dash from "../../../assets/images/svg/dash.svg"
-import btc from "../../../assets/images/svg/btc.svg"
-import eth from "../../../assets/images/svg/eth.svg"
 import { ThemeContext } from '../../../context/ThemeContext';
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi, getsignUserApi, getCoinsUserApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { combinePortfolioTotal, sumEuroCoinAmount, isEuroCoin, getTransactionCurrencySymbol } from "../../../utils/euroCoinUtils";
+import { combinePortfolioTotal, buildFiatAmountsFromTransactions, isFiatCoin, getTransactionCurrencySymbol, getFiatTransactionDisplayAmount } from "../../../utils/euroCoinUtils";
+import { resolveTransactionCoinMeta } from '../../pages/report/assets/transactionDisplayUtils';
 import EuroAccountUserCard, { hasCompleteEuroBankAccount } from "../../components/EuroAccountUserCard";
 const OrderTableData = [
     { price: '82.3', amount: '0.15', total: '134.12' },
@@ -50,25 +34,7 @@ const options1 = [
     { value: '3', label: 'Online' },
     { value: '4', label: 'Cash On Time' },
 ]
-const coinLogos = {
-    bitcoin: btcLogo,
-    tether: usdtLogo,
-    ethereum: Eth,
-    bnb: BNBcoin, // Replace with actual local path
-    xrp: Coin1, // Replace with actual local path
-    dogecoin: Coin2, // Replace with actual local path
-    euro: EurIco, // Replace with actual local path
-    solana: SolIco, // Replace with actual local path
-    // Replace with actual local path
-    toncoin: Coin3, // Replace with actual local path
-    chainlink: Coin4, // Replace with actual local path
-    polkadot: Coin5, // Replace with actual local path
-    'near protocol': Coin6, // Replace with actual local path
-    'usd coin': Coin7, // Replace with actual local path
-    tron: Coin8 // Replace with actual local path
-    // Replace with actual local path
-    // Add more coins as needed
-};
+
 const RightWalletBar = () => {
     const { setHeadWallet } = useContext(ThemeContext);
     const [depositModal, setDepositModal] = useState(false);
@@ -277,10 +243,13 @@ const RightWalletBar = () => {
                     nearBalance +
                     usdcBalance +
                     trxBalance;
-                const euroRawBalance = sumEuroCoinAmount(userCoins.getCoin.transactions, "completed");
+                const fiatAmounts = buildFiatAmountsFromTransactions(
+                    userCoins.getCoin.transactions,
+                    "completed"
+                );
                 const totalBalance = combinePortfolioTotal(
                     cryptoUsdTotal,
-                    euroRawBalance,
+                    fiatAmounts,
                     isUserd.currency
                 ).toFixed(2);
 
@@ -342,10 +311,13 @@ const RightWalletBar = () => {
                     nearPending +
                     usdcPending +
                     trxPending;
-                const euroRawPending = sumEuroCoinAmount(userCoins.getCoin.transactions, "pending");
+                const fiatPending = buildFiatAmountsFromTransactions(
+                    userCoins.getCoin.transactions,
+                    "pending"
+                );
                 const totalPendingBalance = combinePortfolioTotal(
                     cryptoPendingUsdTotal,
-                    euroRawPending,
+                    fiatPending,
                     isUserd.currency
                 ).toFixed(2);
 
@@ -482,21 +454,41 @@ const RightWalletBar = () => {
                                             <tbody>
                                                 {UserTransactions && UserTransactions.length > 0 ? (
                                                     <>
-                                                        {UserTransactions.filter(transaction => !transaction.isHidden).map((Transaction, index) => (
+                                                        {UserTransactions.filter(transaction => !transaction.isHidden).map((Transaction, index) => {
+                                                            const coinMeta = resolveTransactionCoinMeta(Transaction.trxName);
+                                                            return (
                                                             <tr key={index} className='widn'>
                                                                 <td className="text-start new-bg-dark text-white">
-                                                                    <img
-                                                                        style={{ borderRadius: "100%" }}
-                                                                        src={coinLogos[Transaction.trxName.toLowerCase()]}
-                                                                        alt={`${Transaction.trxName} logo`}
-                                                                        className="coin-logo me-2 img-btc"
-                                                                    />
+                                                                    {coinMeta.logo ? (
+                                                                        <img
+                                                                            style={{ borderRadius: "100%" }}
+                                                                            src={coinMeta.logo}
+                                                                            alt={`${coinMeta.name} logo`}
+                                                                            className="coin-logo me-2 img-btc"
+                                                                        />
+                                                                    ) : (
+                                                                        <span
+                                                                            className="coin-logo me-2 d-inline-flex align-items-center justify-content-center rounded-circle text-white fw-semibold"
+                                                                            style={{
+                                                                                width: "1.5625rem",
+                                                                                height: "1.5625rem",
+                                                                                fontSize: "0.65rem",
+                                                                                background: coinMeta.accent || "#5b8def",
+                                                                            }}
+                                                                        >
+                                                                            {coinMeta.symbol?.slice(0, 3)}
+                                                                        </span>
+                                                                    )}
                                                                 </td>
                                                                 <td className='new-bg-dark text-white'>{Transaction.type === "withdraw" ? "Withdraw" : "Deposit"}</td>
                                                                 <td className="new-bg-dark text-white text-end">
                                                                     {`${getTransactionCurrencySymbol(Transaction.trxName, isUser.currency)} ${(() => {
-                                                                        if (isEuroCoin(Transaction.trxName)) {
-                                                                            return Math.abs(Number(Transaction.amount) || 0).toLocaleString(undefined, {
+                                                                        if (isFiatCoin(Transaction.trxName)) {
+                                                                            return Number(getFiatTransactionDisplayAmount(
+                                                                                Transaction.amount,
+                                                                                Transaction.trxName,
+                                                                                isUser.currency
+                                                                            )).toLocaleString(undefined, {
                                                                                 minimumFractionDigits: 2,
                                                                                 maximumFractionDigits: 2,
                                                                             });
@@ -552,7 +544,8 @@ const RightWalletBar = () => {
                                                                     })()}`}
                                                                 </td>
                                                             </tr>
-                                                        ))}
+                                                            );
+                                                        })}
                                                     </>
                                                 ) : <h5 className='text-center d-flex items-center' style={{ textAlign: "center" }}>No Transaction Found</h5>}
 

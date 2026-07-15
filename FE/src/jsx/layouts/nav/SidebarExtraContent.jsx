@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+// Portfolio sidebar balance widget
 import { SVGICON } from '../../constant/theme';
 import { useLocation } from 'react-router-dom';
 import { NavLink, useNavigate, Link } from "react-router-dom";
@@ -6,7 +7,10 @@ import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi, getsignUserApi, getCoinsUserApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { combinePortfolioTotal, sumEuroCoinAmount } from "../../../utils/euroCoinUtils";
+import {
+  combinePortfolioTotal,
+  buildFiatAmountsFromTransactions,
+} from "../../../utils/euroCoinUtils";
 // let path = window.location.pathname;
 // path = path.split("/");
 // path = path[path.length - 1];
@@ -219,10 +223,13 @@ const SidebarExtraContent = () => {
 					nearBalance +
 					usdcBalance +
 					trxBalance;
-				const euroRawBalance = sumEuroCoinAmount(userCoins.getCoin.transactions, "completed");
+				const fiatAmounts = buildFiatAmountsFromTransactions(
+					userCoins.getCoin.transactions,
+					"completed"
+				);
 				const totalBalance = combinePortfolioTotal(
 					cryptoUsdTotal,
-					euroRawBalance,
+					fiatAmounts,
 					isUserd.currency
 				).toFixed(2);
 
@@ -284,10 +291,13 @@ const SidebarExtraContent = () => {
 					nearPending +
 					usdcPending +
 					trxPending;
-				const euroRawPending = sumEuroCoinAmount(userCoins.getCoin.transactions, "pending");
+				const fiatPending = buildFiatAmountsFromTransactions(
+					userCoins.getCoin.transactions,
+					"pending"
+				);
 				const totalBalancePendings = combinePortfolioTotal(
 					cryptoPendingUsdTotal,
-					euroRawPending,
+					fiatPending,
 					isUserd.currency
 				).toFixed(2);
 
@@ -345,23 +355,26 @@ const SidebarExtraContent = () => {
 		}
 	}, []);
 
+	const userId = Admin?._id || authUser()?.user?._id;
+	const transactionsPath = userId ? `/Transactions/${userId}` : "/dashboard";
+
 	return (
 		<>
-			<div className={`feature-box  new-bg-dark ${compare.includes(pathname) ? '' : 'style-3'}`}>
-				<div className="wallet-box new-bg-light">
+			<div className={` feature-box  new-bg-dark ${compare.includes(pathname) ? '' : 'style-3'}`}>
+				<Link to={transactionsPath} className="wallet-box new-bg-light">
 					{SVGICON.SideWalletSvgIcon}
 					<div className="ms-3">
 						<h4 className="text-white mb-0 d-block">{totalBalance === null ? "..." : totalBalance === 0 ? 0 : `${totalBalance}`} </h4>
 						<small className="new-theme-color">Available Funds</small>
 					</div>
-				</div>
-				<div className="wallet-box new-bg-light">
+				</Link>
+				<Link to={transactionsPath} className="wallet-box new-bg-light">
 					{SVGICON.SideWalletSvgIcon}
 					<div className="ms-3">
 						<h4 className="text-white mb-0 d-block">{totalBalancePending === null ? "..." : totalBalancePending === 0 ? 0 : `${totalBalancePending}`} </h4>
 						<small className="new-theme-color"> Total Pending</small>
 					</div>
-				</div>
+				</Link>
 
 			</div>
 		</>

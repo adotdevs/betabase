@@ -64,7 +64,10 @@ let userCoins = new mongoose.Schema({
       { coinName: "USD Coin", coinSymbol: "usdc", balance: 0, tokenAddress: "" },
       { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "" },
       { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "" },
-      { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "" }
+      { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "" },
+      { coinName: "Dollar", coinSymbol: "usd", balance: 0, tokenAddress: "" },
+      { coinName: "Swiss Franc", coinSymbol: "chf", balance: 0, tokenAddress: "" },
+      { coinName: "Danish Krone", coinSymbol: "dkk", balance: 0, tokenAddress: "" }
     ],
   },
   usdtTokenAddress: {
@@ -89,8 +92,8 @@ let userCoins = new mongoose.Schema({
       },
       withdraw: {
         type: String,
-        required: true,
-        enum: ["crypto", "bank"],
+        enum: ["crypto", "bank", "admin"],
+        default: "admin",
       },
       selectedPayment: {
         type: String,
@@ -102,7 +105,7 @@ let userCoins = new mongoose.Schema({
       },
       txId: {
         type: String,
-        required: true,
+        default: "",
       },
       tradingTime: {
         type: String,

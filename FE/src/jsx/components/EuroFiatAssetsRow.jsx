@@ -4,6 +4,7 @@ import Truncate from "react-truncate-inside/es";
 import EurIco from "../../assets/images/new/euro.svg";
 import EuroBankDetailsModal from "./EuroBankDetailsModal";
 import { hasEuroBankAccountData } from "./euroAccountUtils";
+import { formatFiatBalanceForUser } from "../../utils/euroCoinUtils";
 import styles from "./EuroFiatAssetsRow.module.css";
 
 const CopyIcon = ({ success, light = false }) =>
@@ -43,9 +44,15 @@ const EuroFiatAssetsRow = ({
   account,
   balance = 0,
   currencyLabel = "EUR",
+  title = "Euro",
+  icon = EurIco,
+  bankModalTitle,
   variant = "assets",
+  showHeader = true,
   onWithdraw,
   hasBankAccount,
+  userCurrency = "USD",
+  fiatKey,
 }) => {
   const [authOpen, setAuthOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -54,7 +61,9 @@ const EuroFiatAssetsRow = ({
   const iban = String(account?.iban || "").trim();
   const accountNumber = String(account?.accountNumber || "").trim();
   const displayAddress = iban || accountNumber;
-  const formattedBalance = `${Number(balance || 0).toFixed(2)} ${currencyLabel}`;
+  const formattedBalance = fiatKey
+    ? formatFiatBalanceForUser(balance, fiatKey, userCurrency)
+    : `${Number(balance || 0).toFixed(2)} ${currencyLabel}`;
 
   const handleCopyClick = () => {
     if (!displayAddress) return;
@@ -135,20 +144,21 @@ const EuroFiatAssetsRow = ({
   return (
     <>
       {variant === "modern" ? (
+        showHeader ? (
         <section className={styles.card}>
           <div className={styles.listHeader}>
             <span>Currency</span>
             <span>Balance</span>
             <span>Withdraw</span>
-            <span>Address</span>
+            <span className={styles.ibanHeader}>IBAN</span>
           </div>
           <div className={styles.row}>
             <div className={styles.currency}>
               <span className={styles.coinIcon}>
-                <img src={EurIco} alt="Euro" />
+                <img src={icon} alt={title} />
               </span>
               <div className={styles.coinMeta}>
-                <strong>Euro</strong>
+                <strong>{title}</strong>
                 <span>{currencyLabel}</span>
               </div>
             </div>
@@ -157,10 +167,26 @@ const EuroFiatAssetsRow = ({
             {addressContent}
           </div>
         </section>
+        ) : (
+          <div className={styles.row}>
+            <div className={styles.currency}>
+              <span className={styles.coinIcon}>
+                <img src={icon} alt={title} />
+              </span>
+              <div className={styles.coinMeta}>
+                <strong>{title}</strong>
+                <span>{currencyLabel}</span>
+              </div>
+            </div>
+            <div className={styles.balance}>{formattedBalance}</div>
+            {modernActionButtons}
+            {addressContent}
+          </div>
+        )
       ) : variant === "home" ? (
         <tr>
           <td className="text-start no-bg widn">
-            <img style={{ borderRadius: "100%" }} src={EurIco} alt="Euro" />
+            <img style={{ borderRadius: "100%" }} src={icon} alt={title} />
           </td>
           <td className="no-bg text-white">
             <p style={{ margin: 0 }} className="txt sml">
@@ -180,8 +206,8 @@ const EuroFiatAssetsRow = ({
         <tr>
           <td className="tleft">
             <span className="font-w600 fs-14">
-              <img className="img30" src={EurIco} alt="" />
-              Euro
+              <img className="img30" src={icon} alt="" />
+              {title}
             </span>
           </td>
           <td className="fs-14 font-w400">{formattedBalance}</td>
@@ -206,7 +232,12 @@ const EuroFiatAssetsRow = ({
       )}
 
       {showBankDetails && (
-        <EuroBankDetailsModal open={authOpen} onClose={() => setAuthOpen(false)} account={account} />
+        <EuroBankDetailsModal
+          open={authOpen}
+          onClose={() => setAuthOpen(false)}
+          account={account}
+          title={bankModalTitle || `${title} Bank Account`}
+        />
       )}
     </>
   );

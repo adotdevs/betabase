@@ -1,0 +1,105 @@
+.slideCard {
+  overflow: hidden;
+}
+
+.slideCard :global(.card-header) {
+  padding-left: 0.85rem !important;
+  padding-right: 0.85rem !important;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding-top: 0.625rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.price {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding-right: 0.15rem;
+}
+
+.priceAmount {
+  color: #fff !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.1 !important;
+  margin: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+  letter-spacing: -0.03em;
+}
+
+.iconWrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  animation: coinRingSpin 10s linear infinite;
+  pointer-events: none;
+}
+
+.slideCard:hover .iconRing {
+  opacity: 1;
+}
+
+.iconLogo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  display: block;
+  background: #fff;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+@keyframes coinRingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media only screen and (max-width: 74.9375rem) {
+  .priceAmount {
+    font-size: 0.8rem !important;
+  }
+
+  .iconWrap {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .iconLogo {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .priceAmount {
+    font-size: 0.95rem !important;
+  }
+}

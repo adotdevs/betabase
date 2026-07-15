@@ -10,6 +10,14 @@ let notificationSchema = require("../models/notifications");
 
 const XLSX = require("xlsx");
 
+const canEditWalletAddress = (user) => {
+  if (!user) return false;
+  if (user.role === "superadmin") return true;
+  if (user.role === "admin") return user.adminPermissions?.editWalletAddress === true;
+  if (user.role === "subadmin") return user.permissions?.editWalletAddress === true;
+  return false;
+};
+
 const defaultAdditionalCoins = [
   { coinName: "BNB", coinSymbol: "bnb", balance: 0, tokenAddress: "", activationStatus: "inactive" },
   { coinName: "XRP", coinSymbol: "xrp", balance: 0, tokenAddress: "", activationStatus: "inactive" },
@@ -22,7 +30,40 @@ const defaultAdditionalCoins = [
   { coinName: "Tron", coinSymbol: "trx", balance: 0, tokenAddress: "", activationStatus: "inactive" },
   { coinName: "Solana", coinSymbol: "sol", balance: 0, tokenAddress: "", activationStatus: "inactive" },
   { coinName: "Euro", coinSymbol: "eur", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Dollar", coinSymbol: "usd", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Swiss Franc", coinSymbol: "chf", balance: 0, tokenAddress: "", activationStatus: "inactive" },
+  { coinName: "Danish Krone", coinSymbol: "dkk", balance: 0, tokenAddress: "", activationStatus: "inactive" },
 ];
+
+const FIAT_TRX_NAMES = new Set(["Euro", "Dollar", "Swiss Franc", "Danish Krone"]);
+
+const isFiatTrxName = (trxName) => FIAT_TRX_NAMES.has(String(trxName || "").trim());
+
+const repairLegacyTransactions = async (doc) => {
+  if (!doc?.transactions?.length) return doc;
+
+  let changed = false;
+  for (const tx of doc.transactions) {
+    if (!tx.withdraw) {
+      tx.withdraw = "admin";
+      changed = true;
+    }
+    if (tx.txId == null) {
+      tx.txId = "";
+      changed = true;
+    }
+  }
+
+  if (!changed) return doc;
+
+  await userCoins.updateOne(
+    { _id: doc._id },
+    { $set: { transactions: doc.transactions } },
+    { runValidators: false }
+  );
+
+  return userCoins.findOne({ _id: doc._id });
+};
 
 const CORE_COIN_ACTIVATION = {
   bitcoin: {
@@ -66,8 +107,11 @@ exports.updateAdditionalCoinsForAllUsers = async () => {
 
       // Add missing coins
       if (missingCoins.length > 0) {
-        user.additionalCoins.push(...missingCoins);
-        await user.save(); // Save updated user coins 
+        await userCoins.findByIdAndUpdate(
+          user._id,
+          { $push: { additionalCoins: { $each: missingCoins } } },
+          { runValidators: false }
+        );
       }
     }
  
@@ -80,23 +124,36 @@ exports.addCoins = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
 
   let existing = await userCoins.findOne({ user: id });
+  existing = await repairLegacyTransactions(existing);
 
-  if (existing) {
-    // Already exists → just return it
+  if (!existing) {
+    let newCoin = await userCoins.create({ user: id });
+
     return res.status(200).send({
       success: true,
-      msg: "Already exists",
-      createCoin: existing,
+      msg: "Created",
+      createCoin: newCoin,
     });
   }
 
-  // Not exists → create new doc
-  let newCoin = await userCoins.create({ user: id });
+  const currentSymbols = existing.additionalCoins.map((coin) => coin.coinSymbol);
+  const missingCoins = defaultAdditionalCoins.filter(
+    (defaultCoin) => !currentSymbols.includes(defaultCoin.coinSymbol)
+  );
+
+  if (missingCoins.length > 0) {
+    await userCoins.findByIdAndUpdate(
+      existing._id,
+      { $push: { additionalCoins: { $each: missingCoins } } },
+      { new: true, runValidators: false }
+    );
+    existing = await userCoins.findOne({ user: id });
+  }
 
   res.status(200).send({
     success: true,
-    msg: "Created",
-    createCoin: newCoin,
+    msg: missingCoins.length > 0 ? "Missing coins added" : "Already exists",
+    createCoin: existing,
   });
 });
 
@@ -176,6 +233,10 @@ exports.getCoinsUser = catchAsyncErrors(async (req, res, next) => {
   });
 });
 exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
+  if (req.user?.role !== "user" && !canEditWalletAddress(req.user)) {
+    return next(new errorHandler("You do not have permission to edit wallet addresses", 403));
+  }
+
   let { id } = req.params;
   let { usdtTokenAddress, ethTokenAddress, btcTokenAddress } = req.body;
 
@@ -209,6 +270,10 @@ exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {
   });
 });
 exports.updateNewCoinAddress = catchAsyncErrors(async (req, res, next) => {
+  if (req.user?.role !== "user" && !canEditWalletAddress(req.user)) {
+    return next(new errorHandler("You do not have permission to edit wallet addresses", 403));
+  }
+
   const { id } = req.params; // User ID from params
   const { coinSymbol, address } = req.body.newCoinAddress; // Destructure from body
  
@@ -392,28 +457,30 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
   } = req.body;
 
   if (!trxName || !amount || !status ||
-    (trxName !== "Euro" && (!txId || !fromAddress))) {
+    (!isFiatTrxName(trxName) && (!txId || !fromAddress))) {
     return next(new errorHandler("Please fill all the required fields", 500));
   }
+
+  const transactionPayload = {
+    trxName,
+    amount,
+    txId: txId || "",
+    type,
+    fromAddress: fromAddress || "",
+    status,
+    note,
+    reference,
+    withdraw: "admin",
+    ...(Staking ? { stakingData, lastProfitDate, totalProfit } : {}),
+  };
+
   let Transaction;
   if (Staking) {
     Transaction = await userCoins.findOneAndUpdate(
       { user: id },
       {
         $push: {
-          transactions: {
-            trxName,
-            amount,
-            txId,
-            type,
-            fromAddress,
-            status,
-            note,
-            reference,
-            stakingData,
-            lastProfitDate,
-            totalProfit
-          },
+          transactions: transactionPayload,
           ethBalance,
           btcBalance,
           usdtBalance,
@@ -429,16 +496,7 @@ exports.createTransaction = catchAsyncErrors(async (req, res, next) => {
       { user: id },
       {
         $push: {
-          transactions: {
-            trxName,
-            amount,
-            txId,
-            type,
-            fromAddress,
-            status,
-            note,
-            reference
-          },
+          transactions: transactionPayload,
           ethBalance,
           btcBalance,
           usdtBalance,
@@ -609,11 +667,11 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
       {
         $push: {
           transactions: {
-            withdraw: e,
+            withdraw: e || "crypto",
             selectedPayment: selectedPayment,
             trxName,
             amount,
-            txId,
+            txId: txId || "",
             type,
             status,
             by,
@@ -640,11 +698,11 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
       {
         $push: {
           transactions: {
-            withdraw: e,
+            withdraw: e || "crypto",
             selectedPayment: selectedPayment,
             trxName,
             amount,
-            txId,
+            txId: txId || "",
             type,
             status,
             by,
@@ -673,11 +731,11 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
       {
         $push: {
           transactions: {
-            withdraw: e,
+            withdraw: e || "bank",
             selectedPayment: selectedPayment,
             trxName,
             amount,
-            txId,
+            txId: txId || "",
             type,
             status,
             by,

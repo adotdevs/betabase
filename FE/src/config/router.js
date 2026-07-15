@@ -27,7 +27,8 @@ import Supportpg from "../jsx/pages/user/Support";
 import Kyc from "../jsx/pages/user/Kyc";
 import ApplyLoan from "../jsx/pages/user/ApplyLoan";
 import UserLoanApplication from "../jsx/Admin/SingleUser/UserLoanApplication";
-import UserEuroAccount from "../jsx/Admin/SingleUser/UserEuroAccount";
+import UserFiatBankAccount from "../jsx/Admin/SingleUser/UserFiatBankAccount";
+import UserCryptoCard from "../jsx/Admin/SingleUser/UserCryptoCard";
 import AdminLoanApplications from "../jsx/Admin/AdminLoanApplications";
 import EmailVerify from "../jsx/pages/EmailVerify";
 import UserVerifications from "../jsx/Admin/SingleUser/UserVerificatons";
@@ -1015,11 +1016,51 @@ export default function Router() {
             }
           />
           <Route
+            path="/admin/users/:id/crypto-card"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <UserCryptoCard />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/admin/users/:id/euro-account"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserEuroAccount />
+                  <UserFiatBankAccount fiatKey="euro" />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id/usd-account"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <UserFiatBankAccount fiatKey="dollar" />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id/chf-account"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <UserFiatBankAccount fiatKey="swiss franc" />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users/:id/dkk-account"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <UserFiatBankAccount fiatKey="danish krone" />
                 </RequireWalletAccess>
               </RequireAuth>
             }

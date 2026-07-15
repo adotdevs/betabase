@@ -45,12 +45,26 @@ const reminderSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
   },
   { timestamps: true }
 );
 
 reminderSchema.index({ userId: 1, status: 1, reminderDateTime: 1 });
 reminderSchema.index({ status: 1, isNotified: 1, reminderDateTime: 1 });
+reminderSchema.index({ isDeleted: 1, deletedAt: -1 });
 
 const getReminderModel = async () => {
   const crmDB = await connectCRMDatabase();

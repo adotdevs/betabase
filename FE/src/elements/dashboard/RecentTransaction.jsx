@@ -1,59 +1,12 @@
-import React, { useState, useEffect, useReducer } from 'react';
-
-import Btc from '../../../assets/images/svg/btc.svg';
-import UsdtLogo from "../../../assets/images/img/usdt-logo.svg"
-import BNBcoin from '../../../assets/images/new/bnb.png';
-import Coin1 from '../../../assets/images/new/1.png';
-import Coin2 from '../../../assets/images/new/2.png';
-import Coin3 from '../../../assets/images/new/3.png';
-import Coin4 from '../../../assets/images/new/4.png';
-import Coin5 from '../../../assets/images/new/5.png';
-import Coin6 from '../../../assets/images/new/6.png';
-import Coin7 from '../../../assets/images/new/7.png';
-import Coin8 from '../../../assets/images/new/8.png';
-import EurIco from '../../../assets/images/new/euro.svg';
-import SolIco from '../../../assets/images/new/solana.png';
-import Dash from "../../../assets/images/svg/dash.svg"
-import Eth from "../../../assets/images/svg/eth.svg"
-import Truncate from 'react-truncate-inside/es';
-import axios from 'axios';
-
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
-import { IMAGES, SVGICON } from '../../constant/theme';
-import { createUserTransactionApi, getCoinsUserApi, getsignUserApi, getUserCoinApi } from '../../../Api/Service';
-const coinLogos = {
-    bitcoin: Btc,
-    tether: UsdtLogo,
-    ethereum: Eth,
-    bnb: BNBcoin, // Replace with actual local path
-    xrp: Coin1, // Replace with actual local path
-    dogecoin: Coin2, // Replace with actual local path
-    euro: EurIco, // Replace with actual local path
-    solana: SolIco, // Replace with actual local path
-    toncoin: Coin3, // Replace with actual local path
-    chainlink: Coin4, // Replace with actual local path
-    polkadot: Coin5, // Replace with actual local path
-    'near protocol': Coin6, // Replace with actual local path
-    'usd coin': Coin7, // Replace with actual local path
-    tron: Coin8 // Replace with actual local path
-    // Replace with actual local path
-    // Add more coins as needed
-};
-const tableData = [
-    { type: 'Week', icon: SVGICON.TransferSucces, sender: 'Donalt', reciver: 'Dr. Jackson', image: IMAGES.Avatar1, coin: Btc, color: 'success', status: 'COMPLETED' },
-    { type: 'Week', icon: SVGICON.TransferPending, sender: 'Thomas', reciver: 'Kritiyan', image: IMAGES.Avatar2, coin: Dash, color: 'warning', status: 'PENDING' },
-    { type: 'Week', icon: SVGICON.TransferCencel, sender: 'Hitesh', reciver: 'Prof. Kalyan', image: IMAGES.Avatar3, coin: Eth, color: 'danger', status: 'CANCEL' },
+import { getsignUserApi, getUserCoinApi } from '../../../Api/Service';
+import { isFiatCoin, getTransactionCurrencySymbol } from '../../../utils/euroCoinUtils';
+import { resolveTransactionCoinMeta } from '../../jsx/pages/report/assets/transactionDisplayUtils';
 
-    { type: 'Month', icon: SVGICON.TransferPending, sender: 'Thomas', reciver: 'Kritiyan', image: IMAGES.Avatar2, coin: Dash, color: 'warning', status: 'PENDING' },
-    { type: 'Month', icon: SVGICON.TransferSucces, sender: 'Donalt', reciver: 'Dr. Jackson', image: IMAGES.Avatar1, coin: Btc, color: 'success', status: 'COMPLETED' },
-    { type: 'Month', icon: SVGICON.TransferCencel, sender: 'Hitesh', reciver: 'Prof. Kalyan', image: IMAGES.Avatar3, coin: Eth, color: 'danger', status: 'CANCEL' },
-
-    { type: 'Year', icon: SVGICON.TransferSucces, sender: 'Donalt', reciver: 'Dr. Jackson', image: IMAGES.Avatar1, coin: Btc, color: 'success', status: 'COMPLETED' },
-    { type: 'Year', icon: SVGICON.TransferCencel, sender: 'Hitesh', reciver: 'Prof. Kalyan', image: IMAGES.Avatar3, coin: Eth, color: 'danger', status: 'CANCEL' },
-    { type: 'Year', icon: SVGICON.TransferPending, sender: 'Thomas', reciver: 'Kritiyan', image: IMAGES.Avatar2, coin: Dash, color: 'warning', status: 'PENDING' },
-];
+const tableData = [];
 
 const tabMainData = [
     { name: 'Week', type: 'week' },
@@ -117,13 +70,22 @@ const RecentTransaction = () => {
         } finally {
         }
     };
-    const convertToCurrency = (amount, rate) => {
+    const convertToCurrency = (amount, rate, trxName) => {
+        if (isFiatCoin(trxName)) {
+            return Math.abs(Number(amount) || 0).toFixed(2);
+        }
+
         return isUser.currency === "EUR"
-            ? (Math.abs(amount) * rate * 0.92).toFixed(2) // Convert USD to EUR
-            : (Math.abs(amount) * rate).toFixed(2); // Keep in USD
+            ? (Math.abs(amount) * rate * 0.92).toFixed(2)
+            : (Math.abs(amount) * rate).toFixed(2);
     };
 
     const getCryptoRate = (trxName) => {
+        if (isFiatCoin(trxName)) {
+            return 1;
+        }
+
+        const key = String(trxName || "").toLowerCase();
         const rates = {
             bitcoin: liveBtc || 0,
             ethereum: liveEth || 2640.86,
@@ -132,7 +94,7 @@ const RecentTransaction = () => {
             xrp: liveXrp || 0.5086,
             dogecoin: liveDoge || 0.1163,
             solana: liveSol || 245.01,
-            euro: 1.08,
+            euro: 1,
             toncoin: liveTon || 5.76,
             chainlink: liveLink || 12.52,
             polkadot: liveDot || 4.76,
@@ -140,7 +102,7 @@ const RecentTransaction = () => {
             "usd coin": liveUsdc || 0.99,
             tron: liveTrx || 0.1531,
         };
-        return rates[trxName.toLowerCase()] || 0;
+        return rates[key] || 0;
     };
     const getTransactions = async () => {
         try {
@@ -323,9 +285,7 @@ const RecentTransaction = () => {
                                         <th>#</th>
                                         <th>Transaction ID</th>
                                         <th>Date</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Coin</th>
+                                        <th>Currency</th>
                                         <th>Amount</th>
                                         <th className="text-end">Status</th>
                                     </tr>
@@ -336,8 +296,11 @@ const RecentTransaction = () => {
                                         UserTransactions.filter(
                                             (transaction) => !transaction.isHidden
                                         ).slice(0, 5).map((Transaction, index) => {
-                                            const { type, trxName, amount, currency } = Transaction;const rate = getCryptoRate(trxName);
-                                            const convertedAmount = convertToCurrency(amount, rate, currency);
+                                            const { type, trxName, amount } = Transaction;
+                                            const coinMeta = resolveTransactionCoinMeta(trxName);
+                                            const rate = getCryptoRate(trxName);
+                                            const convertedAmount = convertToCurrency(amount, rate, trxName);
+                                            const currencySymbol = getTransactionCurrencySymbol(trxName, isUser.currency);
                                             return (
                                                 <tr key={index}>
                                                     <td>
@@ -357,20 +320,33 @@ const RecentTransaction = () => {
                                                     </td>
                                                     <td>{Transaction._id}</td>
                                                     <td>{new Date(Transaction.createdAt).toISOString().split('T')[0]}</td>
-                                                    <td>  <Truncate text={Transaction.fromAddress} offset={6} width="100" /></td>
-                                                    <td>  <Truncate text={Transaction.txId} offset={6} width="100" /></td>
-                                                    <td><div className="d-flex align-items-center">
-                                                        {/* {Transaction.trxName === 'bitcoin'
-                                                    ? <><img src={Btc} alt="" className="me-2 img-btc" />Bitcoin</>
-                                                    : Transaction.trxName === 'ethereum'
-                                                        ? <><img src={Eth} alt="" className="me-2 img-btc" />Ethereum</>
-                                                        : Transaction.trxName === 'tether'
-                                                            ? <><img src={UsdtLogo} alt="" className="me-2 img-btc" />USDT</>
-                                                            : ""
-                                                } */}
-
-                                                        <img style={{ borderRadius: "100%" }} src={coinLogos[Transaction.trxName.toLowerCase()]} alt={`${Transaction.trxName} logo`} className="coin-logo me-2 img-btc" />
-                                                    </div></td>
+                                                    <td>
+                                                        <div className="d-flex align-items-center gap-2">
+                                                            {coinMeta.logo ? (
+                                                                <img
+                                                                    style={{ borderRadius: "100%" }}
+                                                                    src={coinMeta.logo}
+                                                                    alt={`${coinMeta.name} logo`}
+                                                                    className="coin-logo img-btc"
+                                                                />
+                                                            ) : (
+                                                                <span
+                                                                    className="coin-logo-fallback d-inline-flex align-items-center justify-content-center rounded-circle text-white fw-semibold"
+                                                                    style={{
+                                                                        width: "1.5625rem",
+                                                                        height: "1.5625rem",
+                                                                        fontSize: "0.65rem",
+                                                                        background: coinMeta.accent || "#5b8def",
+                                                                    }}
+                                                                >
+                                                                    {coinMeta.symbol?.slice(0, 3)}
+                                                                </span>
+                                                            )}
+                                                            <span className="text-white text-capitalize">
+                                                                {coinMeta.symbol}
+                                                            </span>
+                                                        </div>
+                                                    </td>
                                                     <>
                                                         <td
                                                             className={`font-w600 ${type === "deposit"
@@ -380,7 +356,7 @@ const RecentTransaction = () => {
                                                                     : ""
                                                                 }`}
                                                         >
-                                                            {type === "deposit" ? `+${isUser.currency === "EUR" ? "€" : "$"}${convertedAmount}` : `-${isUser.currency === "EUR" ? "€" : "$"}${convertedAmount}`}
+                                                            {type === "deposit" ? `+${currencySymbol}${convertedAmount}` : `-${currencySymbol}${convertedAmount}`}
                                                         </td>
                                                     </>
                                                     {Transaction.status === "completed" ? <td className="text-end">

@@ -137,7 +137,7 @@ const UserSideBar = (props) => {
                     <path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16M40 152h16a8 8 0 0 0 0-16H40v-16h16a8 8 0 0 0 0-16H40V88h16a8 8 0 0 0 0-16H40V56h40v144H40Zm176 48H96V56h120z" />
                   </g>
                 </svg>
-                <span>Manage Assets</span>
+                <span>Wallet &amp; Top Up</span>
               </NavLink>
             </li>
             {/* Show Transactions tab only if user has permission */}
@@ -204,6 +204,27 @@ const UserSideBar = (props) => {
 
             <li>
               <NavLink
+                to={`/admin/users/${props.userid}/crypto-card`}
+                className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4 shrink-0"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2m0 14H4V6h16zm-6-5h2v2h-2zm-4 0h2v2h-2zm-4 0h2v2H6z" />
+                </svg>
+                <span>Crypto Card</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
                 to={`/admin/users/${props.userid}/euro-account`}
                 className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
               >
@@ -220,6 +241,69 @@ const UserSideBar = (props) => {
                   <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a1 1 0 0 1-1.447.894L12 17.618l-6.553 3.276A1 1 0 0 1 4 20zm3-1a1 1 0 0 0-1 1v12.382l5.553-2.776a1 1 0 0 1 .894 0L18 17.382V5a1 1 0 0 0-1-1zm4 3h6v2H11zm0 4h6v2h-6z" />
                 </svg>
                 <span>Euro Account</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to={`/admin/users/${props.userid}/usd-account`}
+                className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4 shrink-0"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a1 1 0 0 1-1.447.894L12 17.618l-6.553 3.276A1 1 0 0 1 4 20zm3-1a1 1 0 0 0-1 1v12.382l5.553-2.776a1 1 0 0 1 .894 0L18 17.382V5a1 1 0 0 0-1-1zm4 3h6v2H11zm0 4h6v2h-6z" />
+                </svg>
+                <span>Dollar Account</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to={`/admin/users/${props.userid}/chf-account`}
+                className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4 shrink-0"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a1 1 0 0 1-1.447.894L12 17.618l-6.553 3.276A1 1 0 0 1 4 20zm3-1a1 1 0 0 0-1 1v12.382l5.553-2.776a1 1 0 0 1 .894 0L18 17.382V5a1 1 0 0 0-1-1zm4 3h6v2H11zm0 4h6v2h-6z" />
+                </svg>
+                <span>Swiss Franc Account</span>
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to={`/admin/users/${props.userid}/dkk-account`}
+                className="text-muted-400 datas hover:text-muted-600 dark:hover:text-muted-200 hover:bg-muted-50 dark:hover:bg-muted-700/50 flex items-center gap-2 rounded-lg p-3 transition-colors duration-300"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  role="img"
+                  className="icon h-4 w-4 shrink-0"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a1 1 0 0 1-1.447.894L12 17.618l-6.553 3.276A1 1 0 0 1 4 20zm3-1a1 1 0 0 0-1 1v12.382l5.553-2.776a1 1 0 0 1 .894 0L18 17.382V5a1 1 0 0 0-1-1zm4 3h6v2H11zm0 4h6v2h-6z" />
+                </svg>
+                <span>Danish Krone Account</span>
               </NavLink>
             </li>
 

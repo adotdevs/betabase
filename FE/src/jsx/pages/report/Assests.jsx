@@ -9,6 +9,7 @@ import styles from './Assests.module.css';
 import AssetsOverview from './assets/AssetsOverview';
 import CoinDetail from './assets/CoinDetail';
 import { buildPortfolioCoins, findCoinBySlug, getTransactionsForCoin } from './assets/coinConfig';
+import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency } from '../../../utils/euroCoinUtils';
 
 const getCoinPrice = (coinSymbol, livePrices = {}) => {
     switch (coinSymbol) {
@@ -16,6 +17,9 @@ const getCoinPrice = (coinSymbol, livePrices = {}) => {
         case "xrp": return livePrices.xrp || 0.5086;
         case "doge": return livePrices.doge || 0.1163;
         case "eur": return 1;
+        case "usd": return 1;
+        case "chf": return 1;
+        case "dkk": return 1;
         case "sol": return livePrices.sol || 245.01;
         case "ton": return livePrices.ton || 5.76;
         case "link": return livePrices.link || 12.52;
@@ -84,7 +88,7 @@ const Orders = () => {
     const Navigate = useNavigate();
     const location = useLocation();
     const { coinSlug } = useParams();
-    const [pendingEuroWithdraw, setPendingEuroWithdraw] = useState(false);
+    const [pendingFiatWithdraw, setPendingFiatWithdraw] = useState(null);
     const [activatingCoinTrx, setActivatingCoinTrx] = useState("");
     const [isUser, setIsUser] = useState({});
     const [isUserRestriction, setIsUserRestriction] = useState(false);
@@ -320,6 +324,9 @@ const Orders = () => {
             case "xrp": return liveXrp || 0.5086;
             case "doge": return liveDoge || 0.1163;
             case "eur": return 1;
+            case "usd": return 1;
+            case "chf": return 1;
+        case "dkk": return 1;
             case "sol": return liveSol || 245.01;
             case "ton": return liveTon || 5.76;
             case "link": return liveLink || 12.52;
@@ -330,16 +337,13 @@ const Orders = () => {
             default: return 0; // Unknown coin price
         }
     };
-    const getEuroCryptoBalance = () => {
+    const getFiatBalance = (fiatKey) => {
         const additionalCoins = newUserCoins || userCoins?.getCoin?.additionalCoins;
         const transactions = userCoins?.getCoin?.transactions;
-        if (!additionalCoins?.length || !transactions) return 0;
-        const euroCoin = additionalCoins.find(
-            (coin) => String(coin.coinName || '').toLowerCase() === 'euro'
-        );
-        if (!euroCoin) return 0;
-        return getTransactionsForCoin('euro', transactions);
+        return getFiatBalanceFromCoins(fiatKey, additionalCoins, transactions, getTransactionsForCoin);
     };
+
+    const getEuroCryptoBalance = () => getFiatBalance('euro');
     const [selectedPayment, setSelectedPayment] = useState(null); // State to store the selected payment method
 
     // Function to handle selection change in the dropdown menu
@@ -402,7 +406,7 @@ const Orders = () => {
             depositBalance = NewValue;
         } else if (depositName === "dogecoin") { // Dogecoin
             depositBalance = NewValue;
-        } else if (depositName === "euro") { // Dogecoin
+        } else if (isFiatCoin(depositName)) {
             depositBalance = NewValue;
         } else if (depositName === "solana") { // Dogecoin
             depositBalance = NewValue;
@@ -451,37 +455,41 @@ const Orders = () => {
         setModal3(true);
     };
 
-    const openEuroWithdraw = () => {
+    const openFiatWithdraw = (fiatKey) => {
+        const fiat = getFiatCurrencyByKey(fiatKey);
         const additionalCoins = newUserCoins || userCoins?.getCoin?.additionalCoins || UserData?.additionalCoins;
-        const euroCoin = additionalCoins?.find(
-            (coin) => String(coin.coinName || '').toLowerCase() === 'euro'
+        const fiatCoin = additionalCoins?.find(
+            (coin) => String(coin.coinName || '').toLowerCase() === fiat?.key
         );
-        if (!euroCoin) {
-            toast.error('Euro wallet not found');
+        if (!fiatCoin) {
+            toast.error(`${fiat?.coinName || 'Fiat'} wallet not found`);
             return;
         }
         if (!userCoins?.getCoin?.transactions) {
-            toast.error('Unable to load euro balance');
+            toast.error('Unable to load balance');
             return;
         }
-        NewCoinDepositMinus(euroCoin);
+        NewCoinDepositMinus(fiatCoin);
     };
 
+    const openEuroWithdraw = () => openFiatWithdraw('euro');
+
     useEffect(() => {
-        if (location.state?.openEuroWithdraw) {
+        const fiatKey = location.state?.openFiatWithdraw || (location.state?.openEuroWithdraw ? 'euro' : null);
+        if (fiatKey) {
             setAssetsTab('fiat');
-            setPendingEuroWithdraw(true);
+            setPendingFiatWithdraw(fiatKey);
             Navigate('.', { replace: true, state: {} });
         }
     }, [location.state, Navigate]);
 
     useEffect(() => {
-        if (!pendingEuroWithdraw || isLoading || !userCoins?.getCoin?.transactions) {
+        if (!pendingFiatWithdraw || isLoading || !userCoins?.getCoin?.transactions) {
             return;
         }
-        openEuroWithdraw();
-        setPendingEuroWithdraw(false);
-    }, [pendingEuroWithdraw, isLoading, userCoins]);
+        openFiatWithdraw(pendingFiatWithdraw);
+        setPendingFiatWithdraw(null);
+    }, [pendingFiatWithdraw, isLoading, userCoins]);
 
     let tetherDepositMinus = () => {
         setdepositName("tether");
@@ -688,8 +696,9 @@ const Orders = () => {
         const amount = transactionDetail.amountMinus;
         if (amount === "" || amount === null || amount === undefined) return "";
 
-        if (depositName === "euro") {
-            return `${Number(amount).toFixed(2)} EUR`;
+        if (isFiatCoin(depositName)) {
+            const fiat = getFiatCurrencyByKey(depositName);
+            return `${Number(amount).toFixed(2)} ${fiat?.label || 'EUR'}`;
         }
         if (depositName === "bitcoin") return `${amount} BTC`;
         if (depositName === "ethereum") return `${amount} ETH`;
@@ -918,8 +927,8 @@ const Orders = () => {
                 isUser={isUser}
                 assetsTab={assetsTab}
                 setAssetsTab={setAssetsTab}
-                getEuroCryptoBalance={getEuroCryptoBalance}
-                onEuroWithdraw={openEuroWithdraw}
+                getFiatBalance={getFiatBalance}
+                onFiatWithdraw={openFiatWithdraw}
                 onRequestActivation={handleRequestActivation}
                 activatingCoinTrx={activatingCoinTrx}
             />
@@ -1065,7 +1074,7 @@ const Orders = () => {
                                         >
                                             Available: {NewValue} DOGE
                                         </p>
-                                    ) : depositName === "euro" ? (
+                                    ) : isFiatCoin(depositName) ? (
                                         <p
                                             onClick={() =>
                                                 settransactionDetail({
@@ -1074,7 +1083,7 @@ const Orders = () => {
                                             }
                                             className="text-muted-500 cursor-pointer dark:text-muted-400 mt-2 font-sans text-sm"
                                         >
-                                            Available: {NewValue} EUR
+                                            Available: {Number(NewValue).toFixed(2)} {getFiatCurrencyByKey(depositName)?.label || 'EUR'}
                                         </p>
                                     ) : depositName === "solana" ? (
                                         <p
@@ -1278,9 +1287,21 @@ const Orders = () => {
                                                     })()}
                                                     )
                                                 </span>
-                                            ) : depositName === "euro" ? (
+                                            ) : isFiatCoin(depositName) ? (
                                                 <span>
-                                                    {Number(transactionDetail.amountMinus || 0).toFixed(2)} EUR
+                                                    {getFiatCurrencyByKey(depositName)?.label || 'EUR'}{' '}
+                                                    {Number(transactionDetail.amountMinus || 0).toFixed(2)}
+                                                    {!isFiatNativeMatchingUserCurrency(depositName, isUser?.currency) && (
+                                                        <>
+                                                            {' '}
+                                                            ({convertFiatToUserCurrency(
+                                                                transactionDetail.amountMinus,
+                                                                depositName,
+                                                                isUser?.currency
+                                                            ).toFixed(2)}{' '}
+                                                            {getUserDisplayCurrency(isUser?.currency)})
+                                                        </>
+                                                    )}
                                                 </span>
                                             ) : (
                                                 <span className="uppercase">

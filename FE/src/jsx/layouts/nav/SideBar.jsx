@@ -36,11 +36,7 @@ const SideBar = () => {
     }
   };
 
-  const handleMenuClick = (item) => {
-    if (item.title === "Logout") {
-      onLogout();
-      return;
-    }
+  const handleMenuClick = () => {
     closeMobileSidebar();
   };
 
@@ -141,6 +137,20 @@ const SideBar = () => {
                 Support
               </Link>
             </div>
+          </div>
+
+          <div className="sidebar-logout-wrap">
+            <button
+              type="button"
+              className="sidebar-logout-btn"
+              onClick={() => {
+                closeMobileSidebar();
+                onLogout();
+              }}
+            >
+              <i className="material-symbols-outlined">logout</i>
+              <span className="nav-text">Logout</span>
+            </button>
           </div>
 
           <br />

@@ -572,7 +572,8 @@ const AdminManagementCRM = () => {
       icon: <PeopleIcon />,
       color: '#f59e0b',
       permissions: [
-        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." }
+        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." },
+        { key: 'editWalletAddress', label: 'Wallet Addresses', desc: "Allow administrator to view and edit user wallet deposit addresses." }
       ]
     }
   ];
@@ -600,7 +601,9 @@ const AdminManagementCRM = () => {
       icon: <PeopleIcon />,
       color: '#f59e0b',
       permissions: [
-        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." }
+        { key: 'accessWallet', label: 'Wallet Access', desc: "Allow access to wallet platform and all wallet features." },
+        { key: 'editUserWallet', label: 'Edit Wallets', desc: "Allow sub-admin to edit user wallet balances and top-ups." },
+        { key: 'editWalletAddress', label: 'Wallet Addresses', desc: "Allow sub-admin to view and edit user wallet deposit addresses." }
       ]
     }
   ];

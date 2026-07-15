@@ -23,8 +23,10 @@ import {
   Alarm,
   CheckCircle,
   Delete,
+  DeleteForever,
   OpenInNew,
   Refresh,
+  RestoreFromTrash,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthUser } from 'react-auth-kit';
@@ -33,6 +35,9 @@ import CrmAppBarActions from './components/CrmAppBarActions';
 import {
   deleteReminderApi,
   getRemindersApi,
+  getTrashedRemindersApi,
+  hardDeleteReminderApi,
+  restoreReminderApi,
   updateReminderApi,
 } from '../../../Api/Service';
 import { toast } from 'react-toastify';
@@ -47,12 +52,16 @@ const statusColor = {
 const Reminders = () => {
   const navigate = useNavigate();
   const authUser = useAuthUser();
+  const isSuperAdmin = authUser()?.user?.role === 'superadmin';
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenu, setIsMobileMenu] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
   const [reminders, setReminders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const isTrashTab = isSuperAdmin && tabValue === 3;
 
   const filterParam = useMemo(() => {
     if (tabValue === 1) return 'today';
@@ -63,6 +72,17 @@ const Reminders = () => {
   const fetchReminders = useCallback(async () => {
     try {
       setLoading(true);
+      if (isTrashTab) {
+        const response = await getTrashedRemindersApi();
+        if (response.success) {
+          setReminders(response.reminders || []);
+        } else {
+          toast.error(response.msg || 'Failed to load trash');
+          setReminders([]);
+        }
+        return;
+      }
+
       const params = { filter: filterParam };
       if (statusFilter) params.status = statusFilter;
       const response = await getRemindersApi(params);
@@ -73,15 +93,19 @@ const Reminders = () => {
       }
     } catch (error) {
       console.error('Failed to fetch reminders:', error);
-      toast.error('Failed to load reminders');
+      toast.error(isTrashTab ? 'Failed to load trash' : 'Failed to load reminders');
     } finally {
       setLoading(false);
     }
-  }, [filterParam, statusFilter]);
+  }, [filterParam, statusFilter, isTrashTab]);
 
   useEffect(() => {
+    if (!isSuperAdmin && tabValue === 3) {
+      setTabValue(0);
+      return;
+    }
     fetchReminders();
-  }, [fetchReminders]);
+  }, [fetchReminders, isSuperAdmin, tabValue]);
 
   const handleComplete = async (reminder) => {
     try {
@@ -112,21 +136,64 @@ const Reminders = () => {
   };
 
   const handleDelete = async (reminder) => {
-    if (!window.confirm('Delete this reminder?')) return;
+    if (!window.confirm('Move this reminder to trash?')) return;
     try {
+      setActionLoadingId(reminder._id);
       const response = await deleteReminderApi(reminder._id);
       if (response.success) {
-        toast.success('Reminder deleted');
+        toast.success('Reminder moved to trash');
         fetchReminders();
       } else {
         toast.error(response.msg || 'Failed to delete reminder');
       }
     } catch (error) {
       toast.error('Failed to delete reminder');
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
-  const isSuperAdmin = authUser()?.user?.role === 'superadmin';
+  const handleRestore = async (reminder) => {
+    try {
+      setActionLoadingId(reminder._id);
+      const response = await restoreReminderApi(reminder._id);
+      if (response.success) {
+        toast.success('Reminder restored');
+        fetchReminders();
+      } else {
+        toast.error(response.msg || 'Failed to restore reminder');
+      }
+    } catch (error) {
+      toast.error('Failed to restore reminder');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleHardDelete = async (reminder) => {
+    if (!window.confirm('Permanently delete this reminder? This cannot be undone.')) return;
+    try {
+      setActionLoadingId(reminder._id);
+      const response = await hardDeleteReminderApi(reminder._id);
+      if (response.success) {
+        toast.success('Reminder permanently deleted');
+        fetchReminders();
+      } else {
+        toast.error(response.msg || 'Failed to permanently delete reminder');
+      }
+    } catch (error) {
+      toast.error('Failed to permanently delete reminder');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const formatDeletedAt = (value) => {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleString();
+  };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -159,20 +226,23 @@ const Reminders = () => {
                   <Tab label="All Reminders" />
                   <Tab label="Today" />
                   <Tab label="Upcoming" />
+                  {isSuperAdmin && <Tab label="Trash" />}
                 </Tabs>
-                <FormControl size="small" sx={{ minWidth: 180 }}>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    label="Status"
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <MenuItem value="">All Statuses</MenuItem>
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="dismissed">Dismissed</MenuItem>
-                  </Select>
-                </FormControl>
+                {!isTrashTab && (
+                  <FormControl size="small" sx={{ minWidth: 180 }}>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={statusFilter}
+                      label="Status"
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      <MenuItem value="">All Statuses</MenuItem>
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="completed">Completed</MenuItem>
+                      <MenuItem value="dismissed">Dismissed</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
               </Stack>
             </CardContent>
           </Card>
@@ -185,9 +255,13 @@ const Reminders = () => {
             <Card elevation={1}>
               <CardContent sx={{ textAlign: 'center', py: 6 }}>
                 <Alarm sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>No reminders found</Typography>
+                <Typography variant="h6" gutterBottom>
+                  {isTrashTab ? 'Trash is empty' : 'No reminders found'}
+                </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Set reminders from a lead detail page or from the leads list expandable section.
+                  {isTrashTab
+                    ? 'Deleted reminders will appear here for restore or permanent deletion.'
+                    : 'Set reminders from a lead detail page or from the leads list expandable section.'}
                 </Typography>
               </CardContent>
             </Card>
@@ -204,8 +278,8 @@ const Reminders = () => {
                           </Typography>
                           <Chip
                             size="small"
-                            label={reminder.status}
-                            color={statusColor[reminder.status] || 'default'}
+                            label={isTrashTab ? 'trashed' : reminder.status}
+                            color={isTrashTab ? 'error' : statusColor[reminder.status] || 'default'}
                             sx={{ textTransform: 'capitalize' }}
                           />
                         </Box>
@@ -227,6 +301,19 @@ const Reminders = () => {
                             Owner: {reminder.ownerName || 'Unknown'} ({reminder.ownerRole || 'user'})
                           </Typography>
                         )}
+                        {isTrashTab && (
+                          <>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Deleted: {formatDeletedAt(reminder.deletedAt)}
+                            </Typography>
+                            {reminder.deletedByName && (
+                              <Typography variant="caption" color="text.secondary" display="block">
+                                Deleted by: {reminder.deletedByName}
+                                {reminder.deletedByRole ? ` (${reminder.deletedByRole})` : ''}
+                              </Typography>
+                            )}
+                          </>
+                        )}
 
                         <Stack direction="row" spacing={1} flexWrap="wrap">
                           <Button
@@ -237,30 +324,76 @@ const Reminders = () => {
                           >
                             Open Lead
                           </Button>
-                          {reminder.status === 'pending' && (
+                          {isTrashTab ? (
                             <>
                               <Button
                                 size="small"
                                 variant="contained"
                                 color="success"
-                                startIcon={<CheckCircle />}
-                                onClick={() => handleComplete(reminder)}
+                                startIcon={
+                                  actionLoadingId === reminder._id ? (
+                                    <CircularProgress size={14} color="inherit" />
+                                  ) : (
+                                    <RestoreFromTrash />
+                                  )
+                                }
+                                disabled={actionLoadingId === reminder._id}
+                                onClick={() => handleRestore(reminder)}
                               >
-                                Complete
+                                Restore
                               </Button>
-                              <Button size="small" variant="outlined" onClick={() => handleDismiss(reminder)}>
-                                Dismiss
+                              <Button
+                                size="small"
+                                color="error"
+                                variant="outlined"
+                                startIcon={
+                                  actionLoadingId === reminder._id ? (
+                                    <CircularProgress size={14} color="inherit" />
+                                  ) : (
+                                    <DeleteForever />
+                                  )
+                                }
+                                disabled={actionLoadingId === reminder._id}
+                                onClick={() => handleHardDelete(reminder)}
+                              >
+                                Delete Forever
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              {reminder.status === 'pending' && (
+                                <>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="success"
+                                    startIcon={<CheckCircle />}
+                                    onClick={() => handleComplete(reminder)}
+                                  >
+                                    Complete
+                                  </Button>
+                                  <Button size="small" variant="outlined" onClick={() => handleDismiss(reminder)}>
+                                    Dismiss
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                size="small"
+                                color="error"
+                                startIcon={
+                                  actionLoadingId === reminder._id ? (
+                                    <CircularProgress size={14} color="inherit" />
+                                  ) : (
+                                    <Delete />
+                                  )
+                                }
+                                disabled={actionLoadingId === reminder._id}
+                                onClick={() => handleDelete(reminder)}
+                              >
+                                Delete
                               </Button>
                             </>
                           )}
-                          <Button
-                            size="small"
-                            color="error"
-                            startIcon={<Delete />}
-                            onClick={() => handleDelete(reminder)}
-                          >
-                            Delete
-                          </Button>
                         </Stack>
                       </Stack>
                     </CardContent>

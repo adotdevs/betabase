@@ -119,6 +119,9 @@
 }
 
 .rowAction {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   padding-right: 1.15rem;
   flex-shrink: 0;
 }
@@ -155,6 +158,24 @@
   font-size: 0.72rem;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.withdrawRowBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.withdrawRowBtn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  transform: translateY(-1px);
 }
 
 .itemLeft {

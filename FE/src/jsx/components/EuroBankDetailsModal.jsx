@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { getVisibleEuroFields } from "./euroAccountUtils";
 import styles from "./EuroAccountUserCard.module.css";
 
-const EuroBankDetailsModal = ({ open, onClose, account }) => {
+const EuroBankDetailsModal = ({ open, onClose, account, title = "Euro Bank Account" }) => {
   const [copiedKey, setCopiedKey] = useState("");
 
   if (!open || !account || typeof document === "undefined") return null;
@@ -34,10 +34,10 @@ const EuroBankDetailsModal = ({ open, onClose, account }) => {
         <div className={styles.modalHeader}>
           <div className={styles.modalHeaderText}>
             <h2 id="euro-account-modal-title" className={styles.modalTitle}>
-              Euro Bank Account
+              {title}
             </h2>
             <p className={styles.modalSubtitle}>
-              Use these details for euro transfers linked to your account.
+              Use these details for bank transfers linked to your account.
             </p>
           </div>
           <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">

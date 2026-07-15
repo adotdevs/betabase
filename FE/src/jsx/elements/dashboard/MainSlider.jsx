@@ -1,152 +1,174 @@
 import React, { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
-import SolanaImg from '../../../assets/images/solana-sol-vector-logo-seeklogo/solana-sol-seeklogo.svg'
-import bNBImg from '../../../assets/images/bnb-bnb-logo.svg'
 import axios from 'axios';
 import SwiperLineChart from './SwiperLineChart';
-import { SVGICON } from '../../constant/theme';
 import { useAuthUser } from 'react-auth-kit';
 import { getsignUserApi } from '../../../Api/Service';
 import { toast } from 'react-toastify';
+import styles from './MainSlider.module.css';
+
+const COIN_META = {
+    bitcoin: { name: 'Bitcoin', chartcolor: 'rgba(247, 215, 168, 1)' },
+    ethereum: { name: 'Ethereum', chartcolor: 'rgba(148, 150, 176, 1)' },
+    binancecoin: { name: 'BNB', chartcolor: 'rgba(247, 215, 168, 1)' },
+    solana: { name: 'Solana', chartcolor: 'rgba(247, 215, 168, 1)' },
+};
+
+const COIN_ORDER = ['bitcoin', 'ethereum', 'binancecoin', 'solana'];
+
+const COIN_LOGO_FALLBACK = {
+    bitcoin: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+    ethereum: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    binancecoin: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+    solana: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+};
+
+const buildInitialSlides = () =>
+    COIN_ORDER.map((key) => ({
+        key,
+        name: COIN_META[key].name,
+        chartcolor: COIN_META[key].chartcolor,
+        price: 0,
+        logo: COIN_LOGO_FALLBACK[key],
+    }));
 
 const MainSlider = () => {
     const [isUser, setIsUser] = useState({});
+    const authUser = useAuthUser();
+    const [slides, setSlides] = useState(buildInitialSlides);
 
-    let authUser = useAuthUser();
-    const [swiperData, setSwiperData] = useState([
-        { color: 'card-primary', amount: '0', chartcolor: 'rgba(148, 150, 176, 1)', svgicon: SVGICON.SwiperEthSvg },
-        { color: 'card-primary', amount: '0', chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.SwiperBitSvg },
-        { color: 'card-primary', amount: '0', chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.XrpUsdIcon },
-    ]);
     const getsignUser = async () => {
         try {
             const formData = new FormData();
-            formData.append("id", authUser().user._id);
+            formData.append('id', authUser().user._id);
             const userCoins = await getsignUserApi(formData);
 
             if (userCoins.success) {
                 setIsUser(userCoins.signleUser);
-
                 return;
-            } else {
-                toast.dismiss();
-                toast.error(userCoins.msg);
             }
+
+            toast.dismiss();
+            toast.error(userCoins.msg);
         } catch (error) {
             toast.dismiss();
             toast.error(error);
-        } finally {
         }
     };
+
     useEffect(() => {
-        getsignUser()
+        getsignUser();
+
         const fetchCryptoPrices = async () => {
             try {
-                const response = await axios.get('https://api.coingecko.com/api/v3/simple/price', {
+                const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
                     params: {
-                        ids: 'bitcoin,ethereum,tether,solana,binancecoin',
-                        vs_currencies: 'usd',
+                        vs_currency: 'usd',
+                        ids: COIN_ORDER.join(','),
+                        order: 'market_cap_desc',
+                        per_page: COIN_ORDER.length,
+                        page: 1,
+                        sparkline: false,
                     },
                 });
 
-                const { bitcoin, ethereum, binancecoin, solana } = response.data;
-
-                setSwiperData([
-                    { color: 'card-primary', amount: bitcoin.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: SVGICON.SwiperBitSvg },
-                    { color: 'card-primary', amount: ethereum.usd, chartcolor: 'rgba(148, 150, 176, 1)', svgicon: SVGICON.SwiperEthSvg },
-                    { color: 'card-primary', amount: binancecoin.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: <img style={{ width: "60px" }} src={bNBImg} /> },
-                    { color: 'card-primary', amount: solana.usd, chartcolor: 'rgba(247, 215, 168, 1)', svgicon: <img style={{ width: "60px" }} src={SolanaImg} /> },
-                ]);
+                const markets = Array.isArray(response.data) ? response.data : [];
+                setSlides(
+                    COIN_ORDER.map((key) => {
+                        const market = markets.find((coin) => coin.id === key);
+                        return {
+                            key,
+                            name: COIN_META[key].name,
+                            chartcolor: COIN_META[key].chartcolor,
+                            price: market?.current_price ?? 0,
+                            logo: market?.image || COIN_LOGO_FALLBACK[key],
+                        };
+                    })
+                );
             } catch (error) {
                 console.error('Error fetching crypto prices:', error);
             }
         };
 
         fetchCryptoPrices();
-
-        // Optionally, set an interval to update prices every minute
         const interval = setInterval(fetchCryptoPrices, 60000);
-
-        // Cleanup interval on component unmount
         return () => clearInterval(interval);
     }, []);
-    const convertCurrency = (amount, isUser, eurConversionRate = 0.92) => {
-        if (isUser.currency === "EUR") {
+
+    const formatDisplayPrice = (amount, user, eurConversionRate = 0.92) => {
+        const raw = Number(amount) || 0;
+        const isEur = user?.currency === 'EUR';
+        const converted = isEur ? raw * eurConversionRate : raw;
+
+        if (converted >= 10000) {
             return {
-                symbol: "€",
-                value: (parseFloat(amount) * eurConversionRate).toFixed(2),
+                symbol: isEur ? '€' : '$',
+                value: Math.round(converted).toLocaleString(undefined, { maximumFractionDigits: 0 }),
             };
         }
+
         return {
-            symbol: "$",
-            value: parseFloat(amount).toFixed(2),
+            symbol: isEur ? '€' : '$',
+            value: converted.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }),
         };
     };
+
     return (
-        <>
-            <Swiper
-                className="mySwiper-counter position-relative overflow-hidden"
-                slidesPerView={4}
-                speed={1500}
-                spaceBetween={40}
-                parallax={true}
-                loop={false}
+        <Swiper
+            className="mySwiper-counter position-relative overflow-hidden"
+            slidesPerView={4}
+            speed={1500}
+            spaceBetween={40}
+            parallax={true}
+            loop={false}
+            autoplay={{
+                delay: 5000,
+            }}
+            breakpoints={{
+                300: { slidesPerView: 1, spaceBetween: 30 },
+                480: { slidesPerView: 2, spaceBetween: 30 },
+                768: { slidesPerView: 3, spaceBetween: 30 },
+                991: { slidesPerView: 3, spaceBetween: 30 },
+                1200: { slidesPerView: 4, spaceBetween: 30 },
+            }}
+        >
+            {slides.map((coin) => {
+                const convertedAmount = formatDisplayPrice(coin.price, isUser);
 
-                autoplay={{
-                    delay: 5000,
-                }}
-                breakpoints={{
-                    300: {
-                        slidesPerView: 1,
-                        spaceBetween: 30,
-                    },
-                    480: {
-                        slidesPerView: 2,
-                        spaceBetween: 30,
-                    },
-                    768: {
-                        slidesPerView: 3,
-                        spaceBetween: 30,
-                    },
-                    991: {
-                        slidesPerView: 3,
-                        spaceBetween: 30,
-                    },
-                    1200: {
-                        slidesPerView: 4,
-                        spaceBetween: 30,
-                    },
-                }}
-            >
-                {swiperData.map((item, i) => {
-                    const convertedAmount = convertCurrency(item.amount, isUser);
-
-                    return (
-                        <SwiperSlide key={i}>
-                            <div className={`card card-box bg- ${item.color}`}>
-                                <div className="card-header border-0 pb-0">
-                                    <div className="chart-num">
-                                        <h2 className="font-w600 mb-0">
-                                            {convertedAmount.symbol}{convertedAmount.value}
-                                        </h2>
-                                    </div>
-                                    <div className="dlab-swiper-circle">
-                                        {item.svgicon}
-                                    </div>
+                return (
+                    <SwiperSlide key={coin.key}>
+                        <div className={`card card-box bg- card-primary ${styles.slideCard}`}>
+                            <div className={`card-header border-0 pb-0 ${styles.header}`}>
+                                <div className={`chart-num ${styles.price}`}>
+                                    <h2 className={styles.priceAmount}>
+                                        {convertedAmount.symbol}
+                                        {convertedAmount.value}
+                                    </h2>
                                 </div>
-                                <div className="card-body p-0">
-                                    <div id="widgetChart1" className="chart-primary">
-                                        <SwiperLineChart chartcolor={item.chartcolor} />
-                                    </div>
+                                <div className={styles.iconWrap}>
+                                    <span className={styles.iconRing} aria-hidden="true" />
+                                    <img
+                                        className={styles.iconLogo}
+                                        src={coin.logo}
+                                        alt={coin.name}
+                                        loading="lazy"
+                                    />
                                 </div>
                             </div>
-                        </SwiperSlide>
-                    );
-                })}
-
-            </Swiper>
-        </>
+                            <div className="card-body p-0">
+                                <div id="widgetChart1" className="chart-primary">
+                                    <SwiperLineChart chartcolor={coin.chartcolor} />
+                                </div>
+                            </div>
+                        </div>
+                    </SwiperSlide>
+                );
+            })}
+        </Swiper>
     );
 };
 

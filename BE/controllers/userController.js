@@ -1657,15 +1657,32 @@ exports.addUserByEmail = catchAsyncErrors(async (req, res, next) => {
     }
 
     // Check if user is already assigned
-    if (user.assignedSubAdmin) {
-      return next(new errorHandler("User already assigned to subadmin", 403));
+    const wasAlreadyAssigned = Boolean(user.assignedSubAdmin);
+    const previousSubAdminId = user.assignedSubAdmin?.toString();
+    const newSubAdminId = String(subAdminId);
+
+    if (wasAlreadyAssigned) {
+      if (req.user.role !== "superadmin") {
+        return next(new errorHandler("User already assigned to subadmin", 403));
+      }
+
+      if (previousSubAdminId === newSubAdminId) {
+        return res.status(200).json({
+          success: true,
+          msg: "User is already assigned to this subadmin",
+        });
+      }
     }
 
-    // Assign the sub-admin
+    // Assign (or reassign for superadmin) the sub-admin
     user.assignedSubAdmin = subAdminId;
     await user.save();
 
-    res.status(200).json({ success: true, msg: "User assigned successfully" });
+    const msg = wasAlreadyAssigned
+      ? "User reassigned to subadmin successfully"
+      : "User assigned successfully";
+
+    res.status(200).json({ success: true, msg });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Sommething went wroong' });
   }
@@ -1805,32 +1822,86 @@ exports.updateNotificationStatus = catchAsyncErrors(async (req, res, next) => {
 
 exports.userCryptoCard = catchAsyncErrors(async (req, res, next) => {
   try {
-    let { cardNumber, cardName, cardExpiry, cardCvv, ticketId, userId } = req.body;
+    const { cardNumber, cardName, cardExpiry, cardCvv, ticketId, userId, action } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, msg: 'User ID is required' });
+    }
 
     const user = await UserModel.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({ success: false, msg: 'User not found' });
     }
 
-    user.cryptoCard = {
-      status: "active",
-      cardNumber: cardNumber,
-      cvv: cardCvv,
-      cardName: cardName,
-      Exp: cardExpiry
-    };
-    await user.save();
-
-    const notification = await notificationSchema.findById(ticketId);
-
-    if (!notification) {
-      return res.status(404).json({ success: false, msg: 'Notification not found' });
+    if (!user.cryptoCard) {
+      user.cryptoCard = { status: 'inactive' };
     }
 
-    notification.isRead = true;
-    notification.status = 'active';
-    await notification.save();
+    const markCardNotificationsActive = async () => {
+      if (ticketId) {
+        const notification = await notificationSchema.findById(ticketId);
+        if (notification) {
+          notification.isRead = true;
+          notification.status = 'active';
+          await notification.save();
+        }
+        return;
+      }
+
+      await notificationSchema.updateMany(
+        { userId, type: 'card_request', status: 'applied' },
+        { isRead: true, status: 'active' }
+      );
+    };
+
+    if (action === 'deactivate') {
+      if (!user.cryptoCard?.cardNumber && user.cryptoCard?.status !== 'active') {
+        return res.status(400).json({ success: false, msg: 'No active crypto card to deactivate' });
+      }
+
+      user.cryptoCard.status = 'inactive';
+      await user.save();
+
+      return res.status(200).json({ success: true, msg: 'Crypto card deactivated' });
+    }
+
+    if (action === 'activate') {
+      const hasExistingDetails = Boolean(user.cryptoCard?.cardNumber);
+
+      if (!hasExistingDetails) {
+        return res.status(400).json({
+          success: false,
+          msg: 'Card details are required before activation',
+        });
+      }
+
+      user.cryptoCard.status = 'active';
+      await user.save();
+      await markCardNotificationsActive();
+
+      return res.status(200).json({ success: true, msg: 'Crypto card activated' });
+    }
+
+    if (!cardNumber || !cardName || !cardExpiry || !cardCvv) {
+      return res.status(400).json({
+        success: false,
+        msg: 'Card number, holder name, expiry, and CVV are required',
+      });
+    }
+
+    const normalizedCardNumber = Number(String(cardNumber).replace(/\D/g, ''));
+    const normalizedCvv = Number(String(cardCvv).replace(/\D/g, ''));
+
+    user.cryptoCard = {
+      status: 'active',
+      cardNumber: normalizedCardNumber,
+      cvv: normalizedCvv,
+      cardName: cardName,
+      Exp: cardExpiry,
+    };
+    await user.save();
+    await markCardNotificationsActive();
 
     res.status(200).json({ success: true, msg: 'Crypto Card activated' });
   } catch (error) {
@@ -3525,6 +3596,101 @@ const hasEuroBankAccount = (account) => {
   );
 };
 
+const createFiatBankAccountController = (accountField, label) => {
+  const accountResponseKey = accountField;
+  const hasResponseKey = `has${accountField.charAt(0).toUpperCase()}${accountField.slice(1)}`;
+
+  return {
+    get: catchAsyncErrors(async (req, res, next) => {
+      const user = await UserModel.findById(req.params.id).select(
+        `${accountField} role isShared assignedSubAdmin`
+      );
+
+      if (assertStaffCanAccessTargetUser(req, user, next) !== true) {
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        [accountResponseKey]: user[accountField] || null,
+        [hasResponseKey]: hasEuroBankAccount(user[accountField]),
+      });
+    }),
+
+    upsert: catchAsyncErrors(async (req, res, next) => {
+      if (!["superadmin", "admin", "subadmin"].includes(req.user.role)) {
+        return next(new errorHandler("Access denied", 403));
+      }
+
+      const user = await UserModel.findById(req.params.id);
+
+      if (assertStaffCanAccessTargetUser(req, user, next) !== true) {
+        return;
+      }
+
+      const bankName = String(req.body.bankName || "").trim();
+      const accountNumber = String(req.body.accountNumber || "").trim();
+      const iban = String(req.body.iban || "").trim();
+      const bankAddress = String(req.body.bankAddress || "").trim();
+      const beneficiaryName = String(req.body.beneficiaryName || "").trim();
+
+      user[accountField] = {
+        bankName,
+        accountNumber,
+        iban,
+        bankAddress,
+        beneficiaryName,
+        updatedAt: new Date(),
+        updatedBy: req.user._id,
+      };
+
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        msg: `${label} bank account saved successfully`,
+        [accountResponseKey]: user[accountField],
+        [hasResponseKey]: hasEuroBankAccount(user[accountField]),
+      });
+    }),
+
+    delete: catchAsyncErrors(async (req, res, next) => {
+      if (!["superadmin", "admin", "subadmin"].includes(req.user.role)) {
+        return next(new errorHandler("Access denied", 403));
+      }
+
+      const user = await UserModel.findById(req.params.id);
+
+      if (assertStaffCanAccessTargetUser(req, user, next) !== true) {
+        return;
+      }
+
+      user[accountField] = {
+        bankName: "",
+        accountNumber: "",
+        iban: "",
+        bankAddress: "",
+        beneficiaryName: "",
+        updatedAt: null,
+        updatedBy: null,
+      };
+
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        msg: `${label} bank account removed successfully`,
+        [accountResponseKey]: null,
+        [hasResponseKey]: false,
+      });
+    }),
+  };
+};
+
+const usdBankAccountController = createFiatBankAccountController("usdBankAccount", "Dollar");
+const chfBankAccountController = createFiatBankAccountController("chfBankAccount", "Swiss Franc");
+const dkkBankAccountController = createFiatBankAccountController("dkkBankAccount", "Danish Krone");
+
 const assertStaffCanAccessTargetUser = (req, targetUser, next) => {
   if (!targetUser) {
     return next(new errorHandler("User not found", 404));
@@ -3633,3 +3799,15 @@ exports.deleteUserEuroBankAccount = catchAsyncErrors(async (req, res, next) => {
     hasEuroBankAccount: false,
   });
 });
+
+exports.getUserUsdBankAccount = usdBankAccountController.get;
+exports.upsertUserUsdBankAccount = usdBankAccountController.upsert;
+exports.deleteUserUsdBankAccount = usdBankAccountController.delete;
+
+exports.getUserChfBankAccount = chfBankAccountController.get;
+exports.upsertUserChfBankAccount = chfBankAccountController.upsert;
+exports.deleteUserChfBankAccount = chfBankAccountController.delete;
+
+exports.getUserDkkBankAccount = dkkBankAccountController.get;
+exports.upsertUserDkkBankAccount = dkkBankAccountController.upsert;
+exports.deleteUserDkkBankAccount = dkkBankAccountController.delete;

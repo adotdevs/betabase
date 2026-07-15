@@ -54,7 +54,17 @@ const formatReminderList = async (reminders) => {
   }, {});
 
   const userIds = [...new Set(reminders.map((r) => r.userId.toString()))];
-  const users = await User.find({ _id: { $in: userIds } }).select('firstName lastName email role').lean();
+  const deletedByIds = [
+    ...new Set(
+      reminders
+        .filter((r) => r.deletedBy)
+        .map((r) => r.deletedBy.toString())
+    ),
+  ];
+  const allUserIds = [...new Set([...userIds, ...deletedByIds])];
+  const users = await User.find({ _id: { $in: allUserIds } })
+    .select('firstName lastName email role')
+    .lean();
   const userMap = users.reduce((acc, user) => {
     acc[user._id.toString()] = user;
     return acc;
@@ -63,18 +73,27 @@ const formatReminderList = async (reminders) => {
   return reminders.map((reminder) => {
     const lead = leadMap[reminder.leadId.toString()];
     const owner = userMap[reminder.userId.toString()];
+    const deletedByUser = reminder.deletedBy
+      ? userMap[reminder.deletedBy.toString()]
+      : null;
     const leadName = lead
       ? `${lead.firstName || ''} ${lead.lastName || ''}`.trim() || lead.email || 'Unknown Lead'
       : 'Unknown Lead';
     const ownerName = owner
       ? `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || owner.email
       : 'Unknown User';
+    const deletedByName = deletedByUser
+      ? `${deletedByUser.firstName || ''} ${deletedByUser.lastName || ''}`.trim() ||
+        deletedByUser.email
+      : null;
 
     return {
       ...reminder,
       leadName,
       ownerName,
       ownerRole: owner?.role,
+      deletedByName,
+      deletedByRole: deletedByUser?.role,
     };
   });
 };
@@ -121,6 +140,9 @@ exports.createReminder = catchAsyncErrors(async (req, res, next) => {
         : 10,
     status: 'pending',
     isNotified: false,
+    isDeleted: false,
+    deletedAt: null,
+    deletedBy: null,
   });
 
   const [formatted] = await formatReminderList([reminder.toObject()]);
@@ -140,7 +162,7 @@ exports.getReminders = catchAsyncErrors(async (req, res) => {
   const Reminder = await getReminderModel();
   const { status, filter, leadId } = req.query;
 
-  const query = { ...buildReminderScopeQuery(req.user) };
+  const query = { ...buildReminderScopeQuery(req.user), isDeleted: { $ne: true } };
 
   if (status && ['pending', 'completed', 'dismissed'].includes(status)) {
     query.status = status;
@@ -172,7 +194,7 @@ exports.getReminders = catchAsyncErrors(async (req, res) => {
 
 exports.getReminderById = catchAsyncErrors(async (req, res, next) => {
   const Reminder = await getReminderModel();
-  const reminder = await Reminder.findById(req.params.id).lean();
+  const reminder = await Reminder.findOne({ _id: req.params.id, isDeleted: { $ne: true } }).lean();
 
   if (!reminder) {
     return next(new ErrorHandler('Reminder not found', 404));
@@ -192,7 +214,7 @@ exports.getReminderById = catchAsyncErrors(async (req, res, next) => {
 
 exports.updateReminder = catchAsyncErrors(async (req, res, next) => {
   const Reminder = await getReminderModel();
-  const reminder = await Reminder.findById(req.params.id);
+  const reminder = await Reminder.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
 
   if (!reminder) {
     return next(new ErrorHandler('Reminder not found', 404));
@@ -247,7 +269,7 @@ exports.updateReminder = catchAsyncErrors(async (req, res, next) => {
 exports.deleteReminder = catchAsyncErrors(async (req, res, next) => {
   const Reminder = await getReminderModel();
   const ReminderNotification = await getReminderNotificationModel();
-  const reminder = await Reminder.findById(req.params.id);
+  const reminder = await Reminder.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
 
   if (!reminder) {
     return next(new ErrorHandler('Reminder not found', 404));
@@ -261,11 +283,81 @@ exports.deleteReminder = catchAsyncErrors(async (req, res, next) => {
     { reminderId: reminder._id },
     { $set: { isDismissed: true, isRead: true } }
   );
+
+  reminder.isDeleted = true;
+  reminder.deletedAt = new Date();
+  reminder.deletedBy = req.user._id;
+  await reminder.save();
+
+  res.status(200).json({
+    success: true,
+    msg: 'Reminder moved to trash',
+  });
+});
+
+exports.getTrashedReminders = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.role !== 'superadmin') {
+    return next(new ErrorHandler('Unauthorized: Superadmin access required', 403));
+  }
+
+  const Reminder = await getReminderModel();
+  const reminders = await Reminder.find({ isDeleted: true })
+    .sort({ deletedAt: -1 })
+    .lean();
+  const formatted = await formatReminderList(reminders);
+
+  res.status(200).json({
+    success: true,
+    reminders: formatted,
+    total: formatted.length,
+  });
+});
+
+exports.restoreReminder = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.role !== 'superadmin') {
+    return next(new ErrorHandler('Unauthorized: Superadmin access required', 403));
+  }
+
+  const Reminder = await getReminderModel();
+  const reminder = await Reminder.findOne({ _id: req.params.id, isDeleted: true });
+
+  if (!reminder) {
+    return next(new ErrorHandler('Trashed reminder not found', 404));
+  }
+
+  reminder.isDeleted = false;
+  reminder.deletedAt = null;
+  reminder.deletedBy = null;
+  await reminder.save();
+
+  const [formatted] = await formatReminderList([reminder.toObject()]);
+
+  res.status(200).json({
+    success: true,
+    msg: 'Reminder restored successfully',
+    reminder: formatted,
+  });
+});
+
+exports.hardDeleteReminder = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.role !== 'superadmin') {
+    return next(new ErrorHandler('Unauthorized: Superadmin access required', 403));
+  }
+
+  const Reminder = await getReminderModel();
+  const ReminderNotification = await getReminderNotificationModel();
+  const reminder = await Reminder.findOne({ _id: req.params.id, isDeleted: true });
+
+  if (!reminder) {
+    return next(new ErrorHandler('Trashed reminder not found', 404));
+  }
+
+  await ReminderNotification.deleteMany({ reminderId: reminder._id });
   await reminder.deleteOne();
 
   res.status(200).json({
     success: true,
-    msg: 'Reminder deleted successfully',
+    msg: 'Reminder permanently deleted',
   });
 });
 
@@ -274,7 +366,11 @@ exports.getReminderBadgeCount = catchAsyncErrors(async (req, res) => {
   const now = new Date();
   const { startOfToday, endOfToday } = getUkDayBounds(now);
 
-  const baseQuery = { ...buildReminderScopeQuery(req.user), status: 'pending' };
+  const baseQuery = {
+    ...buildReminderScopeQuery(req.user),
+    status: 'pending',
+    isDeleted: { $ne: true },
+  };
 
   const [upcomingCount, todayCount] = await Promise.all([
     Reminder.countDocuments({ ...baseQuery, reminderDateTime: { $gte: now } }),
@@ -345,7 +441,10 @@ exports.dismissNotification = catchAsyncErrors(async (req, res, next) => {
   notification.isRead = true;
   await notification.save();
 
-  await Reminder.findByIdAndUpdate(notification.reminderId, { status: 'dismissed' });
+  await Reminder.findOneAndUpdate(
+    { _id: notification.reminderId, isDeleted: { $ne: true } },
+    { status: 'dismissed' }
+  );
 
   res.status(200).json({
     success: true,
@@ -383,6 +482,7 @@ exports.processDueReminders = async () => {
     const dueReminders = await Reminder.find({
       status: 'pending',
       isNotified: false,
+      isDeleted: { $ne: true },
     }).lean();
 
     for (const reminder of dueReminders) {

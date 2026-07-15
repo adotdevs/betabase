@@ -10,6 +10,7 @@ import {
   getsignUserApi,
 } from "../../../Api/Service";
 import { buildPortfolioCoins, getAdditionalCoinPrice, isCoinActive } from "./assets/coinConfig";
+import { isFiatCoin } from "../../../utils/euroCoinUtils";
 import { buildSwapNote } from "./assets/swapTransactionUtils";
 import CoinPickerModal from "./swap/CoinPickerModal";
 import styles from "./swap/Swap.module.css";
@@ -181,7 +182,7 @@ const Swap = () => {
       liveTrx: walletSnapshot.livePrices.trx,
       getTransactionsForCoin,
       getCoinPrice: (symbol) => getAdditionalCoinPrice(symbol, walletSnapshot.livePrices),
-    }).filter((coin) => coin.trxName !== "euro" && isCoinActive(coin));
+    }).filter((coin) => !isFiatCoin(coin.trxName) && isCoinActive(coin));
   }, [walletSnapshot]);
 
   const swapAvailable = swapCoins.length >= 2;

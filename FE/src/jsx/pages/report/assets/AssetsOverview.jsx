@@ -9,10 +9,12 @@ const AssetsOverview = ({
   isUser,
   assetsTab,
   setAssetsTab,
-  getEuroCryptoBalance,
-  onEuroWithdraw,
+  getFiatBalance,
+  onFiatWithdraw,
+  onCryptoWithdraw,
   onRequestActivation,
   activatingCoinTrx = "",
+  showCryptoWithdraw = false,
 }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -107,7 +109,10 @@ const AssetsOverview = ({
                           type="button"
                           className={styles.activateRowBtn}
                           disabled={activatingCoinTrx === coin.trxName}
-                          onClick={() => onRequestActivation?.(coin)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRequestActivation?.(coin);
+                          }}
                         >
                           {activatingCoinTrx === coin.trxName ? "Submitting..." : "Activate"}
                         </button>
@@ -115,6 +120,21 @@ const AssetsOverview = ({
                       {coin.activationStatus === "pending" && (
                         <span className={styles.pendingRowBtn}>In progress</span>
                       )}
+                      {showCryptoWithdraw &&
+                        active &&
+                        coin.activationStatus !== "inactive" &&
+                        coin.activationStatus !== "pending" && (
+                          <button
+                            type="button"
+                            className={styles.withdrawRowBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onCryptoWithdraw?.(coin);
+                            }}
+                          >
+                            Withdraw
+                          </button>
+                        )}
                     </div>
                   </li>
                 );
@@ -129,10 +149,9 @@ const AssetsOverview = ({
 
       {assetsTab === "fiat" && (
         <FiatAssetsTab
-          account={isUser?.euroBankAccount}
-          balance={getEuroCryptoBalance()}
-          currencyLabel={isUser?.currency === "EUR" ? "EUR" : "EUR"}
-          onWithdraw={onEuroWithdraw}
+          isUser={isUser}
+          getFiatBalance={getFiatBalance}
+          onFiatWithdraw={onFiatWithdraw}
         />
       )}
     </div>

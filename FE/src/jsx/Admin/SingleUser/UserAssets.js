@@ -13,7 +13,8 @@ import {
   signleUsersApi,
   updateCoinAddressApi, updateNewCoinAddressApi
 } from "../../../Api/Service";
-import { isEuroCoin } from "../../../utils/euroCoinUtils";
+import { FIAT_CURRENCIES, getFiatCurrencyByName, isFiatCoin, isFiatTrxNameForAdmin } from "../../../utils/euroCoinUtils";
+import AdminCoinWalletRow from "./AdminCoinWalletRow";
 import { toast } from "react-toastify";
 import axios from "axios";
 import AdminHeader from "../adminHeader";
@@ -61,9 +62,8 @@ const UserAssets = () => {
   const checkUserPermissions = async () => {
     try {
       const currentUser = authUser().user;
-      
-      // Only fetch permissions for subadmin
-      if (currentUser.role === 'subadmin') {
+
+      if (currentUser.role === "subadmin") {
         const signleUser = await signleUsersApi(currentUser._id);
         if (signleUser.success) {
           setsubAdminPermissions({
@@ -71,15 +71,27 @@ const UserAssets = () => {
             editWalletAddress: signleUser.signleUser?.permissions?.editWalletAddress || false,
           });
         }
-      } else {
-        // Admin/superadmin have all permissions
+        return;
+      }
+
+      if (currentUser.role === "admin") {
+        const signleUser = await signleUsersApi(currentUser._id);
+        if (signleUser.success) {
+          setsubAdminPermissions({
+            editUserWallet: true,
+            editWalletAddress: signleUser.signleUser?.adminPermissions?.editWalletAddress === true,
+          });
+        }
+        return;
+      }
+
+      if (currentUser.role === "superadmin") {
         setsubAdminPermissions({
           editUserWallet: true,
           editWalletAddress: true,
         });
       }
     } catch (error) {
-      // Handle error silently, default to no permissions
       setsubAdminPermissions({
         editUserWallet: false,
         editWalletAddress: false,
@@ -538,7 +550,7 @@ const UserAssets = () => {
         !body.status ||
         !body.type ||
 
-        (depositName !== "Euro" && (!body.txId || !body.fromAddress))
+        (!isFiatTrxNameForAdmin(depositName) && (!body.txId || !body.fromAddress))
       ) {
         toast.dismiss();
         toast.error("Fill all the required fields");
@@ -598,6 +610,30 @@ const UserAssets = () => {
     getSignleUser();
     patchCoins();
   }, []);
+
+  const fiatWalletCoins = FIAT_CURRENCIES.map((fiat) => {
+    const existing = (newUserCoins || []).find(
+      (coin) => String(coin.coinName || "").toLowerCase() === fiat.key
+    );
+    return (
+      existing || {
+        coinName: fiat.coinName,
+        coinSymbol: fiat.coinSymbol,
+        balance: 0,
+        tokenAddress: "",
+        _id: `fiat-${fiat.key}`,
+      }
+    );
+  });
+
+  const cryptoAdditionalCoins = (newUserCoins || []).filter(
+    (coin) => !isFiatCoin(coin.coinName)
+  );
+
+  const handleUpdateCoinAddress = (coinName, tokenAddress, coinSymbol, coinId) => {
+    setNewModal(true, coinName, tokenAddress, coinSymbol, coinId);
+  };
+
   return (
     <div className="admin">
       <div>
@@ -639,7 +675,7 @@ const UserAssets = () => {
                             tag="h2"
                           >
                             {" "}
-                            Manage Assets{" "}
+                            Manage Assets — Wallet &amp; Top Up
                           </p>
                         </div>
                       </div>
@@ -1044,167 +1080,58 @@ const UserAssets = () => {
                             </div>
                           </div>
 
-                          {
-                            newUserCoins && newUserCoins.map((coin, index) => {
-                              const totalBalance = getTransactionsForCoin(coin.coinName, userCoins.getCoin.transactions);
+                          <div className="mx-4 mb-1 mt-4 rounded-lg border border-primary-500/30 bg-primary-500/5 px-4 py-3">
+                            <h3 className="font-heading text-sm font-semibold text-muted-800 dark:text-white">
+                              Fiat wallets — add / withdraw balance
+                            </h3>
+                            <p className="mt-1 text-xs text-muted-500 dark:text-muted-400">
+                              Use <strong>Bank account</strong> to link the user&apos;s fiat account, or <strong>Add balance</strong> to top up Euro, Dollar, Swiss Franc, or Danish Krone. No wallet address or transaction hash is required.
+                            </p>
+                          </div>
 
-                              return (
-                                <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
-                                  <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                                    <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
-                                      <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
-                                        currency
-                                      </span>
-                                      <div
-                                        className="relative inline-flex shrink-0 items-center justify-center h-10 w-10 rounded-lg bg-primary-500/20 text-primary-500"
-                                        icon="cryptocurrency:usdt"
-                                      >
-                                        <svg
-                                          data-v-cd102a71
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          xmlnsXlink="http://www.w3.org/1999/xlink"
-                                          aria-hidden="true"
-                                          role="img"
-                                          className="icon h-5 w-5"
-                                          width="1em"
-                                          height="1em"
-                                          viewBox="0 0 32 32"
-                                        >
-                                          <path
-                                            fill="currentColor"
-                                            fillRule="evenodd"
-                                            d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16s-7.163 16-16 16m1.922-18.207v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118c0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116c0-1.043-3.301-1.914-7.694-2.117m0 3.59v-.002c-.11.008-.677.042-1.942.042c-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658c0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061c1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658c0 .81-2.895 1.485-6.775 1.657"
-                                          />
-                                        </svg>
-                                      </div>
-                                      <div>
-                                        <h4 className="font-heading text-sm font-medium leading-tight text-muted-700 dark:text-muted-100">
-                                          <span>{coin.coinName}</span>
-                                        </h4>
-                                        <p className="font-alt text-xs font-normal leading-tight text-muted-500 dark:text-muted-400">
-                                          <span style={{ textTransform: "uppercase" }}>{coin.coinSymbol}</span>
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
-                                      <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
-                                        <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
-                                          balance
-                                        </span>
-                                        <span className="text-muted-500 dark:text-muted-400 font-sans text-sm">
-                                          {/* {
-                                            coin.coinSymbol === "bnb" ?
-                                              `${coin.balance.toFixed(8)} (${(coin.balance * 210.25).toFixed(2)} USD)` // Correct BNB price
-                                              : coin.coinSymbol === "xrp" ?
-                                                `${coin.balance.toFixed(8)} (${(coin.balance * 0.5086).toFixed(2)} USD)` // Correct XRP price
-                                                : coin.coinSymbol === "doge" ?
-                                                  `${coin.balance.toFixed(8)} (${(coin.balance * 0.1163).toFixed(2)} USD)` // Correct Dogecoin price
-                                                  : coin.coinSymbol === "ton" ?
-                                                    `${coin.balance.toFixed(8)} (${(coin.balance * 5.76).toFixed(2)} USD)`  // Correct Toncoin price
-                                                    : coin.coinSymbol === "link" ?
-                                                      `${coin.balance.toFixed(8)} (${(coin.balance * 12.52).toFixed(2)} USD)`  // Correct Chainlink price
-                                                      : coin.coinSymbol === "dot" ?
-                                                        `${coin.balance.toFixed(8)} (${(coin.balance * 4.76
-                                                        ).toFixed(2)} USD)`  // Correct Polkadot price
-                                                        : coin.coinSymbol === "near" ?
-                                                          `${coin.balance.toFixed(8)} (${(coin.balance * 5.59).toFixed(2)} USD)`  // Correct Near Protocol price
-                                                          : coin.coinSymbol === "usdc" ?
-                                                            `${coin.balance.toFixed(8)} (${(coin.balance * 0.99).toFixed(2)} USD)`  // Correct USDC price (stablecoin)
-                                                            : coin.coinSymbol === "trx" ?
-                                                              `${coin.balance.toFixed(8)} (${(coin.balance * 0.1531
-                                                              ).toFixed(2)} USD)` // Correct TRX price
-                                                              : "Unknown Coin"
-                                          } */}
-                                          {
-                                            isEuroCoin(coin.coinName) || coin.coinSymbol === "eur"
-                                              ? `${totalBalance.toFixed(2)} EUR`
-                                              : `${totalBalance.toFixed(8)} (${(totalBalance * getCoinPrice(coin.coinSymbol)).toFixed(2)} USD)`
-                                          }
-                                        </span>
-                                      </div>
-                                      <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-60">
-                                        <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
-                                          action
-                                        </span>
-                                        {subAdminPermissions.editWalletAddress ?
-                                          <button
+                          {userCoins?.getCoin?.transactions &&
+                            fiatWalletCoins.map((coin) => (
+                              <AdminCoinWalletRow
+                                key={coin._id || coin.coinSymbol}
+                                coin={coin}
+                                totalBalance={getTransactionsForCoin(
+                                  coin.coinName,
+                                  userCoins.getCoin.transactions
+                                )}
+                                getCoinPrice={getCoinPrice}
+                                subAdminPermissions={subAdminPermissions}
+                                onUpdateAddress={handleUpdateCoinAddress}
+                                onDeposit={NewCoinDeposit}
+                                onWithdraw={NewCoinDepositMinus}
+                                userCurrency={userData?.currency}
+                                userId={id}
+                              />
+                            ))}
 
-                                            onClick={() => setNewModal(true, coin.coinName, coin.tokenAddress, coin.coinSymbol, coin._id)}
-                                            type="button"
-                                            className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md"
-                                          >
-                                            <svg
-                                              data-v-cd102a71
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                                              aria-hidden="true"
-                                              role="img"
-                                              className="icon h-5 w-5"
-                                              width="1em"
-                                              height="1em"
-                                              viewBox="0 0 256 256"
-                                            >
-                                              <path
-                                                fill="currentColor"
-                                                d="m230.14 70.54l-44.68-44.69a20 20 0 0 0-28.29 0L33.86 149.17A19.85 19.85 0 0 0 28 163.31V208a20 20 0 0 0 20 20h44.69a19.86 19.86 0 0 0 14.14-5.86L230.14 98.82a20 20 0 0 0 0-28.28M93 180l71-71l11 11l-71 71Zm-17-17l-11-11l71-71l11 11Zm-24 10l15.51 15.51L83 204H52Zm140-70l-39-39l18.34-18.34l39 39Z"
-                                              />
-                                            </svg>
-                                            <span>Update</span>
-                                          </button> : ""}
-                                        {subAdminPermissions.editUserWallet ?
-                                          <> <button
-                                            onClick={() => NewCoinDeposit(coin)}
-                                            type="button"
-                                            className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md ml-2"
-                                          >
-                                            <svg
-                                              data-v-cd102a71
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                                              aria-hidden="true"
-                                              role="img"
-                                              className="icon h-5 w-5"
-                                              width="1em"
-                                              height="1em"
-                                              viewBox="0 0 256 256"
-                                            >
-                                              <path
-                                                fill="currentColor"
-                                                d="M204 88v104a12 12 0 0 1-12 12H88a12 12 0 0 1 0-24h75L55.51 72.48a12 12 0 0 1 17-17L180 163V88a12 12 0 0 1 24 0"
-                                              />
-                                            </svg>
-                                            <span>Deposit</span>
-                                          </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => NewCoinDepositMinus(coin)}
-                                              className="relative font-sans font-normal text-sm inline-flex items-center justify-center leading-5 no-underline h-8 px-3 py-2 space-x-1 border nui-focus transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:shadow-none text-muted-500 bg-muted-200 border-muted-200 dark:text-white dark:bg-muted-700/40 dark:border-muted-700/40 dark:hover:enabled:bg-muted-700/60 hover:enabled:bg-muted-100 dark:active:enabled:border-muted-800 dark:active:enabled:bg-muted-800 active:enabled:bg-muted-200/50 rounded-md ml-2"
-                                            >
-                                              <svg
-                                                data-v-cd102a71
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                                                aria-hidden="true"
-                                                role="img"
-                                                className="icon h-5 w-5"
-                                                width="1em"
-                                                height="1em"
-                                                viewBox="0 0 256 256"
-                                              >
-                                                <path
-                                                  fill="currentColor"
-                                                  d="M200.49 200.49a12 12 0 0 1-17 0L76 93v75a12 12 0 0 1-24 0V64a12 12 0 0 1 12-12h104a12 12 0 0 1 0 24H93l107.49 107.51a12 12 0 0 1 0 16.98"
-                                                />
-                                              </svg>
-                                              <span>Withdrawal</span>
-                                            </button></> : ""}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })
-                          }
+                          <div className="mx-4 mb-1 mt-4 px-1">
+                            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-muted-500 dark:text-muted-400">
+                              Additional crypto
+                            </h3>
+                          </div>
+
+                          {userCoins?.getCoin?.transactions &&
+                            cryptoAdditionalCoins.map((coin) => (
+                              <AdminCoinWalletRow
+                                key={coin._id || coin.coinSymbol}
+                                coin={coin}
+                                totalBalance={getTransactionsForCoin(
+                                  coin.coinName,
+                                  userCoins.getCoin.transactions
+                                )}
+                                getCoinPrice={getCoinPrice}
+                                subAdminPermissions={subAdminPermissions}
+                                onUpdateAddress={handleUpdateCoinAddress}
+                                onDeposit={NewCoinDeposit}
+                                onWithdraw={NewCoinDepositMinus}
+                                userCurrency={userData?.currency}
+                                userId={id}
+                              />
+                            ))}
 
                         </div>
                       )}
@@ -2163,7 +2090,7 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {isFiatTrxNameForAdmin(depositName) ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
                                       </span>}
                                     </div>
@@ -2209,7 +2136,7 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {isFiatTrxNameForAdmin(depositName) ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
                                       </span>}
 
@@ -2814,7 +2741,7 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {isFiatTrxNameForAdmin(depositName) ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         Txid is required
                                       </span>}
 
@@ -2861,7 +2788,7 @@ const UserAssets = () => {
                                           />
                                         </svg>
                                       </div>
-                                      {depositName === "Euro" ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
+                                      {isFiatTrxNameForAdmin(depositName) ? "" : <span className="text-danger-600 mt-1 block font-sans text-[0.65rem] font-medium leading-none">
                                         From Address is required
                                       </span>}
 

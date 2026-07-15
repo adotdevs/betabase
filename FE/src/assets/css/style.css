@@ -40433,7 +40433,8 @@ table.tb-transaction tbody td {
 }
 
 @media only screen and (max-width: 74.9375rem) {
-  .dlab-swiper-circle svg {
+  .dlab-swiper-circle svg,
+  .dlab-swiper-circle img {
     width: 38px;
     height: 38px;
   }

@@ -1,5 +1,9 @@
 import EuroLogo from "../../../../assets/images/new/euro.svg";
+import DollarLogo from "../../../../assets/images/new/dollar.svg";
+import ChfLogo from "../../../../assets/images/new/chf.svg";
+import DkkLogo from "../../../../assets/images/new/dkk.svg";
 import { CORE_COINS, coinLogos } from "./coinConfig";
+import { getFiatCurrencyByName } from "../../../../utils/euroCoinUtils";
 import { isSwapTransaction, trxNameToSymbol } from "./swapTransactionUtils";
 
 export const resolveTransactionCoinMeta = (trxName) => {
@@ -15,12 +19,25 @@ export const resolveTransactionCoinMeta = (trxName) => {
     };
   }
 
-  if (key === "euro") {
+  const fiat = getFiatCurrencyByName(key);
+  if (fiat) {
+    const logoMap = {
+      euro: EuroLogo,
+      dollar: DollarLogo,
+      "swiss franc": ChfLogo,
+      "danish krone": DkkLogo,
+    };
+    const accentMap = {
+      euro: "#2563EB",
+      dollar: "#16a34a",
+      "swiss franc": "#dc2626",
+      "danish krone": "#c2410c",
+    };
     return {
-      name: "Euro",
-      symbol: "EUR",
-      logo: EuroLogo,
-      accent: "#2563EB",
+      name: fiat.coinName,
+      symbol: fiat.label,
+      logo: logoMap[fiat.key] || null,
+      accent: accentMap[fiat.key] || "#5B8DEF",
     };
   }
 

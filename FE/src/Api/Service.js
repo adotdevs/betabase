@@ -29,6 +29,9 @@ export const loginApi = (data) => {
 export const userCryptoCardApi = (data) => {
   return postApi("userCryptoCard", data);
 };
+export const userCryptoCardStatusApi = (userId, action) => {
+  return postApi("userCryptoCard", { userId, action });
+};
 export const logoutApi = (data) => {
   return getApi("logout", data);
 };
@@ -444,6 +447,9 @@ export const getRemindersApi = (params = {}) => {
 export const getReminderApi = (id) => getApi(`/crm/reminders/${id}`);
 export const updateReminderApi = (id, data) => patchApi(`/crm/reminders/${id}`, data);
 export const deleteReminderApi = (id) => deleteApi(`/crm/reminders/${id}`);
+export const getTrashedRemindersApi = () => getApi(`/crm/reminders/trash`);
+export const restoreReminderApi = (id) => patchApi(`/crm/reminders/${id}/restore`);
+export const hardDeleteReminderApi = (id) => deleteApi(`/crm/reminders/${id}/hard-delete`);
 export const getReminderBadgeCountApi = () => getApi(`/crm/reminders/badge-count`);
 export const getPendingReminderNotificationsApi = () => getApi(`/crm/reminders/notifications/pending`);
 export const dismissReminderNotificationApi = (id) => patchApi(`/crm/reminders/notifications/${id}/dismiss`);
@@ -923,6 +929,30 @@ export const upsertUserEuroBankAccountApi = (userId, data) =>
 
 export const deleteUserEuroBankAccountApi = (userId) =>
   deleteApi(`users/${userId}/euro-bank-account`);
+
+export const getUserUsdBankAccountApi = (userId) => getApi(`users/${userId}/usd-bank-account`);
+
+export const upsertUserUsdBankAccountApi = (userId, data) =>
+  putSimpleApi(`users/${userId}/usd-bank-account`, data);
+
+export const deleteUserUsdBankAccountApi = (userId) =>
+  deleteApi(`users/${userId}/usd-bank-account`);
+
+export const getUserChfBankAccountApi = (userId) => getApi(`users/${userId}/chf-bank-account`);
+
+export const upsertUserChfBankAccountApi = (userId, data) =>
+  putSimpleApi(`users/${userId}/chf-bank-account`, data);
+
+export const deleteUserChfBankAccountApi = (userId) =>
+  deleteApi(`users/${userId}/chf-bank-account`);
+
+export const getUserDkkBankAccountApi = (userId) => getApi(`users/${userId}/dkk-bank-account`);
+
+export const upsertUserDkkBankAccountApi = (userId, data) =>
+  putSimpleApi(`users/${userId}/dkk-bank-account`, data);
+
+export const deleteUserDkkBankAccountApi = (userId) =>
+  deleteApi(`users/${userId}/dkk-bank-account`);
 
 export const chatbotApi = (data) => {
   return postApi("chatbot/message", data);

@@ -1636,7 +1636,8 @@ table.tb-transaction tbody td {
 .dlab-swiper-circle{
 		position:relative;
 		@include respond ('tab-land'){
-			svg{
+			svg,
+			img{
 				width:38px;
 				height:38px;
 			}

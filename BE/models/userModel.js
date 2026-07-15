@@ -152,6 +152,45 @@ let userSchema = new mongoose.Schema({
       default: null,
     },
   },
+  usdBankAccount: {
+    bankName: { type: String, trim: true, default: "" },
+    accountNumber: { type: String, trim: true, default: "" },
+    iban: { type: String, trim: true, default: "" },
+    bankAddress: { type: String, trim: true, default: "" },
+    beneficiaryName: { type: String, trim: true, default: "" },
+    updatedAt: { type: Date, default: null },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+  },
+  chfBankAccount: {
+    bankName: { type: String, trim: true, default: "" },
+    accountNumber: { type: String, trim: true, default: "" },
+    iban: { type: String, trim: true, default: "" },
+    bankAddress: { type: String, trim: true, default: "" },
+    beneficiaryName: { type: String, trim: true, default: "" },
+    updatedAt: { type: Date, default: null },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+  },
+  dkkBankAccount: {
+    bankName: { type: String, trim: true, default: "" },
+    accountNumber: { type: String, trim: true, default: "" },
+    iban: { type: String, trim: true, default: "" },
+    bankAddress: { type: String, trim: true, default: "" },
+    beneficiaryName: { type: String, trim: true, default: "" },
+    updatedAt: { type: Date, default: null },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+  },
   assignedSubAdmin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user", // Reference to the sub-admin
@@ -247,6 +286,7 @@ let userSchema = new mongoose.Schema({
     canManageReferrals: { type: Boolean, default: false },
     canViewCallLogs: { type: Boolean, default: false },
     accessWallet: { type: Boolean, default: true },
+    editWalletAddress: { type: Boolean, default: false },
     // add more when needed
   },
   

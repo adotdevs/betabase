@@ -57,6 +57,15 @@ const {
   getUserEuroBankAccount,
   upsertUserEuroBankAccount,
   deleteUserEuroBankAccount,
+  getUserUsdBankAccount,
+  upsertUserUsdBankAccount,
+  deleteUserUsdBankAccount,
+  getUserChfBankAccount,
+  upsertUserChfBankAccount,
+  deleteUserChfBankAccount,
+  getUserDkkBankAccount,
+  upsertUserDkkBankAccount,
+  deleteUserDkkBankAccount,
 } = require("../controllers/userController");
 const {
   verifyReferralCode,
@@ -102,6 +111,18 @@ router.route("/users/:id/euro-bank-account")
   .get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), getUserEuroBankAccount)
   .put(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), upsertUserEuroBankAccount)
   .delete(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), deleteUserEuroBankAccount);
+router.route("/users/:id/usd-bank-account")
+  .get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), getUserUsdBankAccount)
+  .put(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), upsertUserUsdBankAccount)
+  .delete(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), deleteUserUsdBankAccount);
+router.route("/users/:id/chf-bank-account")
+  .get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), getUserChfBankAccount)
+  .put(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), upsertUserChfBankAccount)
+  .delete(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), deleteUserChfBankAccount);
+router.route("/users/:id/dkk-bank-account")
+  .get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), getUserDkkBankAccount)
+  .put(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), upsertUserDkkBankAccount)
+  .delete(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), deleteUserDkkBankAccount);
 router.route("/updateSingleUser/:id").post(isAuthorizedUser, updateSingleUser);
 router.route("/updateSingleUserStatus/:id").post(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), updateSingleUserStatus);
 router.route("/my/compliance-status").get(isAuthorizedUser, checkWalletAccess, getMyComplianceStatus);
