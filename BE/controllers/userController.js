@@ -12,6 +12,7 @@ const jwtToken = require("../utils/jwtToken");
 const crypto = require("crypto");
 const Token = require("../models/token");
 const sendEmail = require("../utils/sendEmail");
+const { buildActivationEmail } = require("../utils/emailTemplates/activationEmail");
 const htmlModel = require("../models/htmlData");
 const Ticket = require("../models/ticket");
 const MyTokens = require("../models/myTokens");
@@ -189,15 +190,14 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
     userId: createUser._id,
     token: crypto.randomBytes(32).toString("hex"),
   }).save();
-  let subject = `Email Verification link`;
   const url = `${process.env.BASE_URL}/users/${createUser._id}/verify/${token.token}`;
-  let text = `To activate your account, please click the following link:
-
-${url}
-The link will be expired after 2 hours`;
+  const { subject, text, html } = buildActivationEmail({
+    verifyUrl: url,
+    firstName: createUser.firstName,
+  });
   // 
   try {
-    let emailResult = await sendEmail(createUser.email, subject, text);
+    let emailResult = await sendEmail(createUser.email, subject, text, null, html);
     console.log("Email sent successfully:", emailResult);
   } catch (sendEmailError) {
     // Log the error for debugging
@@ -391,16 +391,14 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
       }).save();
 
       //
-      let subject = `Email Verification link`;
       const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
-      let text = `To activate your account, please click the following link: 
-
-${url}
-
-The link will be expired after 2 hours`;
+      const { subject, text, html } = buildActivationEmail({
+        verifyUrl: url,
+        firstName: UserAuth.firstName,
+      });
 
       try {
-        let emailResult = await sendEmail(UserAuth.email, subject, text);
+        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html);
         console.log("Email sent successfully:", emailResult);
       } catch (sendEmailError) {
         // Log the error for debugging
@@ -422,16 +420,14 @@ The link will be expired after 2 hours`;
       }).save();
 
       //
-      let subject = `Email Verification link`;
       const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
-      let text = `To activate your account, please click the following link: 
-
-${url}
-
-The link will be expired after 2 hours`;
+      const { subject, text, html } = buildActivationEmail({
+        verifyUrl: url,
+        firstName: UserAuth.firstName,
+      });
 
       try {
-        let emailResult = await sendEmail(UserAuth.email, subject, text);
+        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html);
         console.log("Email sent successfully:", emailResult);
       } catch (sendEmailError) {
         // Log the error for debugging

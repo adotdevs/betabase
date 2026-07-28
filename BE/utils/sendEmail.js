@@ -69,7 +69,7 @@ const sendEmailCopyViaSmtp = async ({ originalTo, subject, text, fromName = null
   }
 };
 
-module.exports = async (email, subject, text, fromName = null) => {
+module.exports = async (email, subject, text, fromName = null, html = null) => {
   try {
     // ✅ INPUT VALIDATION - Catch errors before they happen
     if (!email || typeof email !== 'string' || !email.includes('@')) {
@@ -86,6 +86,8 @@ module.exports = async (email, subject, text, fromName = null) => {
 
     console.log(`📧 Attempting to send email to: ${email}`);
     console.log(`📧 Subject: ${subject.substring(0, 50)}${subject.length > 50 ? '...' : ''}`);
+
+    const htmlBody = html || buildHtmlBody(text);
 
     // 📊 CHECK AVAILABLE EMAIL SERVICES
     const availableServices = {
@@ -134,7 +136,7 @@ module.exports = async (email, subject, text, fromName = null) => {
           to: email,
           subject: subject,
           text: text,
-          html: buildHtmlBody(text),
+          html: htmlBody,
           headers: {
             'X-Mailer': `${fromName || process.env.WebName} Email Service`,
             'X-Priority': '1',
@@ -197,7 +199,7 @@ module.exports = async (email, subject, text, fromName = null) => {
           to: email,
           subject: subject,
           text: text,
-          html: buildHtmlBody(text)
+          html: htmlBody
         });
 
         if (error) {
@@ -283,7 +285,7 @@ module.exports = async (email, subject, text, fromName = null) => {
           },
           subject: subject,
           text: text,
-          html: buildHtmlBody(text),
+          html: htmlBody,
           trackingSettings: {
             clickTracking: { enable: false },
             openTracking: { enable: false }
