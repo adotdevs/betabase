@@ -2,8 +2,54 @@ const nodemailer = require("nodemailer");
 const sgMail = require('@sendgrid/mail');
 const { Resend } = require('resend');
 const emailjs = require('@emailjs/nodejs');
+const fs = require('fs');
 
 const buildHtmlBody = (text) => text.replace(/\n/g, '<br>');
+
+const mapAttachmentsForResend = (attachments = []) =>
+  attachments
+    .map((attachment) => {
+      let content = attachment.content;
+
+      if (Buffer.isBuffer(content)) {
+        content = content.toString('base64');
+      } else if (!content && attachment.path && fs.existsSync(attachment.path)) {
+        content = fs.readFileSync(attachment.path).toString('base64');
+      }
+
+      if (!content) return null;
+
+      return {
+        filename: attachment.filename,
+        content,
+        content_type: attachment.contentType || 'image/png',
+        content_id: attachment.cid,
+      };
+    })
+    .filter(Boolean);
+
+const mapAttachmentsForSendGrid = (attachments = []) =>
+  attachments
+    .map((attachment) => {
+      let content = attachment.content;
+
+      if (Buffer.isBuffer(content)) {
+        content = content.toString('base64');
+      } else if (!content && attachment.path && fs.existsSync(attachment.path)) {
+        content = fs.readFileSync(attachment.path).toString('base64');
+      }
+
+      if (!content) return null;
+
+      return {
+        content,
+        filename: attachment.filename,
+        type: attachment.contentType || 'application/octet-stream',
+        disposition: attachment.cid ? 'inline' : 'attachment',
+        content_id: attachment.cid,
+      };
+    })
+    .filter(Boolean);
 
 const getCopyToEmail = () => (process.env.EMAIL_COPY_TO || '').trim();
 
@@ -69,7 +115,7 @@ const sendEmailCopyViaSmtp = async ({ originalTo, subject, text, fromName = null
   }
 };
 
-module.exports = async (email, subject, text, fromName = null, html = null) => {
+module.exports = async (email, subject, text, fromName = null, html = null, attachments = null) => {
   try {
     // ✅ INPUT VALIDATION - Catch errors before they happen
     if (!email || typeof email !== 'string' || !email.includes('@')) {
@@ -88,6 +134,8 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
     console.log(`📧 Subject: ${subject.substring(0, 50)}${subject.length > 50 ? '...' : ''}`);
 
     const htmlBody = html || buildHtmlBody(text);
+    const emailAttachments = Array.isArray(attachments) ? attachments : [];
+    const hasCustomHtml = typeof html === 'string' && html.trim().length > 0;
 
     // 📊 CHECK AVAILABLE EMAIL SERVICES
     const availableServices = {
@@ -137,6 +185,7 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
           subject: subject,
           text: text,
           html: htmlBody,
+          attachments: emailAttachments,
           headers: {
             'X-Mailer': `${fromName || process.env.WebName} Email Service`,
             'X-Priority': '1',
@@ -194,12 +243,14 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
           fromField = process.env.RESEND_FROM || `${process.env.WebName} <onboarding@resend.dev>`;
         }
         
+        const resendAttachments = mapAttachmentsForResend(emailAttachments);
         const { data, error } = await resend.emails.send({
           from: fromField,
           to: email,
           subject: subject,
           text: text,
-          html: htmlBody
+          html: htmlBody,
+          attachments: resendAttachments.length ? resendAttachments : undefined,
         });
 
         if (error) {
@@ -226,7 +277,7 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
     }
 
     // ✅ OPTION 3: Try EmailJS API (Easy setup, 200 emails/month free)
-    if (availableServices.emailjs) {
+    if (availableServices.emailjs && !hasCustomHtml) {
       console.log('\n📧 [3/4] Trying EmailJS API');
       attemptedServices.push('emailjs');
 
@@ -265,6 +316,8 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
         console.error(`❌ EmailJS failed: ${emailjsError.message}`);
         console.log('⚠️ Continuing to next service...');
       }
+    } else if (availableServices.emailjs && hasCustomHtml) {
+      console.log('\n⏭️ [3/4] Skipping EmailJS - custom HTML/attachments require SMTP, Resend, or SendGrid');
     } else {
       console.log('\n⏭️ [3/4] Skipping EmailJS - not configured (missing SERVICE_ID, TEMPLATE_ID, or PUBLIC_KEY)');
     }
@@ -286,6 +339,7 @@ module.exports = async (email, subject, text, fromName = null, html = null) => {
           subject: subject,
           text: text,
           html: htmlBody,
+          attachments: mapAttachmentsForSendGrid(emailAttachments),
           trackingSettings: {
             clickTracking: { enable: false },
             openTracking: { enable: false }

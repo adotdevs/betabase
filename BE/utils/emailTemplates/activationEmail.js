@@ -1,35 +1,80 @@
 const fs = require("fs");
 const path = require("path");
 
-let cachedLogoDataUri = null;
+const LOGO_CID = "betabase-logo@betabase.pro";
+const LOGO_FILENAME = "logo-blue.png";
+const DEFAULT_STATIC_LOGO = "/static/media/logo-blue.d335fe486a9e05b34898.png";
 
-const getLogoDataUri = () => {
-  if (cachedLogoDataUri) return cachedLogoDataUri;
+const getLogoPath = () => path.join(__dirname, "../../assets/email", LOGO_FILENAME);
 
+const getFrontendBaseUrl = () => {
+  const baseUrl = String(process.env.BASE_URL || "").trim().replace(/\/$/, "");
+  const frontendUrl = String(process.env.FRONTEND_URL || "").trim().replace(/\/$/, "");
+
+  if (frontendUrl) return frontendUrl;
+  if (baseUrl && !baseUrl.includes("/users/") && !baseUrl.includes("api.")) {
+    return baseUrl;
+  }
+
+  return "https://www.betabase.pro";
+};
+
+const getPublicLogoUrl = () => {
   const envLogoUrl = String(process.env.EMAIL_LOGO_URL || "").trim();
   if (envLogoUrl) return envLogoUrl;
 
-  try {
-    const logoPath = path.join(__dirname, "../../assets/email/logo-blue.png");
-    if (fs.existsSync(logoPath)) {
-      const logoBuffer = fs.readFileSync(logoPath);
-      cachedLogoDataUri = `data:image/png;base64,${logoBuffer.toString("base64")}`;
-      return cachedLogoDataUri;
-    }
-  } catch (error) {
-    console.warn("Could not load email logo from assets:", error.message);
+  const apiPublicUrl = String(process.env.API_PUBLIC_URL || "").trim().replace(/\/$/, "");
+  if (apiPublicUrl) {
+    return `${apiPublicUrl}/api/v1/email-assets/${LOGO_FILENAME}`;
   }
 
-  const frontendUrl = String(process.env.FRONTEND_URL || "https://www.betabase.pro").replace(/\/$/, "");
-  return `${frontendUrl}/static/media/logo-blue.png`;
+  const baseUrl = String(process.env.BASE_URL || "").trim().replace(/\/$/, "");
+  if (baseUrl.includes("api.")) {
+    return `${baseUrl}/api/v1/email-assets/${LOGO_FILENAME}`;
+  }
+
+  const frontendUrl = getFrontendBaseUrl();
+  return `${frontendUrl}${DEFAULT_STATIC_LOGO}`;
+};
+
+const getLogoAttachment = () => {
+  const logoPath = getLogoPath();
+  if (!fs.existsSync(logoPath)) return null;
+
+  return {
+    filename: LOGO_FILENAME,
+    content: fs.readFileSync(logoPath),
+    cid: LOGO_CID,
+    contentType: "image/png",
+  };
+};
+
+const buildLogoMarkup = (brandName, logoAttachment, publicLogoUrl) => {
+  const alt = brandName;
+  const imgStyle =
+    "display:block;width:160px;max-width:160px;height:auto;border:0;outline:none;text-decoration:none;margin:0 auto;";
+
+  if (logoAttachment) {
+    return `<!--[if mso]>
+<img src="cid:${LOGO_CID}" alt="${alt}" width="160" border="0" style="${imgStyle}" />
+<![endif]-->
+<!--[if !mso]><!-->
+<img src="${publicLogoUrl}" alt="${alt}" width="160" border="0" style="${imgStyle}" />
+<!--<![endif]-->`;
+  }
+
+  return `<img src="${publicLogoUrl}" alt="${alt}" width="160" border="0" style="${imgStyle}" />`;
 };
 
 const buildActivationEmail = ({ verifyUrl, firstName }) => {
   const brandName = process.env.WebName || "Betabase";
   const safeName = String(firstName || "").trim();
   const greeting = safeName ? `Hi ${safeName},` : "Hi there,";
-  const logoSrc = getLogoDataUri();
+  const logoAttachment = getLogoAttachment();
+  const publicLogoUrl = getPublicLogoUrl();
+  const logoMarkup = buildLogoMarkup(brandName, logoAttachment, publicLogoUrl);
   const subject = `Activate your ${brandName} account`;
+  const year = new Date().getFullYear();
 
   const text = `${greeting}
 
@@ -44,61 +89,69 @@ If you did not create an account, you can safely ignore this email.
 Best regards,
 The ${brandName} Team`;
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
+  const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${subject}</title>
 </head>
-<body style="margin:0;padding:0;background-color:#0b1220;font-family:Arial,Helvetica,sans-serif;color:#e2e8f0;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b1220;padding:32px 16px;">
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f1f5f9;">
     <tr>
-      <td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#111827;border:1px solid #1f2937;border-radius:16px;overflow:hidden;">
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" border="0" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #dbe3ee;">
           <tr>
-            <td align="center" style="padding:32px 24px 16px;background:linear-gradient(180deg,#111827 0%,#0f172a 100%);">
-              <img src="${logoSrc}" alt="${brandName}" width="160" style="display:block;width:160px;max-width:100%;height:auto;border:0;" />
+            <td align="center" bgcolor="#000000" style="padding:24px 20px;background-color:#000000;">
+              ${logoMarkup}
             </td>
           </tr>
           <tr>
-            <td style="padding:8px 32px 0;">
-              <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;font-weight:700;color:#f8fafc;text-align:center;">
+            <td style="padding:32px 40px 16px;">
+              <h1 style="margin:0 0 16px;font-size:22px;line-height:30px;font-weight:700;color:#0f172a;text-align:center;">
                 Activate your account
               </h1>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#cbd5e1;text-align:center;">
-                ${greeting} thanks for registering with ${brandName}.
+              <p style="margin:0 0 12px;font-size:16px;line-height:24px;color:#334155;text-align:center;">
+                ${greeting}
               </p>
-              <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#94a3b8;text-align:center;">
-                Click the button below to verify your email address and activate your account.
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding:0 32px 28px;">
-              <a href="${verifyUrl}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#4f7df3 0%,#7c5cff 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;border-radius:10px;">
-                Activate Account
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:0 32px 24px;">
-              <p style="margin:0 0 12px;font-size:13px;line-height:1.6;color:#64748b;text-align:center;">
-                This link will expire after <strong style="color:#cbd5e1;">2 hours</strong>.
-              </p>
-              <p style="margin:0;font-size:12px;line-height:1.6;color:#64748b;text-align:center;word-break:break-all;">
-                If the button does not work, copy and paste this link into your browser:<br />
-                <a href="${verifyUrl}" style="color:#93c5fd;text-decoration:none;">${verifyUrl}</a>
+              <p style="margin:0;font-size:15px;line-height:24px;color:#64748b;text-align:center;">
+                Thanks for registering with ${brandName}. Confirm your email address to activate your account.
               </p>
             </td>
           </tr>
           <tr>
-            <td style="padding:20px 32px 28px;border-top:1px solid #1f2937;background-color:#0f172a;">
-              <p style="margin:0;font-size:12px;line-height:1.6;color:#64748b;text-align:center;">
+            <td align="center" style="padding:8px 40px 28px;">
+              <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" bgcolor="#2563eb" style="background-color:#2563eb;">
+                    <a href="${verifyUrl}" target="_blank" style="display:inline-block;padding:14px 36px;font-size:16px;line-height:20px;font-weight:700;color:#ffffff;text-decoration:none;background-color:#2563eb;">
+                      Activate Account
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px 24px;">
+              <p style="margin:0 0 16px;font-size:14px;line-height:22px;color:#64748b;text-align:center;">
+                This link expires in <strong style="color:#334155;">2 hours</strong>.
+              </p>
+              <p style="margin:0;font-size:13px;line-height:20px;color:#94a3b8;text-align:center;">
+                If the button does not work, copy and paste this link into your browser:
+              </p>
+              <p style="margin:8px 0 0;font-size:13px;line-height:20px;text-align:center;word-break:break-all;">
+                <a href="${verifyUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;">${verifyUrl}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #e2e8f0;background-color:#f8fafc;">
+              <p style="margin:0;font-size:13px;line-height:20px;color:#64748b;text-align:center;">
                 If you did not create a ${brandName} account, you can safely ignore this email.
               </p>
-              <p style="margin:8px 0 0;font-size:12px;line-height:1.6;color:#475569;text-align:center;">
-                &copy; ${new Date().getFullYear()} ${brandName}. All rights reserved.
+              <p style="margin:10px 0 0;font-size:12px;line-height:18px;color:#94a3b8;text-align:center;">
+                &copy; ${year} ${brandName}. All rights reserved.
               </p>
             </td>
           </tr>
@@ -109,7 +162,16 @@ The ${brandName} Team`;
 </body>
 </html>`;
 
-  return { subject, text, html };
+  return {
+    subject,
+    text,
+    html,
+    attachments: logoAttachment ? [logoAttachment] : [],
+  };
 };
 
-module.exports = { buildActivationEmail, getLogoDataUri };
+module.exports = {
+  buildActivationEmail,
+  getPublicLogoUrl,
+  getLogoAttachment,
+};

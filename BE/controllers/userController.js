@@ -191,13 +191,13 @@ exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
     token: crypto.randomBytes(32).toString("hex"),
   }).save();
   const url = `${process.env.BASE_URL}/users/${createUser._id}/verify/${token.token}`;
-  const { subject, text, html } = buildActivationEmail({
+  const { subject, text, html, attachments } = buildActivationEmail({
     verifyUrl: url,
     firstName: createUser.firstName,
   });
   // 
   try {
-    let emailResult = await sendEmail(createUser.email, subject, text, null, html);
+    let emailResult = await sendEmail(createUser.email, subject, text, null, html, attachments);
     console.log("Email sent successfully:", emailResult);
   } catch (sendEmailError) {
     // Log the error for debugging
@@ -392,13 +392,13 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 
       //
       const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
-      const { subject, text, html } = buildActivationEmail({
+      const { subject, text, html, attachments } = buildActivationEmail({
         verifyUrl: url,
         firstName: UserAuth.firstName,
       });
 
       try {
-        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html);
+        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html, attachments);
         console.log("Email sent successfully:", emailResult);
       } catch (sendEmailError) {
         // Log the error for debugging
@@ -421,13 +421,13 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
 
       //
       const url = `${process.env.BASE_URL}/users/${UserAuth._id}/verify/${token.token}`;
-      const { subject, text, html } = buildActivationEmail({
+      const { subject, text, html, attachments } = buildActivationEmail({
         verifyUrl: url,
         firstName: UserAuth.firstName,
       });
 
       try {
-        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html);
+        let emailResult = await sendEmail(UserAuth.email, subject, text, null, html, attachments);
         console.log("Email sent successfully:", emailResult);
       } catch (sendEmailError) {
         // Log the error for debugging

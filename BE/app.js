@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const path = require("path");
 const sendEmail = require('./sendEmail')
 // const cors = require("cors");
 const axios = require("axios")
@@ -376,6 +377,14 @@ cron.schedule("0 1 * * *", async () => { // daily at 01:00
 // but we set high limits here to avoid any conflicts
 app.use(bodyparser.urlencoded({ extended: false, limit: '50mb', parameterLimit: 50000 }));
 app.use(bodyparser.json({ limit: '50mb' }));
+
+app.use(
+  "/api/v1/email-assets",
+  express.static(path.join(__dirname, "assets/email"), {
+    maxAge: "7d",
+  })
+);
+
 // All Routes
 const coins = require("./routes/coinRoute");
 const user = require("./routes/userRoute");
