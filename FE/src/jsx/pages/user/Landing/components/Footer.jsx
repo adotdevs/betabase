@@ -30,6 +30,7 @@ const Footer = () => (
 
       </FooterInfo>
       <CaptionBlock>
+        <p><a href="/help/">Help Centre</a></p>
         <p>Copyright ©2025 Betabase. All rights reserved.</p>
       </CaptionBlock>
     </LandingContainer>
@@ -151,6 +152,15 @@ const CaptionBlock = styled.div`
   line-height: 20px;
   width: 100%;
   text-align: center;
+
+  a {
+    color: #DDDDDD;
+    text-decoration: none;
+
+    &:hover {
+      color: ${landingGreenColor};
+    }
+  }
   
   & > p:not(:last-of-type) {
     margin-bottom: 16px;

@@ -17,6 +17,7 @@ import Exchange from "../jsx/pages/user/Exchange";
 import Account from "../jsx/pages/user/Account";
 import Dashboard from "../jsx/pages/user/Dashboard";
 import Market from "../jsx/pages/user/Market";
+import Error404 from "../jsx/pages/error/Error404";
 import HelpStaticRedirect from "../components/HelpStaticRedirect.jsx";
 import Documents from "../jsx/pages/user/Documents";
 import Assets from "../jsx/pages/user/Asssets";
