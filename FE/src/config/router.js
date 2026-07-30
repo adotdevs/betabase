@@ -18,6 +18,7 @@ import Account from "../jsx/pages/user/Account";
 import Dashboard from "../jsx/pages/user/Dashboard";
 import Market from "../jsx/pages/user/Market";
 import HelpStaticRedirect from "../components/HelpStaticRedirect.jsx";
+import Error404 from "../jsx/pages/error/Error404";
 import Documents from "../jsx/pages/user/Documents";
 import Assets from "../jsx/pages/user/Asssets";
 import StakingPg from "../jsx/pages/user/Staking";
