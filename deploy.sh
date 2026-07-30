@@ -38,9 +38,9 @@ fi
 
 echo "==> Help centre OK ($(find "$ROOT/FE/build/help" -type f | wc -l) files)"
 
-if [[ -f "$ROOT/FE/deploy/fix-nginx-help.sh" ]]; then
+if [[ -f "$ROOT/FE/deploy/setup-help-nginx.sh" ]]; then
   echo "==> Nginx help route"
-  sudo bash "$ROOT/FE/deploy/fix-nginx-help.sh" || echo "WARN: nginx help snippet skipped (run manually with sudo)"
+  sudo bash "$ROOT/FE/deploy/setup-help-nginx.sh"
 fi
 
 echo "==> Deploy complete"
