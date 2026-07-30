@@ -30,7 +30,7 @@ const Footer = () => (
 
       </FooterInfo>
       <CaptionBlock>
-        <p><a href="/help/">Help Centre</a></p>
+        <p><a href="/help/">Help Center</a></p>
         <p>Copyright ©2025 Betabase. All rights reserved.</p>
       </CaptionBlock>
     </LandingContainer>
