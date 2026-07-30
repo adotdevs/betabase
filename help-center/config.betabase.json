@@ -1,0 +1,11 @@
+{
+  "brandName": "Betabase",
+  "siteName": "Betabase Help Center",
+  "companyName": "Betabase",
+  "websiteUrl": "https://www.betabase.pro",
+  "supportEmail": "support@betabase.io",
+  "logoUrl": "/static/media/logo-blue.d335fe486a9e05b34898.png",
+  "basePath": "/help",
+  "primaryColor": "#2563eb",
+  "theme": "light"
+}

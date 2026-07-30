@@ -1538,7 +1538,7 @@ const HomePage = () => {
               <div className="elementor-widget-container" bis_skin_checked="1">
                 <ul className="elementor-icon-list-items">
                   <li className="elementor-icon-list-item">
-                    <span className="elementor-icon-list-text">Help Center</span>
+                    <a href="/help/" className="elementor-icon-list-text">Help Center</a>
                   </li>
                   <li className="elementor-icon-list-item">
                     <span className="elementor-icon-list-text">Apply to List</span>
