@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.b9007ac2.css",
-    "main.js": "/static/js/main.92063292.js",
+    "main.css": "/static/css/main.bf09ca30.css",
+    "main.js": "/static/js/main.a1b1b0d2.js",
     "static/js/951.b2d04c2e.chunk.js": "/static/js/951.b2d04c2e.chunk.js",
     "static/media/customer 3.mp4": "/static/media/customer 3.860b5e87def3c86f3433.mp4",
     "static/media/noise_bg.png": "/static/media/noise_bg.acfd20642a3227cf2eda.png",
@@ -82,14 +82,12 @@
     "static/media/coinbase.svg": "/static/media/coinbase.8ea58a7d5013e81352a74d73138b2c36.svg",
     "static/media/bit2me-logo-light.svg": "/static/media/bit2me-logo-light.14f53ea95df752b82cb73d5d52b61b27.svg",
     "static/media/kraken-logo@logotyp.us.svg": "/static/media/kraken-logo@logotyp.us.fe40642c2c5818329bf059e72462cbc0.svg",
-    "static/media/bitget.svg": "/static/media/bitget.7e13b3a86192d642009b2bca3e6eb07e.svg",
     "index.html": "/index.html",
     "static/media/slick.svg": "/static/media/slick.2630a3e3eab21c607e21.svg",
     "static/media/slick.eot": "/static/media/slick.a4e97f5a2a64f0ab1323.eot",
     "static/media/slick.ttf": "/static/media/slick.c94f7671dcc99dce43e2.ttf",
-    "static/media/solana-sol-seeklogo.svg": "/static/media/solana-sol-seeklogo.a9366824902c05e9cf376a9f6b168122.svg",
-    "static/media/bnb-bnb-logo.svg": "/static/media/bnb-bnb-logo.797868eb94521320b78e3967134febbe.svg",
-    "static/media/btc.svg": "/static/media/btc.c33e615169983783ca7c158cb3a9c714.svg",
+    "static/media/btc.svg": "/static/media/btc.e8d1df96c3afdc96a4e511a77fd0574a.svg",
+    "static/media/visa.svg": "/static/media/visa.bea55dbe074ed9036d795e16be0808ff.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "static/media/upbit_logo.35a5b2a.svg": "/static/media/upbit_logo.35a5b2a.35a5b2a9c6cbc7c16c6bfac1e293f239.svg",
     "static/media/btc-logo.svg": "/static/media/btc-logo.78be76cdc30dc2be10c7f1065191e196.svg",
@@ -98,11 +96,13 @@
     "static/media/dash.svg": "/static/media/dash.60759632e9ffa177be0e06cd4d241108.svg",
     "static/media/ethereum-logo.svg": "/static/media/ethereum-logo.df265e367364f285053a1285ad8d418d.svg",
     "static/media/check.svg": "/static/media/check.00b7ce7137636f3f980c.svg",
-    "static/media/re-arriw.svg": "/static/media/re-arriw.9255574c592cb8a99c66ab12deb242c7.svg",
+    "static/media/chf.svg": "/static/media/chf.8f50dfc00858844a813e3046210d948e.svg",
+    "static/media/dkk.svg": "/static/media/dkk.2b867c4b59fa73b325495190a01e52b6.svg",
+    "static/media/dollar.svg": "/static/media/dollar.0dd81542b749d15cac7743cc01725d12.svg",
     "static/media/euro.svg": "/static/media/euro.a76c47fb4e4e4061fffb625d6b4a67dd.svg"
   },
   "entrypoints": [
-    "static/css/main.b9007ac2.css",
-    "static/js/main.92063292.js"
+    "static/css/main.bf09ca30.css",
+    "static/js/main.a1b1b0d2.js"
   ]
 }

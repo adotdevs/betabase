@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How long do crypto deposits take? (confirmations explained) | Betabase Help</title>
+<meta name="description" content="Find out how long crypto deposits take to arrive on Betabase, what blockchain confirmations are, and why some networks are much slower than others.">
+<link rel="canonical" href="https://www.betabase.pro/help/deposits-and-funding/how-long-crypto-deposits-take.html">
+<meta property="og:title" content="How long do crypto deposits take? (confirmations explained) | Betabase Help">
+<meta property="og:description" content="Find out how long crypto deposits take to arrive on Betabase, what blockchain confirmations are, and why some networks are much slower than others.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.betabase.pro/help/deposits-and-funding/how-long-crypto-deposits-take.html">
+<link rel="stylesheet" href="/help/style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How long do crypto deposits take? (confirmations explained)","description":"Find out how long crypto deposits take to arrive on Betabase, what blockchain confirmations are, and why some networks are much slower than others.","inLanguage":"en","url":"https://www.betabase.pro/help/deposits-and-funding/how-long-crypto-deposits-take.html","publisher":{"@type":"Organization","name":"Betabase","url":"https://www.betabase.pro"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Help centre","item":"https://www.betabase.pro/help/"},{"@type":"ListItem","position":2,"name":"Deposits & funding","item":"https://www.betabase.pro/help/deposits-and-funding/"},{"@type":"ListItem","position":3,"name":"How long do crypto deposits take? (confirmations explained)"}]}}</script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="/help/">Betabase<span> Help</span></a>
+  <nav>
+    <a href="/help/">Help centre</a>
+    <a href="https://www.betabase.pro">Back to Betabase</a>
+    <a href="https://www.betabase.pro/support">Contact</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <div class="crumbs"><a href="/help/">Help centre</a> &rsaquo;
+    <a href="/help/deposits-and-funding/">Deposits &amp; funding</a></div>
+  <div class="layout">
+    <aside class="toc"><div class="lbl">On this page</div><a href="#what-a-confirmation-is">What a confirmation is</a><a href="#steps-to-track-a-pending-deposit">Steps to track a pending deposit</a><a href="#good-to-know">Good to know</a></aside>
+    <article>
+      <h1>How long do crypto deposits take? (confirmations explained)</h1>
+      <p class="lead">A crypto deposit credits once it has enough <strong>confirmations</strong> on its network — usually minutes, occasionally an hour or more when the network is busy.</p>
+      <h3 id="what-a-confirmation-is">What a confirmation is</h3>
+<p>When you send crypto, the transaction waits in a queue (the mempool) until a validator packs it into a <strong>block</strong>. That is confirmation one. Every block built on top of it adds another confirmation, making the transaction progressively harder to undo. Betabase waits for a set number of confirmations per asset before crediting your balance — a slow, heavy network needs fewer; a fast, light one needs more.</p>
+<h3 id="steps-to-track-a-pending-deposit">Steps to track a pending deposit</h3>
+<ol><li>Open <strong>Transactions</strong> in Betabase. The deposit appears with a <em>Pending</em> status and a confirmation count.</li><li>Copy the <strong>transaction hash (TXID)</strong> from your sending wallet.</li><li>Paste it into a public block explorer for that network.</li><li>Read the status:</li></ol>
+<p>   - <strong>Not found</strong> — the transfer never left your wallet. The problem is on the sending side.    - <strong>Pending / unconfirmed</strong> — it is in the queue. Wait. A low network fee means a longer wait.    - <strong>Confirmed</strong> — it is on-chain, and Betabase will credit it once the required confirmation count is reached.</p>
+<h3 id="good-to-know">Good to know</h3>
+<ul><li>Crypto networks run 24/7 — weekends and holidays make no difference.</li><li>A transaction sent with too low a network fee can sit unconfirmed for hours. Only the <strong>sender's</strong> wallet can attempt to speed it up (via RBF or a child-pays-for-parent transaction), never Betabase.</li><li>Confirmed on-chain but not credited after several hours? Contact support@www.betabase.pro with the TXID, asset, network and amount. Support is available 24/7.</li></ul>
+<blockquote class="callout warn"><p><strong>Blockchain transactions are irreversible.</strong> Once broadcast, a transfer cannot be cancelled or recalled by you or by Betabase.</p></blockquote>
+      <div class="related"><div class="lbl">Related articles</div><ul><li><a href="/help/deposits-and-funding/deposit-cryptocurrency.html">How to deposit cryptocurrency into your Betabase account</a></li><li><a href="/help/deposits-and-funding/deposit-addresses-and-networks.html">Understanding deposit addresses and networks (choosing the right chain)</a></li><li><a href="/help/deposits-and-funding/sent-crypto-wrong-network.html">I sent crypto on the wrong network — what happens now?</a></li></ul></div>
+      <div class="helpful">
+        <p>Was this article helpful?</p>
+        <button type="button" onclick="this.parentNode.innerHTML='<p>Thanks for the feedback.</p>'">Yes</button>
+        <button type="button" onclick="this.parentNode.innerHTML='<p>Sorry about that &mdash; <a href=&quot;https://www.betabase.pro/support&quot;>contact support</a> and we will help.</p>'">No</button>
+      </div>
+    </article>
+  </div>
+</div></main>
+<footer class="site"><div class="wrap">
+  &copy; 2026 Betabase. Information only &mdash; not financial,
+  investment or tax advice. Crypto is volatile and your capital is at risk.
+</div></footer>
+<script src="/help/search.js"></script>
+</body>
+</html>

@@ -87,7 +87,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && node scripts/copy-help-to-build.js",
     "build:web": "BUILD_PATH=build-web react-scripts build",
     "build:electron": "cross-env PUBLIC_URL=./ react-scripts build",
     "electron:build": "npm run build:electron && electron-builder",
