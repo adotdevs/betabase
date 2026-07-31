@@ -682,16 +682,20 @@
       sendButton: {
         background: PRIMARY_COLOR,
         border: 'none',
-        padding: '10px',
+        padding: 0,
         borderRadius: '50%',
         cursor: 'pointer',
         color: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '30px',
-        height: '30px',
-        flexShrink: 0
+        width: '40px',
+        height: '40px',
+        minWidth: '40px',
+        minHeight: '40px',
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        overflow: 'hidden'
       },
       dialogOverlay: {
         position: 'fixed',
@@ -910,8 +914,8 @@
               }
             },
               React.createElement('svg', {
-                width: '20',
-                height: '20',
+                width: '18',
+                height: '18',
                 viewBox: '0 0 20 20',
                 fill: 'none',
                 xmlns: 'http://www.w3.org/2000/svg'
