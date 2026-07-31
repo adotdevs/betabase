@@ -52,51 +52,51 @@ const CoinIcon = ({ meta }) => (
 );
 
 const TransactionSec = () => {
-  const [isLoading, setisLoading] = useState(true);
-  const [UserTransactions, setUserTransactions] = useState([]);
+    const [isLoading, setisLoading] = useState(true);
+    const [UserTransactions, setUserTransactions] = useState([]);
   const [singleTransaction, setsingleTransaction] = useState(null);
   const [isUser, setIsUser] = useState({});
   const [filter, setFilter] = useState("all");
-  const [liveBtc, setliveBtc] = useState(null);
-  const [liveEth, setliveEth] = useState(null);
-  const [liveBnb, setliveBnb] = useState(null);
-  const [liveXrp, setliveXrp] = useState(null);
-  const [liveDoge, setliveDoge] = useState(null);
-  const [liveSol, setliveSol] = useState(null);
-  const [liveTon, setliveTon] = useState(null);
-  const [liveLink, setliveLink] = useState(null);
-  const [liveDot, setliveDot] = useState(null);
-  const [liveNear, setliveNear] = useState(null);
-  const [liveUsdc, setliveUsdc] = useState(null);
-  const [liveTrx, setliveTrx] = useState(null);
+    const [liveBtc, setliveBtc] = useState(null);
+    const [liveEth, setliveEth] = useState(null);
+    const [liveBnb, setliveBnb] = useState(null);
+    const [liveXrp, setliveXrp] = useState(null);
+    const [liveDoge, setliveDoge] = useState(null);
+    const [liveSol, setliveSol] = useState(null);
+    const [liveTon, setliveTon] = useState(null);
+    const [liveLink, setliveLink] = useState(null);
+    const [liveDot, setliveDot] = useState(null);
+    const [liveNear, setliveNear] = useState(null);
+    const [liveUsdc, setliveUsdc] = useState(null);
+    const [liveTrx, setliveTrx] = useState(null);
 
   const { id } = useParams();
   const authUser = useAuthUser();
   const Navigate = useNavigate();
 
-  const getsignUser = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("id", authUser().user._id);
-      const userCoins = await getsignUserApi(formData);
+    const getsignUser = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("id", authUser().user._id);
+            const userCoins = await getsignUserApi(formData);
 
-      if (userCoins.success) {
-        setIsUser(userCoins.signleUser);
-      } else {
-        toast.dismiss();
-        toast.error(userCoins.msg);
-      }
-    } catch (error) {
-      toast.dismiss();
-      toast.error(error);
-    }
-  };
+            if (userCoins.success) {
+                setIsUser(userCoins.signleUser);
+            } else {
+                toast.dismiss();
+                toast.error(userCoins.msg);
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error(error);
+        }
+    };
 
-  const getTransactions = async () => {
-    try {
+    const getTransactions = async () => {
+        try {
       const allTransactions = await getUserCoinApi(id);
       if (allTransactions.success) {
-        setUserTransactions(allTransactions.getCoin.transactions.reverse());
+                setUserTransactions(allTransactions.getCoin.transactions.reverse());
         setliveBtc(allTransactions?.btcPrice?.quote?.USD?.price ?? 96075.25);
         setliveEth(allTransactions?.ethPrice?.quote?.USD?.price ?? 2640.86);
         setliveBnb(allTransactions?.bnbPrice?.quote?.USD?.price ?? 210.25);
@@ -109,65 +109,65 @@ const TransactionSec = () => {
         setliveNear(allTransactions?.nearPrice?.quote?.USD?.price ?? 5.59);
         setliveUsdc(allTransactions?.usdcPrice?.quote?.USD?.price ?? 0.99);
         setliveTrx(allTransactions?.trxPrice?.quote?.USD?.price ?? 0.1531);
-      } else {
-        toast.dismiss();
-        toast.error(allTransactions.msg);
-      }
-    } catch (error) {
-      toast.dismiss();
-      toast.error(error);
-    } finally {
-      setisLoading(false);
-    }
-  };
+            } else {
+                toast.dismiss();
+                toast.error(allTransactions.msg);
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error(error);
+        } finally {
+            setisLoading(false);
+        }
+    };
 
-  useEffect(() => {
-    getsignUser();
-    if (authUser().user.role === "admin") {
-      Navigate("/admin/dashboard");
-      return;
+    useEffect(() => {
+        getsignUser();
+        if (authUser().user.role === "admin") {
+            Navigate("/admin/dashboard");
+            return;
     }
     if (authUser().user.role === "user" && authUser().user._id !== id) {
-      Navigate("/dashboard");
-    }
-    getTransactions();
-  }, []);
+                Navigate("/dashboard");
+            }
+        getTransactions();
+    }, []);
 
-  const prices = {
-    bitcoin: liveBtc || 0,
-    ethereum: liveEth || 2640.86,
-    tether: 1,
-    bnb: liveBnb || 210.25,
-    xrp: liveXrp || 0.5086,
-    dogecoin: liveDoge || 0.1163,
-    euro: 1,
-    solana: liveSol || 245.01,
-    toncoin: liveTon || 5.76,
-    chainlink: liveLink || 12.52,
-    polkadot: liveDot || 4.76,
-    "near protocol": liveNear || 5.59,
-    "usd coin": liveUsdc || 0.99,
+    const prices = {
+        bitcoin: liveBtc || 0,
+        ethereum: liveEth || 2640.86,
+        tether: 1,
+        bnb: liveBnb || 210.25,
+        xrp: liveXrp || 0.5086,
+        dogecoin: liveDoge || 0.1163,
+        euro: 1,
+        solana: liveSol || 245.01,
+        toncoin: liveTon || 5.76,
+        chainlink: liveLink || 12.52,
+        polkadot: liveDot || 4.76,
+        "near protocol": liveNear || 5.59,
+        "usd coin": liveUsdc || 0.99,
     tron: liveTrx || 0.1531,
-  };
+    };
 
-  const calculateTransactionValue = (transaction) => {
+    const calculateTransactionValue = (transaction) => {
     if (isFiatCoin(transaction.trxName)) {
       return convertFiatToUserCurrency(
         transaction.amount,
         transaction.trxName,
         isUser.currency
       ).toFixed(2);
-    }
+        }
 
-    const price = prices[transaction.trxName.toLowerCase()] || 0;
-    let value = Math.abs(parseFloat(transaction.amount)) * price;
+        const price = prices[transaction.trxName.toLowerCase()] || 0;
+        let value = Math.abs(parseFloat(transaction.amount)) * price;
 
-    if (isUser.currency === "EUR") {
+        if (isUser.currency === "EUR") {
       value *= USD_TO_EUR_RATE;
-    }
+        }
 
-    return value.toFixed(2);
-  };
+        return value.toFixed(2);
+    };
 
   const getFiatLabel = (trxName) => {
     if (isFiatCoin(trxName)) {
@@ -208,20 +208,20 @@ const TransactionSec = () => {
     ? resolveTransactionCoinMeta(singleTransaction.trxName)
     : null;
 
-  return (
-    <>
+    return (
+        <>
       <div className={styles.page}>
         <div className={styles.topBar}>
-          <div>
+                                        <div>
             <h1 className={styles.pageTitle}>Transactions</h1>
             <p className={styles.pageSubtitle}>Deposits, withdrawals, and swaps</p>
-          </div>
+                                                        </div>
           {!isLoading && (
             <span className={styles.recordCount}>
               {filteredTransactions.length} record{filteredTransactions.length === 1 ? "" : "s"}
             </span>
-          )}
-        </div>
+                            )}
+                        </div>
 
         {!isLoading && (
           <div className={styles.filters}>
@@ -235,7 +235,7 @@ const TransactionSec = () => {
                 {item.label}
               </button>
             ))}
-          </div>
+                            </div>
         )}
 
         {isLoading ? (
@@ -243,12 +243,12 @@ const TransactionSec = () => {
             <Spinner animation="border" variant="primary" size="sm" />
             <h4>Loading transactions</h4>
             <p>Fetching your latest activity…</p>
-          </div>
+                            </div>
         ) : filteredTransactions.length === 0 ? (
           <div className={`${styles.listCard} ${styles.empty}`}>
             <h4>No transactions found</h4>
             <p>Try changing the filter or check back later.</p>
-          </div>
+                            </div>
         ) : (
           <section className={styles.listCard}>
             <ul className={styles.list}>
@@ -291,7 +291,7 @@ const TransactionSec = () => {
                         <span className={styles.itemDate}>
                           {formatTransactionDate(transaction.createdAt)}
                         </span>
-                      </div>
+                            </div>
 
                       <div className={styles.itemRight}>
                         <span className={styles.cryptoAmount}>
@@ -305,7 +305,7 @@ const TransactionSec = () => {
                             {getTransactionFiatDisplay(transaction)}
                           </span>
                         )}
-                      </div>
+                            </div>
                     </button>
                   </li>
                 );
@@ -313,7 +313,7 @@ const TransactionSec = () => {
             </ul>
           </section>
         )}
-      </div>
+                            </div>
 
       <TransactionDetailModal
         open={Boolean(singleTransaction)}
@@ -329,7 +329,7 @@ const TransactionSec = () => {
         onClose={() => setsingleTransaction(null)}
       />
     </>
-  );
+    );
 };
 
 export default TransactionSec;

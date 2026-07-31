@@ -1,9 +1,16 @@
 const OpenAI = require("openai");
 require("dotenv").config({ path: require('path').resolve(__dirname, '../config/config.env') });
 
-const openai = new OpenAI({
+const defaultOpenAI = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+function getConfigClient(apiKey) {
+  if (!apiKey || apiKey === process.env.OPENAI_API_KEY) {
+    return defaultOpenAI;
+  }
+  return new OpenAI({ apiKey });
+}
 
 // Cache for assistant configuration
 let assistantConfigCache = null;
@@ -14,13 +21,14 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
  * Fetch assistant configuration from OpenAI API
  * @param {string} assistantId - Optional assistant ID. If not provided, uses default OPENAI_ASSISTANT_ID
  */
-async function getAssistantConfig(assistantId = null) {
+async function getAssistantConfig(assistantId = null, apiKey = null) {
   try {
     // Use provided assistant ID or default to OPENAI_ASSISTANT_ID
     const targetAssistantId = assistantId || process.env.OPENAI_ASSISTANT_ID;
+    const client = getConfigClient(apiKey || process.env.OPENAI_API_KEY);
     
     // Check cache first (but only if using default assistant to avoid cache conflicts)
-    if (!assistantId && assistantConfigCache && Date.now() < cacheExpiry) {
+    if (!assistantId && !apiKey && assistantConfigCache && Date.now() < cacheExpiry) {
       console.log("📋 Using cached assistant configuration");
       return assistantConfigCache;
     }
@@ -32,7 +40,7 @@ async function getAssistantConfig(assistantId = null) {
       setTimeout(() => reject(new Error('Assistant config fetch timeout')), 10000);
     });
     
-    const fetchPromise = openai.beta.assistants.retrieve(targetAssistantId);
+    const fetchPromise = client.beta.assistants.retrieve(targetAssistantId);
     const assistant = await Promise.race([fetchPromise, timeoutPromise]);
     
     // Parse the instructions to extract structured data

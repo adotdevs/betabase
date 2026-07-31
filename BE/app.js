@@ -58,6 +58,8 @@ let ALLOWED_ORIGINS = [
   "https://www.rcenterltd.com",
   "https://chainanalytik.com",
   "https://www.chainanalytik.com",
+  "https://investandmigrate.com",
+  "https://www.investandmigrate.com",
   "https://takebackanalytics.com",
   "https://www.takebackanalytics.com",
   "http://localhost:3000",

@@ -1,15 +1,14 @@
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
-const OpenAI = require("openai");
 const ChatbotMessage = require("../models/chatbotMessage");
 const ChatbotSession = require("../models/chatbotSession");
 const sendEmail = require("../utils/sendEmail");
 const { v4: uuidv4 } = require('uuid');
 const { getAssistantConfig, generateContextMessage, generateEmailContent } = require("../utils/assistant-config");
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const {
+  resolveAssistantSelection,
+  getOpenAIClient,
+  getSessionFieldsFromSelection,
+} = require("../utils/chatbot-assistant");
 
 // In-memory storage for active sessions and threads
 const sessionThreads = new Map(); // sessionId -> threadId
@@ -49,23 +48,16 @@ function extractUserEmailFromMessages(messages) {
  */
 exports.createSession = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { sessionId, useWidgetAssistant, assistantId } = req.body;
+    const { sessionId, useWidgetAssistant, assistantId, assistantKey } = req.body;
     const userId = req.user?._id || null;
 
-    // Resolve which assistant to use (backwards compatible):
-    // - Prefer explicit boolean flag when provided
-    // - If assistantId matches a known assistant, map to the correct boolean
-    let resolvedUseWidgetAssistant = !!useWidgetAssistant;
-    if (typeof useWidgetAssistant === 'boolean') {
-      resolvedUseWidgetAssistant = useWidgetAssistant;
-    } else if (typeof assistantId === 'string' && assistantId.trim()) {
-      const requested = assistantId.trim();
-      if (requested === process.env.OPENAI_ASSISTANT_ID_TWO) {
-        resolvedUseWidgetAssistant = true;
-      } else if (requested === process.env.OPENAI_ASSISTANT_ID) {
-        resolvedUseWidgetAssistant = false;
-      }
-    }
+    const initialSelection = resolveAssistantSelection({
+      useWidgetAssistant,
+      assistantId,
+      assistantKey,
+      session: null,
+    });
+    const sessionFields = getSessionFieldsFromSelection(initialSelection);
     
     let session;
     
@@ -108,7 +100,7 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
       sessionId: newSessionId,
       userId: userId,
       lastActivity: new Date(),
-      useWidgetAssistant: resolvedUseWidgetAssistant
+      ...sessionFields
     });
     
     // Return session immediately, generate greeting asynchronously in background
@@ -123,13 +115,17 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
     // Generate greeting asynchronously (non-blocking)
     (async () => {
       try {
-        // Use widget assistant ID if flag is set, otherwise use default
-        const OPENAI_ASSISTANT_ID = resolvedUseWidgetAssistant 
-          ? process.env.OPENAI_ASSISTANT_ID_TWO 
-          : process.env.OPENAI_ASSISTANT_ID;
-        if (OPENAI_ASSISTANT_ID) {
+        const selection = resolveAssistantSelection({
+          useWidgetAssistant,
+          assistantId,
+          assistantKey,
+          session: sessionFields,
+        });
+        const OPENAI_ASSISTANT_ID = selection.assistantId;
+        const openaiClient = getOpenAIClient(selection.apiKey);
+        if (OPENAI_ASSISTANT_ID && openaiClient) {
           // Create a thread for the greeting
-          const thread = await openai.beta.threads.create();
+          const thread = await openaiClient.beta.threads.create();
           const threadId = thread.id;
           
           // Store thread ID
@@ -142,7 +138,7 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
           // Get assistant config for context (use the same assistant ID as the conversation)
           let greetingPrompt = "Please greet the user warmly and introduce yourself. Keep it brief and friendly.";
           try {
-            const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID);
+            const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID, selection.apiKey);
             if (assistantConfig && assistantConfig.name) {
               // Create a greeting prompt with assistant context
               greetingPrompt = `You are ${assistantConfig.name}. Please greet the user warmly and introduce yourself. Keep it brief and friendly.`;
@@ -153,13 +149,13 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
           }
           
           // Add a message to trigger greeting
-          await openai.beta.threads.messages.create(threadId, {
+          await openaiClient.beta.threads.messages.create(threadId, {
             role: "user",
             content: greetingPrompt,
           });
           
           // Run the assistant to generate greeting
-          const run = await openai.beta.threads.runs.create(threadId, {
+          const run = await openaiClient.beta.threads.runs.create(threadId, {
             assistant_id: OPENAI_ASSISTANT_ID,
           });
           
@@ -171,7 +167,7 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
           do {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             pollCount++;
-            runStatus = await openai.beta.threads.runs.retrieve(run.id, { thread_id: threadId });
+            runStatus = await openaiClient.beta.threads.runs.retrieve(run.id, { thread_id: threadId });
             
             if (runStatus.status === "failed") {
               throw new Error("Run failed");
@@ -183,7 +179,7 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
           } while (runStatus.status !== "completed");
           
           // Get the greeting message
-          const messages = await openai.beta.threads.messages.list(threadId);
+          const messages = await openaiClient.beta.threads.messages.list(threadId);
           const assistantMessage = messages.data.find((msg) => msg.role === "assistant");
           
           if (assistantMessage && assistantMessage.content.length > 0) {
@@ -194,7 +190,7 @@ exports.createSession = catchAsyncErrors(async (req, res, next) => {
               // Get bot name from assistant config (use the same assistant ID as the conversation)
               let botName = "AI Assistant";
               try {
-                const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID);
+                const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID, selection.apiKey);
                 if (assistantConfig && assistantConfig.name) {
                   botName = assistantConfig.name;
                 }
@@ -326,7 +322,7 @@ exports.clearChat = catchAsyncErrors(async (req, res, next) => {
  */
 exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { message, sessionId, conversationHistory, useWidgetAssistant, assistantId } = req.body;
+    const { message, sessionId, conversationHistory, useWidgetAssistant, assistantId, assistantKey } = req.body;
     const userId = req.user?._id || null;
 
     // Validate input
@@ -347,47 +343,30 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     // Get or create session first to determine which assistant to use
     let session = await ChatbotSession.findOne({ sessionId });
     if (!session) {
-      // Resolve assistant selection for a new session (backwards compatible)
-      let resolvedUseWidgetAssistant = !!useWidgetAssistant;
-      if (typeof useWidgetAssistant === 'boolean') {
-        resolvedUseWidgetAssistant = useWidgetAssistant;
-      } else if (typeof assistantId === 'string' && assistantId.trim()) {
-        const requested = assistantId.trim();
-        if (requested === process.env.OPENAI_ASSISTANT_ID_TWO) {
-          resolvedUseWidgetAssistant = true;
-        } else if (requested === process.env.OPENAI_ASSISTANT_ID) {
-          resolvedUseWidgetAssistant = false;
-        }
-      }
+      const initialSelection = resolveAssistantSelection({
+        useWidgetAssistant,
+        assistantId,
+        assistantKey,
+        session: null,
+      });
       session = await ChatbotSession.create({
         sessionId: sessionId,
         userId: userId,
         lastActivity: new Date(),
-        useWidgetAssistant: resolvedUseWidgetAssistant
+        ...getSessionFieldsFromSelection(initialSelection),
       });
     }
     
-    // Resolve which assistant to use for this request (backwards compatible)
-    let shouldUseWidgetAssistant = (session.useWidgetAssistant || false);
-    if (typeof useWidgetAssistant === 'boolean') {
-      shouldUseWidgetAssistant = useWidgetAssistant;
-    } else if (typeof assistantId === 'string' && assistantId.trim()) {
-      const requested = assistantId.trim();
-      if (requested === process.env.OPENAI_ASSISTANT_ID_TWO) {
-        shouldUseWidgetAssistant = true;
-      } else if (requested === process.env.OPENAI_ASSISTANT_ID) {
-        shouldUseWidgetAssistant = false;
-      }
-    }
+    const selection = resolveAssistantSelection({
+      useWidgetAssistant,
+      assistantId,
+      assistantKey,
+      session,
+    });
+    const OPENAI_ASSISTANT_ID = selection.assistantId;
+    const openaiClient = getOpenAIClient(selection.apiKey);
 
-    // Get OpenAI configuration
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-    // Use widget assistant ID if flag is set, otherwise use default
-    const OPENAI_ASSISTANT_ID = shouldUseWidgetAssistant 
-      ? process.env.OPENAI_ASSISTANT_ID_TWO 
-      : process.env.OPENAI_ASSISTANT_ID;
-
-    if (!OPENAI_API_KEY) {
+    if (!selection.apiKey || !openaiClient) {
       console.error('❌ OpenAI API key is not configured');
       return res.status(500).json({
         success: false,
@@ -433,7 +412,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     if (!threadIdValue) {
       console.log("🧵 Creating new thread for session:", sessionId);
       try {
-        const thread = await openai.beta.threads.create();
+        const thread = await openaiClient.beta.threads.create();
         threadIdValue = thread?.id;
         
         if (!threadIdValue || typeof threadIdValue !== 'string' || threadIdValue.trim() === '') {
@@ -467,7 +446,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     const threadId = threadIdValue;
 
     // Check if this is the first message in the thread
-    const existingMessages = await openai.beta.threads.messages.list(threadId);
+    const existingMessages = await openaiClient.beta.threads.messages.list(threadId);
     const isFirstMessage = existingMessages.data.length === 0;
 
     // Add user message to thread
@@ -477,7 +456,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     if (isFirstMessage) {
       try {
         console.log("🔍 Fetching assistant configuration for context...");
-        const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID);
+        const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID, selection.apiKey);
         
         // Get conversation history for context
         let historyMessages = [];
@@ -504,7 +483,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
       }
     }
     
-    await openai.beta.threads.messages.create(threadId, {
+    await openaiClient.beta.threads.messages.create(threadId, {
       role: "user",
       content: messageContent,
     });
@@ -536,7 +515,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     
     // Check for active runs before creating a new one
     try {
-      const runs = await openai.beta.threads.runs.list(threadId);
+      const runs = await openaiClient.beta.threads.runs.list(threadId);
       const activeRuns = runs.data.filter(r => 
         r.status === 'queued' || r.status === 'in_progress' || r.status === 'requires_action'
       );
@@ -553,7 +532,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
           do {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             pollCount++;
-            runStatus = await openai.beta.threads.runs.retrieve(activeRun.id, { thread_id: threadId });
+            runStatus = await openaiClient.beta.threads.runs.retrieve(activeRun.id, { thread_id: threadId });
             
             if (runStatus.status === "failed") {
               console.warn("⚠️ Active run failed:", runStatus.last_error);
@@ -564,7 +543,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
               console.warn("⚠️ Active run timeout, cancelling and creating new run");
               // Try to cancel the run
               try {
-                await openai.beta.threads.runs.cancel(activeRun.id, { thread_id: threadId });
+                await openaiClient.beta.threads.runs.cancel(activeRun.id, { thread_id: threadId });
               } catch (cancelError) {
                 console.warn("⚠️ Could not cancel active run:", cancelError.message);
               }
@@ -589,7 +568,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
         assistantId: OPENAI_ASSISTANT_ID
       });
       
-      run = await openai.beta.threads.runs.create(threadId, {
+      run = await openaiClient.beta.threads.runs.create(threadId, {
         assistant_id: OPENAI_ASSISTANT_ID,
       });
       
@@ -831,7 +810,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
         });
         
         // CORRECT method signature: retrieve(runID, params) where params = { thread_id: threadId }
-        runStatus = await openai.beta.threads.runs.retrieve(runId, { thread_id: validatedThreadId });
+        runStatus = await openaiClient.beta.threads.runs.retrieve(runId, { thread_id: validatedThreadId });
       } catch (retrieveError) {
         console.error("❌ Error retrieving run:", {
           error: retrieveError.message,
@@ -865,7 +844,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     console.log("✅ Run completed successfully:", run.id);
 
     // Retrieve the latest assistant message
-    const messages = await openai.beta.threads.messages.list(threadId);
+    const messages = await openaiClient.beta.threads.messages.list(threadId);
     const responseMessage = messages.data.find((msg) => msg.role === "assistant");
 
     let botResponse = null;
@@ -885,7 +864,7 @@ exports.chatbotMessage = catchAsyncErrors(async (req, res, next) => {
     // Get assistant config to add bot name to response (use the same assistant ID as the conversation)
     let botName = null;
     try {
-      const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID);
+      const assistantConfig = await getAssistantConfig(OPENAI_ASSISTANT_ID, selection.apiKey);
       botName = assistantConfig.name.split(' - ')[0] || assistantConfig.name || null;
     } catch (error) {
       console.warn("⚠️ Could not fetch assistant config for bot name:", error.message);
@@ -1032,12 +1011,10 @@ exports.sendEmailTranscript = catchAsyncErrors(async (req, res, next) => {
 
     // Get assistant config for email content (use the assistant ID from the session)
     let emailContent;
+    let emailSelection;
     try {
-      // Determine which assistant was used for this session
-      const sessionAssistantId = session.useWidgetAssistant 
-        ? process.env.OPENAI_ASSISTANT_ID_TWO 
-        : process.env.OPENAI_ASSISTANT_ID;
-      const assistantConfig = await getAssistantConfig(sessionAssistantId);
+      emailSelection = resolveAssistantSelection({ session });
+      const assistantConfig = await getAssistantConfig(emailSelection.assistantId, emailSelection.apiKey);
       const sessionData = {
         sessionId: sessionId,
         messages: messages,
@@ -1056,9 +1033,7 @@ exports.sendEmailTranscript = catchAsyncErrors(async (req, res, next) => {
       });
     }
 
-    // Send email using generated content
-    // Use "Chain Assistant" as from name if this is a widget assistant session
-    const fromName = session.useWidgetAssistant ? 'Chain Assistant' : null;
+    const fromName = emailSelection.emailFromName;
     try {
       await sendEmail(recipientEmail, emailContent.subject, emailContent.htmlContent, fromName);
       

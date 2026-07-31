@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestAndMigrate Chatbot Widget Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+        }
+        h1 {
+            color: #1a2e44;
+        }
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>InvestAndMigrate Chatbot Widget</h1>
+    <p>
+        Embed this on <a href="https://investandmigrate.com/">investandmigrate.com</a>.
+        The bot uses its own OpenAI Assistant — all instructions come from your Assistant configuration in OpenAI.
+    </p>
+
+    <h2>WordPress / site embed snippet</h2>
+    <p>Add before the closing <code>&lt;/body&gt;</code> tag:</p>
+    <div class="code-block">
+        <code>
+&lt;script&gt;
+  window.ChatbotConfig = {
+    apiUrl: 'https://api.betabase.pro/api/v1',
+    adminEmail: 'info@investandmigrate.com',
+    botAvatar: 'https://www.betabase.pro/img/bot.jpg',
+    assistantKey: 'investandmigrate'
+  };
+&lt;/script&gt;
+&lt;script src="https://www.betabase.pro/chatbot-widget-investandmigrate.js"&gt;&lt;/script&gt;
+        </code>
+    </div>
+
+    <h2>Configuration options</h2>
+    <ul>
+        <li><strong>apiUrl</strong> — Betabase API base URL</li>
+        <li><strong>adminEmail</strong> — Receives chat transcripts (default: info@investandmigrate.com)</li>
+        <li><strong>botAvatar</strong> — Bot avatar image URL</li>
+        <li><strong>assistantKey</strong> — Must be <code>investandmigrate</code> (routes to the dedicated OpenAI key + assistant on the server)</li>
+    </ul>
+
+    <h2>Server setup (Betabase VPS)</h2>
+    <p>Add these to <code>BE/config/config.env</code> and restart the backend:</p>
+    <div class="code-block">
+        <code>
+OPENAI_API_KEY_INVESTANDMIGRATE=sk-...
+OPENAI_ASSISTANT_ID_INVESTANDMIGRATE=asst_...
+        </code>
+    </div>
+    <p>Create the Assistant in OpenAI with your InvestAndMigrate instructions, knowledge, and tone. The widget reads everything from that Assistant automatically.</p>
+
+    <h2>Live preview on this page</h2>
+    <script>
+      window.ChatbotConfig = {
+        apiUrl: 'https://api.betabase.pro/api/v1',
+        adminEmail: 'info@investandmigrate.com',
+        assistantKey: 'investandmigrate'
+      };
+    </script>
+    <script src="./chatbot-widget-investandmigrate.js"></script>
+</body>
+</html>

@@ -51,6 +51,10 @@ const chatbotSessionSchema = new mongoose.Schema({
   useWidgetAssistant: {
     type: Boolean,
     default: false // false = use default assistant, true = use widget assistant
+  },
+  assistantKey: {
+    type: String,
+    default: null // e.g. 'widget', 'investandmigrate'
   }
 }, {
   timestamps: true
