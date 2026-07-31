@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import Nav from "./../../layouts/nav";
-import RightWalletBar from "../../layouts/nav/RightWalletBar_my";
 import Footer from "./../../layouts/Footer";
 import { ThemeContext } from "../../../context/ThemeContext";
 import Home from "../dashboard/Home";
@@ -10,7 +9,7 @@ import { useAuthUser } from "react-auth-kit";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const { sidebariconHover, headWallet } = useContext(ThemeContext);
+  const { sidebariconHover } = useContext(ThemeContext);
   const sideMenu = useSelector((state) => state.sideMenu);
   const authUser = useAuthUser();
   const Navigate = useNavigate();
@@ -26,12 +25,11 @@ const Dashboard = () => {
   return (
       <div
       id="main-wrapper"
-      className={`show wallet-open ${headWallet ? "" : "active"} ${
+      className={`show ${
         sidebariconHover ? "iconhover-toggle" : ""
       } ${sideMenu ? "menu-toggle" : ""}`}
     >
       <Nav />
-      <RightWalletBar />
 <div className="content-body new-bg-light">
         <div className="container-fluid" style={{ minHeight: window.screen.height - 45 }}>
 <Market />

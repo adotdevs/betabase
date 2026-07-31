@@ -81,8 +81,7 @@ const Header = ({ onNote }) => {
   }, [])
   
 
-  const {background, changeBackground, 
-    headWallet,setHeadWallet } = useContext(ThemeContext);
+  const {background, changeBackground } = useContext(ThemeContext);
     const handleThemeMode = () => {
       if(background.value === 'dark'){
         changeBackground({ value: "light", label: "Light" });
@@ -130,17 +129,6 @@ const Header = ({ onNote }) => {
       ? filterName.filter((f) => f !== "editor")
       : filterName;
 
-      function handleActiveWallet(){
-        setHeadWallet(!headWallet)        
-      }      
-      const walletActive = window.matchMedia("(max-width:100rem)").matches
-      useEffect(()=>{
-        if(walletActive){
-          setHeadWallet(true)
-        }else{
-          setHeadWallet(false)
-        }
-      },[walletActive])
   
   return (
     <>
@@ -200,18 +188,6 @@ const Header = ({ onNote }) => {
                       </Link>
                   </li>	 */}
                   
-                  <li className={`nav-item dropdown notification_dropdown ${path === "dashboard" || path ===  "index-2" ? '' : 'd-none'}`}>
-                      <Link to={"#"} className="nav-link  menu-wallet"
-                        // onClick={()=>setHeadWallet(!headWallet)}
-                        onClick={handleActiveWallet}
-                      >
-                        {SVGICON.WalletSvgIcon}
-                      </Link>
-                  </li>		                    
-                 
-              
-            
-             
                 <Dropdown as="li" className="nav-item header-profile2">              
                   <Dropdown.Toggle to={"#"} className="nav-link i-false  noap" as="div">
                     <div className="header-info2 d-flex align-items-center">

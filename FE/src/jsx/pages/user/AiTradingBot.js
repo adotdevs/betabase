@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import Nav from "../../layouts/nav/index.jsx";
-import RightWalletBar from "../../layouts/nav/RightWalletBar_my.jsx";
 import Footer from "../../layouts/Footer.jsx";
 import { ThemeContext } from "../../../context/ThemeContext.jsx";
 import Staking from "../report/Staking.jsx";
@@ -12,7 +11,7 @@ import AllDocuments from "../dashboard/Documents.jsx";
 import AiTrading from "../report/Trading.jsx";
 
 const AiTradingBot = () => {
-  const { sidebariconHover, headWallet } = useContext(ThemeContext);
+  const { sidebariconHover } = useContext(ThemeContext);
   const sideMenu = useSelector((state) => state.sideMenu);
   const authUser = useAuthUser();
   const Navigate = useNavigate();
@@ -28,11 +27,10 @@ const AiTradingBot = () => {
   return (
       <div
       id="main-wrapper"
-      className={`show wallet-open ${headWallet ? "" : "active"} ${sidebariconHover ? "iconhover-toggle" : ""
+      className={`show ${sidebariconHover ? "iconhover-toggle" : ""
         } ${sideMenu ? "menu-toggle" : ""}`}
     >
       <Nav />
-      <RightWalletBar />
 <div className="content-body new-bg-light">
         <div className="container-fluid" style={{ minHeight: window.screen.height - 45 }}>
 <AiTrading />

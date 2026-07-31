@@ -124,7 +124,6 @@ import Error403 from './../pages/error/Error403'
 import Error404 from './../pages/error/Error404'
 import Error500 from './../pages/error/Error500'
 import Error503 from './../pages/error/Error503'
-import RightWalletBar from "../layouts/nav/RightWalletBar";
 
 const Markup = () => {
   const allroutes = [
@@ -266,16 +265,15 @@ const Markup = () => {
 }
 
 function MainLayout(){  
-  const {sidebariconHover, headWallet} = useContext(ThemeContext);
+  const { sidebariconHover } = useContext(ThemeContext);
   const sideMenu = useSelector(state => state.sideMenu);
   
   return (
     <>
       <div id="main-wrapper"         
-        className={`show wallet-open ${headWallet ? "" : 'active'} ${sidebariconHover ? "iconhover-toggle": ""} ${ sideMenu ? "menu-toggle" : ""}`}
+        className={`show ${sidebariconHover ? "iconhover-toggle": ""} ${ sideMenu ? "menu-toggle" : ""}`}
       >  
           <Nav />
-          <RightWalletBar />
           <div className="content-body new-bg-light" >          
             <div className="container-fluid" style={{ minHeight: window.screen.height - 45 }}>
               <Outlet />   

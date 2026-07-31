@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import Nav from "../../layouts/nav";
-import RightWalletBar from "../../layouts/nav/RightWalletBar_my.jsx";
 import Footer from "../../layouts/Footer";
 import { ThemeContext } from "../../../context/ThemeContext";
 import PaymentMethods from "../report/PaymentMethods";
@@ -37,8 +36,7 @@ const Kyc = () => {
           }`}
       >
         <Nav />
-        {/* <RightWalletBar /> */}
-<div className="content-body new-bg-light">
+        <div className="content-body new-bg-light">
           <div
             className="container-fluid"
             style={{ minHeight: window.screen.height - 45 }}

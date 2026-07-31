@@ -45,11 +45,6 @@ html.compliance-banner-active .dlabnav {
   height: calc(100% - 5.1rem - var(--compliance-banner-height, 0px)) !important;
 }
 
-html.compliance-banner-active .wallet-bar {
-  top: calc(var(--compliance-banner-height, 0px) - 12px) !important;
-  height: calc(100vh - var(--compliance-banner-height, 0px) + 12px) !important;
-}
-
 @media (max-width: 100rem) {
   html.compliance-banner-active .dlabnav {
     top: calc(var(--compliance-banner-height, 0px) + 5.8rem) !important;
@@ -67,5 +62,27 @@ html.compliance-banner-active .wallet-bar {
   html.compliance-banner-active .dlabnav {
     top: calc(var(--compliance-banner-height, 0px) + 5rem) !important;
     height: calc(100% - 70px - var(--compliance-banner-height, 0px)) !important;
+  }
+}
+
+/* Right wallet sidebar removed — main content uses full width */
+.wallet-bar,
+.wallet-bar-close {
+  display: none !important;
+}
+
+#main-wrapper .content-body {
+  padding-right: 0 !important;
+}
+
+#main-wrapper .header .page-titles,
+#main-wrapper .header .header-content {
+  padding-right: 40px !important;
+}
+
+@media (max-width: 767px) {
+  #main-wrapper .header .page-titles,
+  #main-wrapper .header .header-content {
+    padding-right: 12px !important;
   }
 }
