@@ -6,7 +6,6 @@
   "homepage": "./",
   "dependencies": {
     "15": "^0.0.0",
-    "@babel/runtime": "^7.26.0",
     "@ckeditor/ckeditor5-build-classic": "^40.2.0",
     "@ckeditor/ckeditor5-react": "^6.2.0",
     "@emotion/styled": "^11.13.0",
@@ -32,6 +31,7 @@
     "concurrently": "^9.0.0",
     "cross-env": "^7.0.3",
     "formik": "^2.4.3",
+    "@babel/runtime": "^7.26.0",
     "i18next": "^25.10.10",
     "i18next-browser-languagedetector": "^8.0.5",
     "i18next-http-backend": "^3.0.2",
@@ -91,24 +91,22 @@
     "start": "react-scripts start",
     "build": "react-scripts build && node scripts/copy-help-to-build.js",
     "build:web": "BUILD_PATH=build-web react-scripts build",
-    "build:electron": "node scripts/build-electron.js",
+    "build:electron": "cross-env PUBLIC_URL=./ react-scripts build",
     "electron:build": "npm run build:electron && electron-builder",
-    "electron:build:win": "npm run build:electron && electron-builder --win --x64"
+    "electron:build:win": "npm run build:electron && electron-builder --win --x64",
+    "electron:pack": "electron-builder",
+    "electron:pack:win": "electron-builder --win --x64"
   },
   "build": {
     "extends": null,
     "appId": "com.betabase.app",
     "productName": "Betabase",
-    "npmRebuild": false,
-    "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false,
     "files": [
       "build/**/*",
       "main.js",
       "preload.js",
       "public/icon.png",
-      "package.json",
-      "!node_modules/**/*"
+      "package.json"
     ],
     "directories": {
       "buildResources": "public",
