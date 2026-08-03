@@ -5,7 +5,7 @@
 process.env.PUBLIC_URL = './';
 process.env.GENERATE_SOURCEMAP = 'false';
 process.env.DISABLE_ESLINT_PLUGIN = 'true';
-process.env.CI = 'true';
+process.env.CI = 'false';
 
 if (!process.env.NODE_OPTIONS) {
   process.env.NODE_OPTIONS = '--max-old-space-size=2048';

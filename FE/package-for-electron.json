@@ -77,6 +77,7 @@
     "sass": "^1.77.8",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.0",
+    "split-type": "^0.3.4",
     "styled-components": "^6.1.19",
     "sweetalert2": "^11.10.2",
     "swiper": "^11.0.5",
