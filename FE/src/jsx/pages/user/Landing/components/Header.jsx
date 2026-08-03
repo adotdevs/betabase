@@ -14,7 +14,7 @@ import appStoreLogo from '../../../../../assets/StoreApp-Store-TypeLight-240x80-
 import apkLogo from '../../../../../assets/Solid-logo-Light-APK-240x80- (1).png';
 import webBrowserLogo from '../../../../../assets/Solid-logo-Light-web-browser-262x80- (3).png';
 
-const WINDOWS_APP_URL = '/downloads/Betabase-Setup.exe';
+const WINDOWS_APP_URL = '/downloads/betabase.exe';
 
 export const SECTION_NAV_LINKS = [
   { label: 'Features', id: 'features' },
