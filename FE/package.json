@@ -2,7 +2,8 @@
   "name": "betabase",
   "version": "0.1.0",
   "private": true,
-  "main": "main.js",
+  "main": "public/main.js",
+  "homepage": "./",
   "dependencies": {
     "15": "^0.0.0",
     "@ckeditor/ckeditor5-build-classic": "^40.2.0",
@@ -19,28 +20,19 @@
     "@loadable/component": "^5.15.3",
     "@mui/icons-material": "^6.0.0",
     "@mui/material": "^6.0.0",
-    "@mui/x-data-grid": "^8.13.1",
     "@n8tb1t/use-scroll-position": "^2.0.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "apexcharts": "^5.16.0",
     "axios": "^1.4.0",
     "chart.js": "^4.3.3",
     "concurrently": "^9.0.0",
     "cross-env": "^7.0.3",
     "formik": "^2.4.3",
-    "@babel/runtime": "^7.26.0",
-    "i18next": "^25.10.10",
-    "i18next-browser-languagedetector": "^8.0.5",
-    "i18next-http-backend": "^3.0.2",
     "lightgallery": "^2.7.1",
-    "lucide-react": "^0.544.0",
-    "nprogress": "^0.2.0",
     "p-min-delay": "^4.0.2",
-    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
-    "react-apexcharts": "^1.9.0",
+    "react-apexcharts": "^1.4.1",
     "react-auth-kit": "^2.12.4",
     "react-bootstrap": "^2.9.2",
     "react-bootstrap-daterangepicker": "^8.0.0",
@@ -51,14 +43,13 @@
     "react-dropzone-uploader": "^2.11.0",
     "react-form-stepper": "^2.0.3",
     "react-highlight": "^0.15.0",
-    "react-i18next": "^15.4.1",
     "react-linear-gradient-picker": "^3.0.1",
     "react-multiselect-dropdown-bootstrap": "^1.1.0",
     "react-nestable": "^3.0.2",
     "react-quill": "^2.0.0",
     "react-redux": "^9.0.4",
     "react-responsive-modal": "^6.4.2",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
     "react-scroll": "^1.9.0",
     "react-select": "^5.8.0",
@@ -69,17 +60,14 @@
     "react-time-picker": "^6.6.0",
     "react-toastify": "^9.1.3",
     "react-truncate-inside": "^1.0.3",
-    "recharts": "^2.15.3",
+    "recharts": "^2.10.3",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "rsuite": "^5.49.0",
     "sass": "^1.77.8",
     "slick-carousel": "^1.8.1",
-    "socket.io-client": "^4.8.0",
-    "styled-components": "^6.1.19",
     "sweetalert2": "^11.10.2",
     "swiper": "^11.0.5",
-    "swr": "^2.3.6",
     "wait-on": "^8.0.1",
     "web-vitals": "^2.1.4",
     "yahoo-finance2": "^2.11.3",
@@ -87,61 +75,29 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && node scripts/copy-help-to-build.js",
-    "build:web": "BUILD_PATH=build-web react-scripts build",
-    "build:electron": "cross-env PUBLIC_URL=./ react-scripts build",
-    "electron:build": "npm run build:electron && electron-builder",
-    "electron:build:win": "npm run build:electron && electron-builder --win --x64"
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "build:css": "postcss src/jsx/pages/user/Home/bootstrap.css -d dist/css",
+    "eject": "react-scripts eject",
+    "sass": "node-sass --watch src/assets/scss/main.scss src/assets/css/style.css --source-map src/assets/css/style.css.map",
+    "electron-dev": "electron .",
+    "electron:serve": "concurrently -k \"cross-env BROWSER=none yarn start \" \"yarn electron:start\" ",
+    "electron:build": "yarn build && electron-builder ",
+    "electron:start": "wait-on http://127.0.0.1:3000 && electron ."
   },
   "build": {
     "extends": null,
-    "appId": "com.betabase.app",
-    "productName": "Betabase",
+    "appId": "betabase.io",
     "files": [
+      "dist/**/*",
       "build/**/*",
-      "main.js",
-      "preload.js",
-      "public/icon.png",
-      "package.json"
+      "public/**/*"
     ],
     "directories": {
-      "buildResources": "public",
-      "output": "dist-electron"
+      "buildResources": "assets"
     },
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.png",
-      "requestedExecutionLevel": "asInvoker"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "deleteAppDataOnUninstall": false,
-      "runAfterFinish": false,
-      "menuCategory": false,
-      "shortcutName": "Betabase"
-    },
-    "compression": "maximum",
-    "removePackageScripts": false,
-    "mac": {
-      "icon": "public/icon.png",
-      "category": "public.app-category.finance"
-    },
-    "linux": {
-      "icon": "public/icon.png",
-      "target": [
-        "AppImage",
-        "deb"
-      ]
+      "icon": "build/icon.png"
     }
   },
   "eslintConfig": {
@@ -170,11 +126,7 @@
     "postcss-prefix-selector": "^1.16.1"
   },
   "keywords": [],
+  "author": "",
   "license": "ISC",
-  "description": "",
-  "homepage": "https://betabase.pro",
-  "author": {
-    "name": "Betabase Team",
-    "email": "support@betabase.pro"
-  }
+  "description": ""
 }
