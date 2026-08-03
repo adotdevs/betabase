@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
-  "homepage": "./",
   "dependencies": {
     "15": "^0.0.0",
     "@ckeditor/ckeditor5-build-classic": "^40.2.0",
@@ -77,7 +76,6 @@
     "sass": "^1.77.8",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.0",
-    "split-type": "^0.3.4",
     "styled-components": "^6.1.19",
     "sweetalert2": "^11.10.2",
     "swiper": "^11.0.5",
@@ -91,26 +89,20 @@
     "start": "react-scripts start",
     "build": "react-scripts build && node scripts/copy-help-to-build.js",
     "build:web": "BUILD_PATH=build-web react-scripts build",
-    "build:electron": "node scripts/build-electron.js",
-    "electron:build": "npm run build:electron && npx electron-builder -c.npmRebuild=false -c.nodeGypRebuild=false",
-    "electron:build:win": "npm run build:electron && npx electron-builder --win --x64 -c.npmRebuild=false -c.nodeGypRebuild=false",
-    "electron:pack": "npx electron-builder -c.npmRebuild=false -c.nodeGypRebuild=false",
-    "electron:pack:win": "npx electron-builder --win --x64 -c.npmRebuild=false -c.nodeGypRebuild=false"
+    "build:electron": "cross-env PUBLIC_URL=./ react-scripts build",
+    "electron:build": "npm run build:electron && electron-builder",
+    "electron:build:win": "npm run build:electron && electron-builder --win --x64"
   },
   "build": {
     "extends": null,
     "appId": "com.betabase.app",
     "productName": "Betabase",
-    "npmRebuild": false,
-    "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false,
     "files": [
       "build/**/*",
       "main.js",
       "preload.js",
       "public/icon.png",
-      "package.json",
-      "!node_modules/**/*"
+      "package.json"
     ],
     "directories": {
       "buildResources": "public",
@@ -180,6 +172,7 @@
   "keywords": [],
   "license": "ISC",
   "description": "",
+  "homepage": "https://betabase.pro",
   "author": {
     "name": "Betabase Team",
     "email": "support@betabase.pro"
