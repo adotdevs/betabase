@@ -14,6 +14,8 @@ import appStoreLogo from '../../../../../assets/StoreApp-Store-TypeLight-240x80-
 import apkLogo from '../../../../../assets/Solid-logo-Light-APK-240x80- (1).png';
 import webBrowserLogo from '../../../../../assets/Solid-logo-Light-web-browser-262x80- (3).png';
 
+const WINDOWS_APP_URL = '/downloads/Betabase-Setup.exe';
+
 export const SECTION_NAV_LINKS = [
   { label: 'Features', id: 'features' },
   { label: 'Security', id: 'security' },
@@ -96,16 +98,25 @@ const Header = () => (
             <LandingButton as={Link} to="/auth/login">
               Sign In
             </LandingButton>
+            <LandingButton
+              as="a"
+              href={WINDOWS_APP_URL}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Download for Windows
+            </LandingButton>
           </LandingHeaderButtonWrap>
           <AppStoreLogosWrap>
+            <AppStoreLogoLink as="a" href={WINDOWS_APP_URL} download target="_blank" rel="noopener noreferrer">
+              <AppStoreLogo src={webBrowserLogo} alt="Download Betabase for Windows" />
+            </AppStoreLogoLink>
             <AppStoreLogoLink as={Link} to="/auth/login">
               <AppStoreLogo src={googlePlayLogo} alt="Get it on Google Play" />
             </AppStoreLogoLink>
             <AppStoreLogoLink as={Link} to="/auth/login">
               <AppStoreLogo src={appStoreLogo} alt="Download on the App Store" />
-            </AppStoreLogoLink>
-            <AppStoreLogoLink as={Link} to="/auth/login">
-              <AppStoreLogo src={webBrowserLogo} alt="Web Browser" />
             </AppStoreLogoLink>
             <AppStoreLogoLink as={Link} to="/auth/login">
               <AppStoreLogo src={apkLogo} alt="APK File" />
@@ -310,28 +321,33 @@ const LandingHeaderButtonWrap = styled.div`
   width: 100%;
   padding: 0 16px;
   box-sizing: border-box;
+  flex-wrap: wrap;
 
   a {
-    width: 140px;
+    width: auto;
+    min-width: 140px;
     max-width: 100%;
+    padding-left: 18px;
+    padding-right: 18px;
   }
   
   @media screen and (min-width: 576px) {
     flex-direction: row;
-    gap: 20px;
+    gap: 16px;
     margin-bottom: 128px;
     padding: 0 20px;
     
     a {
-      width: 150px;
+      min-width: 150px;
     }
   }
   
   @media screen and (min-width: 768px) {
     padding: 0 24px;
+    gap: 20px;
     
     a {
-      width: 160px;
+      min-width: 160px;
     }
   }
 `;

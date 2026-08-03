@@ -69,3 +69,15 @@ FE/dist-electron/win-unpacked/locales/ur.pak
 FE/dist-electron/win-unpacked/locales/vi.pak
 FE/dist-electron/win-unpacked/locales/zh-CN.pak
 FE/dist-electron/win-unpacked/locales/zh-TW.pak
+FE/dist-electron/.icon-ico/icon.ico
+FE/dist-electron/win-unpacked/Betabase.exe
+FE/dist-electron/win-unpacked/resources/app.asar
+FE/dist-electron/win-unpacked/resources/elevate.exe
+FE/dist-electron/Betabase Setup 0.1.0.exe
+FE/dist-electron/Betabase Setup 0.1.0.exe.blockmap
+FE/dist-electron/builder-debug.yml
+
+# Windows installer — too large for Git; store on VPS at /var/www/betabase/downloads/
+FE/public/downloads/*.exe
+FE/build/downloads/*.exe
+FE/dist-electron/Betabase-Setup.exe

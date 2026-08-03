@@ -28,6 +28,14 @@ fi
 
 npm run build
 
+mkdir -p "$ROOT/FE/build/downloads"
+if [[ -f "$ROOT/downloads/Betabase-Setup.exe" ]]; then
+  cp "$ROOT/downloads/Betabase-Setup.exe" "$ROOT/FE/build/downloads/Betabase-Setup.exe"
+  echo "==> Windows installer copied to build/downloads/"
+else
+  echo "==> No Windows installer at downloads/Betabase-Setup.exe (skip)"
+fi
+
 mkdir -p "$ROOT/FE/build/help"
 rsync -a --delete "$ROOT/FE/public/help/" "$ROOT/FE/build/help/"
 
