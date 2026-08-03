@@ -1,0 +1,36 @@
+appId: com.betabase.app
+productName: Betabase
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+asar: true
+files:
+  - build/**/*
+  - main.js
+  - preload.js
+  - public/icon.png
+  - package.json
+  - "!node_modules/**/*"
+directories:
+  buildResources: public
+  output: dist-electron
+extraMetadata:
+  main: main.js
+  dependencies: {}
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: public/icon.png
+  requestedExecutionLevel: asInvoker
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+  runAfterFinish: false
+  menuCategory: false
+  shortcutName: Betabase
+compression: maximum

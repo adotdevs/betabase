@@ -1,0 +1,44 @@
+directories:
+  output: dist-electron
+  buildResources: public
+extends: null
+appId: com.betabase.app
+productName: Betabase
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+files:
+  - filter:
+      - build/**/*
+      - main.js
+      - preload.js
+      - public/icon.png
+      - package.json
+      - '!node_modules/**/*'
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: public/icon.png
+  requestedExecutionLevel: asInvoker
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+  runAfterFinish: false
+  menuCategory: false
+  shortcutName: Betabase
+compression: maximum
+removePackageScripts: false
+mac:
+  icon: public/icon.png
+  category: public.app-category.finance
+linux:
+  icon: public/icon.png
+  target:
+    - AppImage
+    - deb
+electronVersion: 32.3.3
