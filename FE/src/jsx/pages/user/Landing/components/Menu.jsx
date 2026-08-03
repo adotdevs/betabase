@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import LogoNew from '../../../../../assets/newlogo/logo.png';
+import { SectionNavLinks, SectionNavMenu } from './Header';
 
 const Menu = () => {
   const [active, setActive] = useState(false);
@@ -26,7 +27,11 @@ const Menu = () => {
         <LandingMenuLogoWrap as={Link} to="/">
           <img src={LogoNew} alt="Betabase Logo"  />
         </LandingMenuLogoWrap>
+        <LandingMenuCenter>
+          <SectionNavLinks />
+        </LandingMenuCenter>
         <LandingMenuNav>
+          <SectionNavMenu />
           <LandingNavButton as={Link} to="/auth/signup">
             Sign Up
           </LandingNavButton>
@@ -57,6 +62,7 @@ const LandingMenuContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 16px 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -70,6 +76,7 @@ const LandingMenuContainer = styled.div`
 const LandingMenuLogoWrap = styled(Link)`
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   
   
 img {
@@ -81,15 +88,24 @@ height: 90px;}
   }
 `;
 
+const LandingMenuCenter = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 8px;
+`;
+
 const LandingMenuNav = styled.nav`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
   
   @media screen and (min-width: 576px) {
-    gap: 16px;
+    gap: 12px;
   }
 `;
 
@@ -149,4 +165,3 @@ const LandingHireUsButton = styled(Link)`
 `;
 
 // endregion
-

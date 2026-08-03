@@ -7,7 +7,7 @@ import {
 } from '../BasicLandingElements';
 
 const MultiToken = () => (
-  <LandingSection>
+  <LandingSection id="multi-token">
     <MultiTokenContainer>
       <MultiTokenContentWrapper>
         <MultiTokenContent>

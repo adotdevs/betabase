@@ -8,7 +8,7 @@ import {
 } from '../BasicLandingElements';
 
 const Features = () => (
-  <LandingSection>
+  <LandingSection id="features">
     <LandingFeatureContainer>
       <FeaturesHeader>
         <LandingFeatureSubtitle className="animate-on-scroll">Main Features</LandingFeatureSubtitle>

@@ -10,7 +10,7 @@ import {
 import Refer from '../../../../../assets/refer.jpg';
 
 const Security = () => (
-  <LandingSection>
+  <LandingSection id="security">
     <SecurityContainer>
       <SecurityContentWrapper>
         <SecurityContent>

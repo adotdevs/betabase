@@ -54,7 +54,7 @@ const FAQ = () => {
   };
 
   return (
-    <LandingSection>
+    <LandingSection id="faq">
       <LandingContainer>
         <FAQHeader>
           <FAQSubtitle className="animate-on-scroll">FAQ</FAQSubtitle>

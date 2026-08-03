@@ -85,6 +85,7 @@ export const LandingButtonGradient = styled(LandingButton)`
 export const LandingSection = styled.section`
   margin-bottom: 96px;
   position: relative;
+  scroll-margin-top: 100px;
  
   @media screen and (min-width: 576px) {
     margin-bottom: 176px;

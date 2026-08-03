@@ -9,7 +9,7 @@ import {
 import Refer from '../../../../../assets/refer.jpg';
 
 const Referral = () => (
-  <LandingSection>
+  <LandingSection id="referral">
     <ReferralContainer>
       <ReferralContentWrapper>
         <ReferralImageWrapper>

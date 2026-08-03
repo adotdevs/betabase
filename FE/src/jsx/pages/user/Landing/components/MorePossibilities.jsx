@@ -7,7 +7,7 @@ import {
 } from '../BasicLandingElements';
 
 const MorePossibilities = () => (
-  <LandingSection>
+  <LandingSection id="stake">
     <MorePossibilitiesContainer>
       <MorePossibilitiesContentWrapper>
         <MorePossibilitiesImageWrapper>

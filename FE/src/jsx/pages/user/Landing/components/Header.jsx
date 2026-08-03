@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -8,13 +8,73 @@ import {
   LandingButtonGradient,
   LandingContainer,
 } from '../BasicLandingElements';
-import LogoNew from '../../../../../assets/newlogo/logo.png';
 import headerBg from '../../../../../assets/header_bg.png';
-import heroImage from '../../../../../assets/images/img/home-hero-gradient.jpg';
 import googlePlayLogo from '../../../../../assets/StoreGoogle-Play-TypeLight-240x80-1 (1).png';
 import appStoreLogo from '../../../../../assets/StoreApp-Store-TypeLight-240x80-1 (2).png';
 import apkLogo from '../../../../../assets/Solid-logo-Light-APK-240x80- (1).png';
 import webBrowserLogo from '../../../../../assets/Solid-logo-Light-web-browser-262x80- (3).png';
+
+export const SECTION_NAV_LINKS = [
+  { label: 'Features', id: 'features' },
+  { label: 'Security', id: 'security' },
+  { label: 'Referral', id: 'referral' },
+  { label: 'Stake', id: 'stake' },
+  { label: 'Multi-Token', id: 'multi-token' },
+  { label: 'Reviews', id: 'reviews' },
+  { label: 'FAQ', id: 'faq' },
+];
+
+export const scrollToSection = (id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+export const SectionNavLinks = ({ onNavigate, vertical = false }) => (
+  <SectionNavList vertical={vertical}>
+    {SECTION_NAV_LINKS.map(({ label, id }) => (
+      <SectionNavLink
+        key={id}
+        type="button"
+        onClick={() => {
+          scrollToSection(id);
+          if (onNavigate) onNavigate();
+        }}
+      >
+        {label}
+      </SectionNavLink>
+    ))}
+  </SectionNavList>
+);
+
+export const SectionNavMenu = () => {
+  const [open, setOpen] = useState(false);
+
+  const closeMenu = useCallback(() => setOpen(false), []);
+
+  return (
+    <>
+      <SectionNavToggle
+        type="button"
+        aria-label={open ? 'Close section menu' : 'Open section menu'}
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span />
+        <span />
+        <span />
+      </SectionNavToggle>
+      {open && (
+        <>
+          <SectionNavBackdrop onClick={closeMenu} />
+          <SectionNavDrawer>
+            <SectionNavLinks onNavigate={closeMenu} vertical />
+          </SectionNavDrawer>
+        </>
+      )}
+    </>
+  );
+};
 
 const Header = () => (
   <LandingHeader>
@@ -61,6 +121,117 @@ export default Header;
 
 // region STYLES
 
+const SectionNavList = styled.nav`
+  display: ${({ vertical }) => (vertical ? 'flex' : 'none')};
+  flex-direction: ${({ vertical }) => (vertical ? 'column' : 'row')};
+  align-items: ${({ vertical }) => (vertical ? 'stretch' : 'center')};
+  gap: ${({ vertical }) => (vertical ? '4px' : '4px')};
+  flex-wrap: nowrap;
+
+  @media screen and (min-width: 1100px) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+`;
+
+const SectionNavLink = styled.button`
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 8px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: ${colorWhite};
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+  }
+
+  @media screen and (min-width: 1100px) {
+    font-size: 13px;
+    padding: 7px 11px;
+  }
+
+  @media screen and (min-width: 1280px) {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+`;
+
+const SectionNavToggle = styled.button`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: ${colorWhite};
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  @media screen and (min-width: 1100px) {
+    display: none;
+  }
+`;
+
+const SectionNavBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 8;
+
+  @media screen and (min-width: 1100px) {
+    display: none;
+  }
+`;
+
+const SectionNavDrawer = styled.div`
+  position: fixed;
+  top: 72px;
+  right: 16px;
+  left: 16px;
+  z-index: 9;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(22, 22, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+
+  @media screen and (min-width: 576px) {
+    left: auto;
+    width: 280px;
+  }
+
+  @media screen and (min-width: 1100px) {
+    display: none;
+  }
+`;
+
 const LandingHeader = styled.div`
   padding-top: 100px;
   text-align: center;
@@ -71,20 +242,6 @@ const LandingHeader = styled.div`
   
   @media screen and (min-width: 576px) {
     padding-bottom: 152px;
-  }
-`;
-
-const LandingHeaderLogo = styled.img`
-  width: 92px;
-  margin-bottom: 8px;
-  
-  @media screen and (min-width: 576px) {
-    width: 162px;
-    margin-bottom: 12px;
-  }
-  
-  @media screen and (min-width: 992px) {
-    width: 186px;
   }
 `;
 
@@ -179,11 +336,6 @@ const LandingHeaderButtonWrap = styled.div`
   }
 `;
 
-const LandingHeaderImage = styled.img`
-  max-width: 100%;
-  height: auto;
-`;
-
 const AppStoreLogosWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -242,4 +394,3 @@ const AppStoreLogo = styled.img`
 `;
 
 // endregion
-

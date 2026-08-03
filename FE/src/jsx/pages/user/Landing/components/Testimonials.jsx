@@ -77,7 +77,7 @@ const getAvatarColor = (index) => {
 };
 
 const Testimonials = () => (
-  <LandingSection>
+  <LandingSection id="reviews">
     <LandingContainer>
       <TestimonialHeaderWrap>
         <h2 className="animate-on-scroll">Customer Reviews</h2>
