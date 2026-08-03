@@ -6,6 +6,7 @@
   "homepage": "./",
   "dependencies": {
     "15": "^0.0.0",
+    "@babel/runtime": "^7.26.0",
     "@ckeditor/ckeditor5-build-classic": "^40.2.0",
     "@ckeditor/ckeditor5-react": "^6.2.0",
     "@emotion/styled": "^11.13.0",
@@ -31,7 +32,6 @@
     "concurrently": "^9.0.0",
     "cross-env": "^7.0.3",
     "formik": "^2.4.3",
-    "@babel/runtime": "^7.26.0",
     "i18next": "^25.10.10",
     "i18next-browser-languagedetector": "^8.0.5",
     "i18next-http-backend": "^3.0.2",
@@ -99,12 +99,16 @@
     "extends": null,
     "appId": "com.betabase.app",
     "productName": "Betabase",
+    "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
     "files": [
       "build/**/*",
       "main.js",
       "preload.js",
       "public/icon.png",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*"
     ],
     "directories": {
       "buildResources": "public",
