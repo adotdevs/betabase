@@ -94,19 +94,23 @@
     "build:electron": "cross-env PUBLIC_URL=./ react-scripts build",
     "electron:build": "npm run build:electron && electron-builder",
     "electron:build:win": "npm run build:electron && electron-builder --win --x64",
-    "electron:pack": "electron-builder",
-    "electron:pack:win": "electron-builder --win --x64"
+    "electron:pack": "electron-builder -c.npmRebuild=false -c.nodeGypRebuild=false",
+    "electron:pack:win": "electron-builder --win --x64 -c.npmRebuild=false -c.nodeGypRebuild=false"
   },
   "build": {
     "extends": null,
     "appId": "com.betabase.app",
     "productName": "Betabase",
+    "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
     "files": [
       "build/**/*",
       "main.js",
       "preload.js",
       "public/icon.png",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*"
     ],
     "directories": {
       "buildResources": "public",
