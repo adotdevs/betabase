@@ -33,7 +33,9 @@ const CoinPickerModal = ({ open, title, coins, selectedTrxName, onSelect, onClos
                 <strong>{coin.name}</strong>
                 <small>{coin.symbol}</small>
               </span>
-              <span className={styles.balance}>{Number(coin.balance || 0).toFixed(4)}</span>
+              <span className={styles.balance}>
+                {Number(coin.balance || 0).toFixed(coin.isFiat ? 2 : 4)}
+              </span>
             </button>
           ))}
         </div>

@@ -10,15 +10,16 @@ import {
   getsignUserApi,
 } from "../../../Api/Service";
 import { buildPortfolioCoins, getAdditionalCoinPrice, isCoinActive } from "./assets/coinConfig";
-import { isFiatCoin } from "../../../utils/euroCoinUtils";
 import { buildSwapNote } from "./assets/swapTransactionUtils";
 import CoinPickerModal from "./swap/CoinPickerModal";
 import styles from "./swap/Swap.module.css";
 import {
+  buildFiatSwapCoins,
   convertSwapAmount,
   findSwapCoin,
   formatFiatEstimate,
   formatSwapAmount,
+  getSwapDecimals,
   getSwapRate,
   getTransactionsForCoin,
   pickAlternateCoin,
@@ -161,7 +162,7 @@ const Swap = () => {
   const swapCoins = useMemo(() => {
     if (!walletSnapshot) return [];
 
-    return buildPortfolioCoins({
+    const cryptoCoins = buildPortfolioCoins({
       UserData: walletSnapshot.userData,
       newUserCoins: walletSnapshot.additionalCoins,
       userCoins: { getCoin: walletSnapshot.userData },
@@ -182,7 +183,15 @@ const Swap = () => {
       liveTrx: walletSnapshot.livePrices.trx,
       getTransactionsForCoin,
       getCoinPrice: (symbol) => getAdditionalCoinPrice(symbol, walletSnapshot.livePrices),
-    }).filter((coin) => !isFiatCoin(coin.trxName) && isCoinActive(coin));
+    }).filter((coin) => isCoinActive(coin));
+
+    const fiatCoins = buildFiatSwapCoins(
+      walletSnapshot.additionalCoins,
+      walletSnapshot.transactions,
+      getTransactionsForCoin
+    );
+
+    return [...cryptoCoins, ...fiatCoins];
   }, [walletSnapshot]);
 
   const swapAvailable = swapCoins.length >= 2;
@@ -241,7 +250,9 @@ const Swap = () => {
       }
 
       const converted = convertSwapAmount(amount, nextFromCoin, nextToCoin);
-      setOutputValue(converted ? formatSwapAmount(converted, 8) : "");
+      setOutputValue(
+        converted ? formatSwapAmount(converted, getSwapDecimals(nextToCoin)) : ""
+      );
     },
     []
   );
@@ -269,7 +280,7 @@ const Swap = () => {
     let nextValue = rawValue;
 
     if (rawValue && parseFloat(rawValue) > maxBalance) {
-      nextValue = formatSwapAmount(maxBalance, 8);
+      nextValue = formatSwapAmount(maxBalance, getSwapDecimals(fromCoin));
     }
 
     setInputValue(nextValue);
@@ -277,7 +288,7 @@ const Swap = () => {
 
   const handleMaxClick = () => {
     if (!fromCoin) return;
-    const maxValue = formatSwapAmount(fromCoin.balance || 0, 8);
+    const maxValue = formatSwapAmount(fromCoin.balance || 0, getSwapDecimals(fromCoin));
     setInputValue(maxValue);
   };
 
@@ -319,7 +330,10 @@ const Swap = () => {
 
   const expectedRate = useMemo(() => {
     if (!fromCoin || !toCoin) return "0";
-    return formatSwapAmount(getSwapRate(fromCoin, toCoin), 8);
+    return formatSwapAmount(
+      getSwapRate(fromCoin, toCoin),
+      Math.max(getSwapDecimals(fromCoin), getSwapDecimals(toCoin))
+    );
   }, [fromCoin, toCoin]);
 
   const canSwap =
@@ -454,7 +468,8 @@ const Swap = () => {
                 <div className={styles.balanceRow}>
                   <span className={styles.balanceLabel}>Balance</span>
                   <span className={styles.balanceValue}>
-                    {formatSwapAmount(fromCoin.balance || 0, 5)} {fromCoin.symbol}
+                    {formatSwapAmount(fromCoin.balance || 0, getSwapDecimals(fromCoin))}{" "}
+                    {fromCoin.symbol}
                   </span>
                   {swapAvailable && (
                     <button type="button" className={styles.maxBtn} onClick={handleMaxClick}>
@@ -527,7 +542,8 @@ const Swap = () => {
                   <div className={styles.balanceRow}>
                     <span className={styles.balanceLabel}>Balance</span>
                     <span className={styles.balanceValue}>
-                      {formatSwapAmount(toCoin.balance || 0, 5)} {toCoin.symbol}
+                      {formatSwapAmount(toCoin.balance || 0, getSwapDecimals(toCoin))}{" "}
+                      {toCoin.symbol}
                     </span>
                   </div>
                 )}

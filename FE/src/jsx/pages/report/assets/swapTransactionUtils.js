@@ -13,6 +13,7 @@ const TRX_SYMBOLS = {
   "usd coin": "USDC",
   tron: "TRX",
   euro: "EUR",
+  dollar: "USD",
 };
 
 export const trxNameToSymbol = (trxName) => {
