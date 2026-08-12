@@ -63,6 +63,7 @@ ${process.env.WebName} Support Team`;
 const {
   fetchCloudinaryPdfBuffer,
   isCloudinaryPdfUrl,
+  parseCloudinaryUrl,
 } = require("../utils/cloudinaryKyc");
 const { uploadTicketAttachments } = require("../utils/cloudinaryTicket");
 exports.RegisterUser = catchAsyncErrors(async (req, res, next) => {
@@ -1092,24 +1093,82 @@ exports.setHtmlData = catchAsyncErrors(async (req, res, next) => {
 });
 exports.updateKyc = catchAsyncErrors(async (req, res, next) => {
   let { id } = req.params;
-  const { kyc, status } = req.body;
+  const { kyc } = req.body;
 
-  let signleUser = await UserModel.findByIdAndUpdate(
+  const signleUser = await UserModel.findByIdAndUpdate(
     { _id: id },
-    {
-      kyc: kyc,
-      submitDoc: {
-        status: status, cnic: null,  // Retain existing cnic if present
-        bill: null,
-      },
-    },
-    { new: true, upsert: true }
+    { kyc },
+    { new: true }
   );
+
+  if (!signleUser) {
+    return next(new errorHandler("User not found", 404));
+  }
 
   res.status(200).send({
     success: true,
     msg: "User updated successfully",
     signleUser,
+  });
+});
+
+const assertAdminKycAccess = (req, user) => {
+  if (req.user.role === "subadmin") {
+    const hasAccess =
+      user.isShared === true ||
+      user.assignedSubAdmin?.toString() === req.user._id.toString();
+
+    if (user.role !== "user" || !hasAccess) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+exports.deleteKycDocument = catchAsyncErrors(async (req, res, next) => {
+  const { userId, docType } = req.params;
+
+  if (!["cnic", "bill"].includes(docType)) {
+    return next(new errorHandler("Invalid document type", 400));
+  }
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    return next(new errorHandler("User not found", 404));
+  }
+
+  if (!assertAdminKycAccess(req, user)) {
+    return next(new errorHandler("Access denied", 403));
+  }
+
+  const docUrl = user.submitDoc?.[docType];
+  if (!docUrl) {
+    return next(new errorHandler("Document not found", 404));
+  }
+
+  const parsed = parseCloudinaryUrl(docUrl);
+  if (parsed?.publicId) {
+    try {
+      await cloudinary.uploader.destroy(parsed.publicId, {
+        resource_type: parsed.resourceType || "image",
+      });
+    } catch (error) {
+      console.error("Cloudinary KYC delete error:", error);
+    }
+  }
+
+  user.submitDoc[docType] = null;
+  if (!user.submitDoc.cnic && !user.submitDoc.bill) {
+    user.submitDoc.status = "pending";
+  }
+
+  await user.save();
+
+  res.status(200).send({
+    success: true,
+    msg: "Document deleted successfully",
+    signleUser: user,
   });
 });
 exports.getsignUser = catchAsyncErrors(async (req, res, next) => {

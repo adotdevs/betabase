@@ -4,6 +4,7 @@ import UserSideBar from "./UserSideBar";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import {
+  deleteKycDocumentApi,
   getKycDocumentApi,
   patchCoinsApi,
   signleUsersApi,
@@ -65,10 +66,7 @@ const UserVerifications = () => {
   const updateKyc = async (approve) => {
     try {
       setisDisable(true);
-      const body = {
-        kyc: approve,
-        status: approve ? "completed" : "pending",
-      };
+      const body = { kyc: approve };
       const signleUser = await updateKycApi(id, body);
       await patchCoinsApi(id);
 
@@ -84,6 +82,30 @@ const UserVerifications = () => {
     } catch (error) {
       toast.dismiss();
       toast.error(error?.message || "Failed to update KYC");
+      setisDisable(false);
+    }
+  };
+
+  const deleteKycDocument = async (docType) => {
+    const label = docType === "cnic" ? "Government ID" : "Proof of Address";
+    if (!window.confirm(`Delete ${label}? This removes the file from Cloudinary and cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setisDisable(true);
+      const result = await deleteKycDocumentApi(id, docType);
+
+      if (result.success) {
+        toast.success(result.msg || "Document deleted");
+        setPreviewErrors((prev) => ({ ...prev, [docType]: false }));
+        getSignleUser();
+      } else {
+        toast.error(result.msg || "Failed to delete document");
+        setisDisable(false);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to delete document");
       setisDisable(false);
     }
   };
@@ -169,16 +191,26 @@ const UserVerifications = () => {
             )}
           </div>
 
-          {isPdf ? (
+          <div className="flex flex-wrap gap-2">
+            {isPdf ? (
+              <button
+                type="button"
+                onClick={() => downloadPdfDocument(docType, fileLabel)}
+                className="relative inline-flex items-center gap-2 rounded-md border border-info-500 bg-info-500 px-4 py-2 text-sm font-normal text-white transition hover:bg-info-400"
+              >
+                <DownloadIcon />
+                Download PDF
+              </button>
+            ) : null}
             <button
               type="button"
-              onClick={() => downloadPdfDocument(docType, fileLabel)}
-              className="relative inline-flex items-center gap-2 rounded-md border border-info-500 bg-info-500 px-4 py-2 text-sm font-normal text-white transition hover:bg-info-400"
+              onClick={() => deleteKycDocument(docType)}
+              disabled={isDisable}
+              className="relative inline-flex items-center gap-2 rounded-md border border-danger-500 bg-white px-4 py-2 text-sm font-normal text-danger-600 transition hover:bg-danger-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-muted-900 dark:hover:bg-danger-950/30"
             >
-              <DownloadIcon />
-              Download PDF
+              Delete document
             </button>
-          ) : null}
+          </div>
         </div>
       </div>
     );
@@ -193,11 +225,14 @@ const UserVerifications = () => {
   }, []);
 
   const submitDoc = UserData.submitDoc;
-  const hasSubmittedDocs =
-    submitDoc?.status === "completed" && submitDoc?.cnic && submitDoc?.bill;
-  const submissionLabel =
-    submitDoc?.status === "completed"
-      ? "Documents submitted"
+  const hasCnicDoc = Boolean(submitDoc?.cnic);
+  const hasBillDoc = Boolean(submitDoc?.bill);
+  const hasAnyDocs = hasCnicDoc || hasBillDoc;
+  const hasBothDocs = hasCnicDoc && hasBillDoc;
+  const submissionLabel = hasBothDocs
+    ? "Documents submitted"
+    : hasAnyDocs
+      ? "Partial submission"
       : submitDoc?.status === "pending"
         ? "Awaiting submission"
         : "Loading...";
@@ -283,7 +318,7 @@ const UserVerifications = () => {
                         </div>
                       </div>
 
-                      {!hasSubmittedDocs && (
+                      {!hasAnyDocs && (
                         <div className="px-6 py-8 text-center">
                           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted-100 dark:bg-muted-800">
                             <DocumentIcon />
@@ -299,23 +334,25 @@ const UserVerifications = () => {
                       )}
                     </div>
 
-                    {hasSubmittedDocs && (
+                    {hasAnyDocs && (
                       <>
                         <div className="grid gap-6 md:grid-cols-2">
-                          {renderDocumentCard({
-                            title: "Government ID",
-                            subtitle: "Passport, national ID, or driving licence",
-                            url: submitDoc.cnic,
-                            docType: "cnic",
-                            fileLabel: `${userName || "user"}-id-document`.replace(/\s+/g, "-").toLowerCase(),
-                          })}
-                          {renderDocumentCard({
-                            title: "Proof of Address",
-                            subtitle: "Utility bill, bank statement, or council tax",
-                            url: submitDoc.bill,
-                            docType: "bill",
-                            fileLabel: `${userName || "user"}-proof-of-address`.replace(/\s+/g, "-").toLowerCase(),
-                          })}
+                          {hasCnicDoc &&
+                            renderDocumentCard({
+                              title: "Government ID",
+                              subtitle: "Passport, national ID, or driving licence",
+                              url: submitDoc.cnic,
+                              docType: "cnic",
+                              fileLabel: `${userName || "user"}-id-document`.replace(/\s+/g, "-").toLowerCase(),
+                            })}
+                          {hasBillDoc &&
+                            renderDocumentCard({
+                              title: "Proof of Address",
+                              subtitle: "Utility bill, bank statement, or council tax",
+                              url: submitDoc.bill,
+                              docType: "bill",
+                              fileLabel: `${userName || "user"}-proof-of-address`.replace(/\s+/g, "-").toLowerCase(),
+                            })}
                         </div>
 
                         <div className="flex gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 dark:border-blue-900/50 dark:bg-blue-950/30">
@@ -324,12 +361,12 @@ const UserVerifications = () => {
                           </svg>
                           <div>
                             <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                              Before you approve
+                              Document retention
                             </p>
                             <p className="mt-1 text-sm text-blue-800/90 dark:text-blue-200/80">
-                              Confirm the name and address match the user profile. Approving or
-                              revoking KYC will permanently remove the uploaded documents from
-                              storage.
+                              KYC documents stay available after approval and are stored on Cloudinary.
+                              Use <strong>Delete document</strong> on each card only when you need to
+                              remove a file permanently.
                             </p>
                           </div>
                         </div>

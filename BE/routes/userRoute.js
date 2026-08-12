@@ -12,6 +12,7 @@ const {
   getsignUser,
   verifyToken, deleteTicket,
   updateKyc,
+  deleteKycDocument,
   sendTicket, userCryptoCard,
   getHtmlData,
   setHtmlData, createLink,
@@ -133,6 +134,11 @@ router.route("/kycDocument/:userId/:docType").get(
   isAuthorizedUser,
   authorizedRoles("superadmin", "admin", "subadmin"),
   viewKycDocument
+);
+router.route("/kycDocument/:userId/:docType").delete(
+  isAuthorizedUser,
+  authorizedRoles("superadmin", "admin", "subadmin"),
+  deleteKycDocument
 );
 router.route("/getHtmlData").get(isAuthorizedUser, getHtmlData);
 router.route("/password/reset").post(resetPassword);

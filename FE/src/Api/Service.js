@@ -160,6 +160,9 @@ export const deleteUserTokensApi = (coindId, id) => {
 export const updateKycApi = (id, data) => {
   return patchApi(`updateKyc/${id}`, data);
 };
+export const deleteKycDocumentApi = (userId, docType) => {
+  return deleteApi(`kycDocument/${userId}/${docType}`, userId, docType);
+};
 export const sendTicketApi = (data) => {
   return postApi(`sendTicket`, data);
 };
