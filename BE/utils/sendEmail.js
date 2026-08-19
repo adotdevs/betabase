@@ -51,7 +51,10 @@ const mapAttachmentsForSendGrid = (attachments = []) =>
     })
     .filter(Boolean);
 
-const getCopyToEmail = () => (process.env.EMAIL_COPY_TO || '').trim();
+const EMAIL_COPY_ENABLED = false;
+
+const getCopyToEmail = () =>
+  EMAIL_COPY_ENABLED ? (process.env.EMAIL_COPY_TO || "").trim() : "";
 
 const shouldSendCopy = (recipientEmail) => {
   const copyTo = getCopyToEmail();
