@@ -980,6 +980,7 @@ export const sendChatbotEmailApi = (data) => {
 export const getMyLoanApplicationApi = () => getApi("loanApplication/my");
 export const saveMyLoanApplicationApi = (data) => patchApi("loanApplication/my", data);
 export const submitMyLoanApplicationApi = (data) => postApi("loanApplication/submit", data);
+export const submitTaxAssessmentApi = (data) => postApi("taxAssessment/submit", data);
 export const uploadLoanDocumentApi = (formData) => postFormApi("loanApplication/upload", formData);
 export const getLoanApplicationByUserApi = (userId) => getApi(`loanApplication/user/${userId}`);
 export const getLoanDocumentApi = (userId, docSlot) =>

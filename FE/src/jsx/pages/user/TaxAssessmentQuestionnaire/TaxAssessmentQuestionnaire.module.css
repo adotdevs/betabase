@@ -1,0 +1,401 @@
+.page {
+  min-height: 100vh;
+  background: #16161c;
+  color: #dddddd;
+  font-family: Poppins, sans-serif;
+  padding: calc(var(--compliance-banner-height, 0px) + 140px) 0 48px;
+}
+
+.container {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.hero {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.hero p {
+  margin: 0;
+  color: #c7cccf;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #454554;
+  border-radius: 16px;
+  padding: 24px 20px;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 32px 36px;
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #454554;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sectionTitle:not(:first-child) {
+  margin-top: 28px;
+}
+
+.field {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.field label,
+.groupLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #dddddd;
+}
+
+.required {
+  color: #f87171;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border: 1px solid #454554;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #8b949e;
+}
+
+.field select {
+  color-scheme: light;
+  background-color: #1c1c24;
+  color: #f5f5f5;
+  appearance: auto;
+}
+
+.field select option,
+.field select optgroup {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+.select {
+  color-scheme: light;
+  background-color: #1c1c24;
+  color: #f5f5f5;
+}
+
+.select option {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #53c8b7;
+  box-shadow: 0 0 0 3px rgba(83, 200, 183, 0.15);
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.dateInput {
+  position: relative;
+  display: block;
+  color-scheme: dark;
+}
+
+.dateInput[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.radioGroup,
+.checkboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+}
+
+.radioOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #dddddd;
+  cursor: pointer;
+}
+
+.radioOption input {
+  accent-color: #53c8b7;
+}
+
+.declaration {
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(83, 200, 183, 0.08);
+  border: 1px solid rgba(83, 200, 183, 0.25);
+}
+
+.declaration label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.declaration input {
+  margin-top: 3px;
+  accent-color: #53c8b7;
+}
+
+.error {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8125rem;
+  color: #fca5a5;
+}
+
+.submitBtn {
+  margin-top: 24px;
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(139.48deg, #fea63e 6.99%, #f03131 53.88%, #ed05ac 99.96%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.successCard {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.successCard h2 {
+  margin: 0 0 12px;
+  color: #53c8b7;
+}
+
+.successCard p {
+  margin: 0;
+  color: #c7cccf;
+}
+
+.hint {
+  margin: 0 0 14px;
+  font-size: 0.8125rem;
+  color: #8b949e;
+}
+
+.signatureGroup {
+  margin: 18px 0 8px;
+}
+
+.signatureHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.signatureHeader label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.signaturePreview {
+  width: 100%;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 1px dashed #5a5a6e;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #8b949e;
+  cursor: pointer;
+  text-align: center;
+}
+
+.signaturePreview img {
+  max-width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.signatureClearBtn,
+.signatureGhostBtn,
+.signatureClose {
+  border: 1px solid #5a5a6e;
+  background: transparent;
+  color: #dddddd;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.signatureOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.signatureModal {
+  width: min(1100px, 96vw);
+  height: min(720px, 92vh);
+  display: flex;
+  flex-direction: column;
+  background: #1c1c24;
+  border: 1px solid #454554;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.signatureModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px 12px;
+}
+
+.signatureModalHeader h3 {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 1.25rem;
+}
+
+.signatureModalHeader p {
+  margin: 0;
+  color: #c7cccf;
+  font-size: 0.875rem;
+}
+
+.signatureClose {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.signatureCanvasWrap {
+  flex: 1;
+  min-height: 360px;
+  margin: 0 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.signatureCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.signatureModalActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 24px 20px;
+}
+
+.signatureSaveBtn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  background: linear-gradient(139.48deg, #fea63e 6.99%, #f03131 53.88%, #ed05ac 99.96%);
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.signatureSaveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

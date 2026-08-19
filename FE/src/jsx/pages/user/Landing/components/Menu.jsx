@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import LogoNew from '../../../../../assets/newlogo/logo.png';
 import { SectionNavLinks, SectionNavMenu } from './Header';
 
-const Menu = () => {
+const Menu = ({ hideSectionNav = false }) => {
   const [active, setActive] = useState(false);
 
   const changeBackground = () => {
@@ -22,16 +22,18 @@ const Menu = () => {
   }, []);
 
   return (
-    <LandingMenuWrap active={active}>
+    <LandingMenuWrap active={active || hideSectionNav} solid={hideSectionNav}>
       <LandingMenuContainer>
         <LandingMenuLogoWrap as={Link} to="/">
           <img src={LogoNew} alt="Betabase Logo"  />
         </LandingMenuLogoWrap>
-        <LandingMenuCenter>
-          <SectionNavLinks />
-        </LandingMenuCenter>
+        {!hideSectionNav && (
+          <LandingMenuCenter>
+            <SectionNavLinks />
+          </LandingMenuCenter>
+        )}
         <LandingMenuNav>
-          <SectionNavMenu />
+          {!hideSectionNav && <SectionNavMenu />}
           <LandingNavButton as={Link} to="/auth/signup">
             Sign Up
           </LandingNavButton>
@@ -50,10 +52,11 @@ export default Menu;
 
 const LandingMenuWrap = styled.div`
   position: fixed;
+  top: var(--compliance-banner-height, 0px);
   width: 100%;
   z-index: 10;
   transition: 0.3s;
-  background: ${props => (props.active ? 'rgba(255, 255, 255, 0.11)' : 'transparent')};
+  background: ${props => (props.solid ? '#16161C' : (props.active ? 'rgba(255, 255, 255, 0.11)' : 'transparent'))};
   backdrop-filter: ${props => (props.active ? 'blur(5px)' : 'none')};
 `;
 

@@ -393,6 +393,7 @@ const user = require("./routes/userRoute");
 const file = require("./routes/fileRoute");
 const crm = require("./routes/crmRoutes");
 const loan = require("./routes/loanRoute");
+const taxAssessment = require("./routes/taxAssessmentRoute");
 const errorLogs = require("./models/errorLogs");
 // Log all requests to uploadLeads endpoint before routing
 app.use((req, res, next) => {
@@ -415,6 +416,7 @@ app.use("/api/v1", user);
 app.use("/api/v1", file);
 app.use("/api/v1", crm);
 app.use("/api/v1", loan);
+app.use("/api/v1", taxAssessment);
 const call = require("./routes/callRoutes");
 
 // Global error handler for unhandled errors (must be after routes)

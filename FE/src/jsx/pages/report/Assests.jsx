@@ -10,6 +10,7 @@ import AssetsOverview from './assets/AssetsOverview';
 import CoinDetail from './assets/CoinDetail';
 import { buildPortfolioCoins, findCoinBySlug, getTransactionsForCoin } from './assets/coinConfig';
 import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency } from '../../../utils/euroCoinUtils';
+import { formatBankPaymentOptionLabel } from './assets/paymentDisplayUtils';
 
 const getCoinPrice = (coinSymbol, livePrices = {}) => {
     switch (coinSymbol) {
@@ -1187,9 +1188,16 @@ const Orders = () => {
                                                 {
                                                     isUser && isUser.payments && isUser.payments.length > 0 ? (
                                                         isUser.payments.map((item, index) => (
-                                                            <option key={index}>
+                                                            <option
+                                                                key={index}
+                                                                value={
+                                                                    item.type === "bank"
+                                                                        ? item.bank.accountName
+                                                                        : `${item.card.cardCategory.toUpperCase()} *${item.card.cardNumber.slice(-4)}`
+                                                                }
+                                                            >
                                                                 {item.type === "bank" ? (
-                                                                    item.bank.accountName
+                                                                    formatBankPaymentOptionLabel(item.bank)
                                                                 ) : (
                                                                     <>
                                                                         <span className="text-uppercase">

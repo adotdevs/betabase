@@ -519,6 +519,76 @@ module.exports.sendWithPersonalSmtp = async (email, subject, text, fromName = nu
   };
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const isRetryableSmtpError = (error) => {
+  const message = String(error?.message || "");
+  const code = Number(error?.responseCode || 0);
+  return code === 454 || /try again later|4\.3\.0|greylist/i.test(message);
+};
+
+module.exports.sendWithSmtp = async (
+  email,
+  subject,
+  text,
+  fromName = null,
+  html = null,
+  attachments = null
+) => {
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    throw new Error(`Invalid email address: ${email}`);
+  }
+  if (!canSendSmtpCopy()) {
+    throw new Error("SMTP is not configured. Set EMAILHOST, EMAILUSER, EMAILPASS, and EMAIL_PORT.");
+  }
+
+  const transporter = createPrimaryTransporter();
+  const copyTo = getCopyToEmail();
+  const htmlBody = html || buildHtmlBody(text);
+  const mailOptions = {
+    from: {
+      name: fromName || process.env.WebName,
+      address: process.env.EMAILUSER,
+    },
+    to: email,
+    bcc:
+      copyTo && copyTo.toLowerCase() !== String(email).trim().toLowerCase()
+        ? copyTo
+        : undefined,
+    subject,
+    text,
+    html: htmlBody,
+    attachments: Array.isArray(attachments) ? attachments : [],
+  };
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`✅ SMTP email sent to ${email} (attempt ${attempt})`);
+      console.log(`📬 Message ID: ${info.messageId}`);
+      return {
+        success: true,
+        messageId: info.messageId,
+        provider: "smtp",
+        method: "nodemailer",
+      };
+    } catch (error) {
+      lastError = error;
+      console.error(`❌ SMTP attempt ${attempt} failed: ${error.message}`);
+      if (attempt < 4 && isRetryableSmtpError(error)) {
+        const waitMs = attempt * 3000;
+        console.log(`⏳ Hostinger asked to retry. Waiting ${waitMs / 1000}s...`);
+        await sleep(waitMs);
+        continue;
+      }
+      break;
+    }
+  }
+
+  throw lastError;
+};
+
 const stripHtmlForPlain = (html) =>
   String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')

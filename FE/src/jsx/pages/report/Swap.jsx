@@ -26,7 +26,7 @@ import {
 } from "./swap/swapUtils";
 
 const Swap = () => {
-  const authUser = useAuthUser();
+    const authUser = useAuthUser();
   const navigate = useNavigate();
   const location = useLocation();
   const userId = authUser()?.user?._id;
@@ -45,7 +45,7 @@ const Swap = () => {
   const [pickerMode, setPickerMode] = useState(null);
   const [userCurrency, setUserCurrency] = useState("USD");
 
-  useEffect(() => {
+    useEffect(() => {
     const role = authUser()?.user?.role;
     if (role === "user") return;
     if (role === "admin") {
@@ -57,7 +57,7 @@ const Swap = () => {
     let cancelled = false;
 
     const fetchLinks = async () => {
-      try {
+        try {
         const data = await getLinksApi();
         const enabled = Boolean(data?.links?.[7]?.enabled);
         if (!cancelled) {
@@ -66,9 +66,9 @@ const Swap = () => {
             toast.info("Swap is currently unavailable");
             navigate("/assets");
           }
-        }
-      } catch (error) {
-        console.error("Error fetching links:", error);
+            }
+        } catch (error) {
+            console.error("Error fetching links:", error);
         if (!cancelled) {
           setSwapEnabled(true);
         }
@@ -86,7 +86,7 @@ const Swap = () => {
     };
   }, [navigate]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!userId) {
       setIsLoading(false);
       return undefined;
@@ -145,7 +145,7 @@ const Swap = () => {
         if (!cancelled) {
           toast.error(error?.message || "Unable to load wallet");
         }
-      } finally {
+        } finally {
         if (!cancelled) {
           setIsLoading(false);
         }
@@ -201,16 +201,16 @@ const Swap = () => {
     if (!swapCoins.length) {
       setFromCoin(null);
       setToCoin(null);
-      return;
+                return;
     }
 
     if (swapCoins.length === 1) {
       setFromCoin(swapCoins[0]);
       setToCoin(null);
-      setInputValue("");
+            setInputValue("");
       setOutputValue("");
-      return;
-    }
+            return;
+        }
 
     if (fromCoin) return;
 
@@ -300,8 +300,8 @@ const Swap = () => {
           setToCoin(pickAlternateCoin(swapCoins, coin.trxName));
         } else if (!toCoin) {
           setToCoin(pickAlternateCoin(swapCoins, coin.trxName));
-        }
-      } else {
+            }
+        } else {
         setToCoin(null);
       }
     } else if (swapAvailable) {
@@ -311,7 +311,7 @@ const Swap = () => {
       }
     }
 
-    setInputValue("");
+        setInputValue("");
     setOutputValue("");
     setPickerMode(null);
   };
@@ -346,7 +346,7 @@ const Swap = () => {
     !isCalculating &&
     !isSubmitting;
 
-  const postUserTransaction = async () => {
+    const postUserTransaction = async () => {
     if (!canSwap) return;
 
     setIsSubmitting(true);
@@ -384,8 +384,8 @@ const Swap = () => {
       };
 
       const [withdrawResult, depositResult] = await Promise.all([
-        createUserTransactionWithdrawSwapApi(id, bodyWithdraw),
-        createUserTransactionDepositSwapApi(id, bodyDeposit),
+                    createUserTransactionWithdrawSwapApi(id, bodyWithdraw),
+                    createUserTransactionDepositSwapApi(id, bodyDeposit),
       ]);
 
       if (depositResult.success) {
@@ -396,7 +396,7 @@ const Swap = () => {
       }
     } catch (error) {
       toast.error(error?.message || "Swap failed");
-    } finally {
+        } finally {
       setIsSubmitting(false);
     }
   };
@@ -418,8 +418,8 @@ const Swap = () => {
 
   const showSwapForm = hasFromCoin;
 
-  return (
-    <>
+    return (
+        <>
       <div className={styles.page}>
         <button type="button" className={styles.backBtn} onClick={() => navigate("/assets")}>
           ← Back to assets
@@ -504,12 +504,12 @@ const Swap = () => {
 
                 <div className={styles.amountCol}>
                   <input
-                    type="text"
+                                                        type="text"
                     inputMode="decimal"
                     className={styles.amountInput}
                     placeholder="0"
-                    value={inputValue}
-                    onChange={handleInputChange}
+                                                        value={inputValue}
+                                                        onChange={handleInputChange}
                     disabled={!swapAvailable}
                   />
                   <span className={styles.fiatEstimate}>
@@ -517,13 +517,13 @@ const Swap = () => {
                       ? formatFiatEstimate(inputValue, fromCoin.price, userCurrency)
                       : "—"}
                   </span>
+                            </div>
                 </div>
-              </div>
             </div>
 
             <div className={styles.flipRow}>
               <span className={styles.flipLine} aria-hidden="true" />
-              <button
+                            <button
                 type="button"
                 className={`${styles.flipBtn} ${!swapAvailable ? styles.flipBtnDisabled : ""}`}
                 onClick={handleFlip}
@@ -531,7 +531,7 @@ const Swap = () => {
                 aria-label="Swap direction"
               >
                 ⇄
-              </button>
+                            </button>
               <span className={styles.flipLine} aria-hidden="true" />
             </div>
 
@@ -551,7 +551,7 @@ const Swap = () => {
 
               {toCoin ? (
                 <div className={styles.blockBody}>
-                  <button
+                            <button
                     type="button"
                     className={styles.coinBtn}
                     onClick={() => setPickerMode("to")}
@@ -568,7 +568,7 @@ const Swap = () => {
                       <small>{toCoin.symbol}</small>
                     </span>
                     <span className={styles.chevron} aria-hidden="true">›</span>
-                  </button>
+                            </button>
 
                   <div className={styles.amountCol}>
                     <input
@@ -580,9 +580,9 @@ const Swap = () => {
                     />
                     <span className={styles.fiatEstimate}>
                       {formatFiatEstimate(outputValue, toCoin.price, userCurrency)}
-                    </span>
-                  </div>
-                </div>
+                            </span>
+                            </div>
+                        </div>
               ) : (
                 <div className={styles.toPlaceholder}>
                   <div className={styles.blockBody}>
@@ -591,22 +591,22 @@ const Swap = () => {
                       <div className={styles.placeholderCoinMeta}>
                         <strong>Destination coin</strong>
                         <small>Waiting for another active wallet</small>
-                      </div>
-                    </div>
+                                            </div>
+                                        </div>
                     <div className={styles.amountCol}>
                       <span className={styles.placeholderAmount}>—</span>
                       <span className={styles.placeholderFiat}>—</span>
                     </div>
-                  </div>
-                </div>
+                                            </div>
+                                        </div>
               )}
             </div>
 
             {swapAvailable && toCoin ? (
               <div className={styles.rateBar}>
-                <span>
+                                                <span>
                   Rate: <strong>1 {fromCoin.symbol} ≈ {expectedRate} {toCoin.symbol}</strong>
-                </span>
+                                                </span>
                 <span className={styles.rateBadge}>No extra fees</span>
               </div>
             ) : (
@@ -627,10 +627,10 @@ const Swap = () => {
                   ? `Swap ${fromCoin.symbol} for ${toCoin.symbol}`
                   : "Activate another wallet to swap"}
             </button>
-          </div>
+                            </div>
         </section>
         )}
-      </div>
+                        </div>
 
       {showSwapForm && (
       <>
@@ -654,7 +654,7 @@ const Swap = () => {
       </>
       )}
     </>
-  );
+    );
 };
 
 export default Swap;

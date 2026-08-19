@@ -15,6 +15,7 @@ import {
   isFiatCoin,
   isFiatNativeMatchingUserCurrency,
 } from "../../../../utils/euroCoinUtils";
+import { formatBankPaymentOptionLabel } from "./paymentDisplayUtils";
 
 const AvailableBalance = ({ label, amount, onSelect }) => (
   <p
@@ -281,9 +282,16 @@ const AssetWithdrawModals = ({
                       <option>Select a Payment Method</option>
                       {isUser?.payments?.length > 0 ? (
                         isUser.payments.map((item, index) => (
-                          <option key={index}>
+                          <option
+                            key={index}
+                            value={
+                              item.type === "bank"
+                                ? item.bank.accountName
+                                : `${item.card.cardCategory.toUpperCase()} *${item.card.cardNumber.slice(-4)}`
+                            }
+                          >
                             {item.type === "bank"
-                              ? item.bank.accountName
+                              ? formatBankPaymentOptionLabel(item.bank)
                               : `${item.card.cardCategory.toUpperCase()} *${item.card.cardNumber.slice(-4)}`}
                           </option>
                         ))

@@ -11,6 +11,7 @@ import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
 import './style.css'
 import Truncate from 'react-truncate-inside/es';
+import { formatBankPaymentOptionLabel } from './assets/paymentDisplayUtils';
 
 import EuroAccountUserCard, { hasCompleteEuroBankAccount } from '../../components/EuroAccountUserCard';
 
@@ -1537,9 +1538,16 @@ const Orders = () => {
                                                 {
                                                     isUser && isUser.payments && isUser.payments.length > 0 ? (
                                                         isUser.payments.map((item, index) => (
-                                                            <option key={index}>
+                                                            <option
+                                                                key={index}
+                                                                value={
+                                                                    item.type === "bank"
+                                                                        ? item.bank.accountName
+                                                                        : `${item.card.cardCategory.toUpperCase()} *${item.card.cardNumber.slice(-4)}`
+                                                                }
+                                                            >
                                                                 {item.type === "bank" ? (
-                                                                    item.bank.accountName
+                                                                    formatBankPaymentOptionLabel(item.bank)
                                                                 ) : (
                                                                     <>
                                                                         <span className="text-uppercase">

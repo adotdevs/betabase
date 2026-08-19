@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { LandingContainer } from '../BasicLandingElements';
 import { landingGreenColor } from '../BasicLandingElements';
@@ -11,6 +12,11 @@ import FCA from '../../../../../assets/f4.png';
 const Footer = () => (
   <LandingFooter>
     <LandingContainer>
+      <FooterNav>
+        <Link to="/help/">Help Center</Link>
+        <Link to="/tax-assessment-questionnaire">Tax Assessment Questionnaire</Link>
+      </FooterNav>
+
       <FooterInfo>
         <FooterInfoBlock style={{ flexDirection: 'column', alignItems: 'flex-start', width: "30%" }}>
           <div><img src={LogoNew} alt="betabase Logo" style={{ height: '80px' }} /> </div>
@@ -29,8 +35,8 @@ const Footer = () => (
         </FooterInfoBlock>
 
       </FooterInfo>
+
       <CaptionBlock>
-        <p><a href="/help/">Help Center</a></p>
         <p>Copyright ©2025 Betabase. All rights reserved.</p>
       </CaptionBlock>
     </LandingContainer>
@@ -145,6 +151,34 @@ width: 100%;
    
 `;
 
+const FooterNav = styled.nav`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 28px;
+  width: 100%;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #454554;
+
+  a {
+    color: #dddddd;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: ${landingGreenColor};
+    }
+  }
+
+  @media screen and (min-width: 576px) {
+    justify-content: flex-start;
+    gap: 16px 32px;
+  }
+`;
+
 const CaptionBlock = styled.div`
   opacity: 0.6;
   font-weight: 400;
@@ -152,6 +186,10 @@ const CaptionBlock = styled.div`
   line-height: 20px;
   width: 100%;
   text-align: center;
+
+  @media screen and (min-width: 576px) {
+    text-align: right;
+  }
 
   a {
     color: #DDDDDD;
