@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Menu from "../Landing/components/Menu";
 import Footer from "../Landing/components/Footer";
@@ -107,6 +107,10 @@ const YesNoField = ({ label, name, section, value, onChange, required = false })
 );
 
 const TaxAssessmentQuestionnaire = () => {
+  const [searchParams] = useSearchParams();
+  const fromDashboard = searchParams.get("from") === "dashboard";
+  const backTo = fromDashboard ? "/dashboard" : "/";
+  const backLabel = fromDashboard ? "Back to dashboard" : "Back to homepage";
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -201,9 +205,12 @@ const TaxAssessmentQuestionnaire = () => {
 
   return (
     <div className={styles.page}>
-      <Menu hideSectionNav />
+      <Menu hideSectionNav showDashboard={fromDashboard} />
       <div className={styles.container}>
         <div className={styles.hero}>
+          <Link to={backTo} className={styles.backLink}>
+            ← {backLabel}
+          </Link>
           <h1>Client Tax Assessment Questionnaire</h1>
           <p>
             Please complete the fields below. If needed, attach additional pages and
@@ -217,8 +224,8 @@ const TaxAssessmentQuestionnaire = () => {
               <h2>Thank you</h2>
               <p>Your tax assessment questionnaire has been submitted successfully.</p>
               <p style={{ marginTop: 16 }}>
-                <Link to="/" style={{ color: "#53C8B7" }}>
-                  Return to homepage
+                <Link to={backTo} className={styles.submitBtn} style={{ display: "inline-block", width: "auto", textDecoration: "none" }}>
+                  {fromDashboard ? "Back to dashboard" : "Return to homepage"}
                 </Link>
               </p>
             </div>

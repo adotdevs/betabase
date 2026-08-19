@@ -43,8 +43,8 @@ const SideBar = () => {
   useEffect(() => {
     const currentPath = location.pathname;
     MenuList.forEach((item) => {
-      // Check if path starts with the item's route (e.g., /transactions or /transactions/:id)
-      if (!item.external && currentPath.startsWith(item.to)) {
+      const itemPath = String(item.to || "").split("?")[0];
+      if (!item.external && itemPath && currentPath.startsWith(itemPath)) {
         setState({ active: item.title });
       }
     });
@@ -95,7 +95,7 @@ const SideBar = () => {
                 key={index}
                 className={
                   state.active === item.title ||
-                    (!item.external && location.pathname.startsWith(item.to)) ? "mm-active" : ""
+                    (!item.external && location.pathname.startsWith(String(item.to || "").split("?")[0])) ? "mm-active" : ""
                 }
               >
                 {item.external ? (

@@ -391,6 +391,19 @@ const useMenuList = () => {
             ]
             : [])
         ,
+        {
+            title: 'Help Center',
+            classsChange: 'mm-active',
+            to: '/help/',
+            external: true,
+            iconStyle: <i className="material-symbols-outlined">help</i>,
+        },
+        {
+            title: 'Tax Assessment',
+            classsChange: 'mm-active',
+            to: '/tax-assessment-questionnaire?from=dashboard',
+            iconStyle: <i className="material-symbols-outlined">assignment</i>,
+        },
     ];
 
     return filterMenuItems(menuItems);

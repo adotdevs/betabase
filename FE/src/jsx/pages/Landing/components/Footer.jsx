@@ -18,7 +18,7 @@ const Footer = () => (
           </p>
         </FooterInfoBlock>
         <FooterInfoBlock>
-          <p><a href="mailto:support@betabase.io">support@betabase.io</a></p>
+          <p><a href="mailto:support@betabase.pro">support@betabase.pro</a></p>
         </FooterInfoBlock>
       </FooterInfo>
       <CaptionBlock>

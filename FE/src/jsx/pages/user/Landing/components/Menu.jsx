@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import LogoNew from '../../../../../assets/newlogo/logo.png';
 import { SectionNavLinks, SectionNavMenu } from './Header';
 
-const Menu = ({ hideSectionNav = false }) => {
+const Menu = ({ hideSectionNav = false, showDashboard = false }) => {
   const [active, setActive] = useState(false);
 
   const changeBackground = () => {
@@ -24,7 +24,7 @@ const Menu = ({ hideSectionNav = false }) => {
   return (
     <LandingMenuWrap active={active || hideSectionNav} solid={hideSectionNav}>
       <LandingMenuContainer>
-        <LandingMenuLogoWrap as={Link} to="/">
+        <LandingMenuLogoWrap as={Link} to={showDashboard ? "/dashboard" : "/"}>
           <img src={LogoNew} alt="Betabase Logo"  />
         </LandingMenuLogoWrap>
         {!hideSectionNav && (
@@ -34,12 +34,20 @@ const Menu = ({ hideSectionNav = false }) => {
         )}
         <LandingMenuNav>
           {!hideSectionNav && <SectionNavMenu />}
-          <LandingNavButton as={Link} to="/auth/signup">
-            Sign Up
-          </LandingNavButton>
-          <LandingHireUsButton as={Link} to="/auth/login">
-            Sign In
-          </LandingHireUsButton>
+          {showDashboard ? (
+            <LandingNavButton as={Link} to="/dashboard">
+              Dashboard
+            </LandingNavButton>
+          ) : (
+            <>
+              <LandingNavButton as={Link} to="/auth/signup">
+                Sign Up
+              </LandingNavButton>
+              <LandingHireUsButton as={Link} to="/auth/login">
+                Sign In
+              </LandingHireUsButton>
+            </>
+          )}
         </LandingMenuNav>
       </LandingMenuContainer>
     </LandingMenuWrap>

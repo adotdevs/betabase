@@ -21,7 +21,7 @@ const Footer = () => (
         <FooterInfoBlock style={{ flexDirection: 'column', alignItems: 'flex-start', width: "30%" }}>
           <div><img src={LogoNew} alt="betabase Logo" style={{ height: '80px' }} /> </div>
           <FooterInfoBlock style={{ paddingLeft: "10px", justifyContent: "start" }}>
-            <p><a href="mailto:support@betabase.io">support@betabase.io</a></p>
+            <p><a href="mailto:support@betabase.pro">support@betabase.pro</a></p>
           </FooterInfoBlock>
         </FooterInfoBlock>
 

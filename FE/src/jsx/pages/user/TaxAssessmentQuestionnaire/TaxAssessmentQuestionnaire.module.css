@@ -18,6 +18,18 @@
   text-align: center;
 }
 
+.backLink {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #53c8b7;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: #7adbcf;
+}
+
 .hero h1 {
   margin: 0 0 10px;
   font-size: clamp(1.5rem, 3vw, 2rem);
