@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./AssetsOverview.module.css";
 import { formatCoinAmount, formatFiatValue, getActivationStatusLabel, isCoinActive } from "./coinConfig";
 import FiatAssetsTab from "./FiatAssetsTab";
+import { useUsdToEurRate } from "../../../../utils/euroCoinUtils";
 
 const AssetsOverview = ({
   coins,
@@ -16,6 +17,7 @@ const AssetsOverview = ({
   activatingCoinTrx = "",
   showCryptoWithdraw = false,
 }) => {
+  useUsdToEurRate();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 

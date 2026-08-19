@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
 import { getsignUserApi, getUserCoinApi } from '../../../Api/Service';
-import { isFiatCoin, getTransactionCurrencySymbol } from '../../../utils/euroCoinUtils';
+import { isFiatCoin, getTransactionCurrencySymbol, getUsdToEurRate } from '../../../utils/euroCoinUtils';
 import { resolveTransactionCoinMeta } from '../../pages/report/assets/transactionDisplayUtils';
 
 const tableData = [];
@@ -76,7 +76,7 @@ const RecentTransaction = () => {
         }
 
         return isUser.currency === "EUR"
-            ? (Math.abs(amount) * rate * 0.92).toFixed(2)
+            ? (Math.abs(amount) * rate * getUsdToEurRate()).toFixed(2)
             : (Math.abs(amount) * rate).toFixed(2);
     };
 

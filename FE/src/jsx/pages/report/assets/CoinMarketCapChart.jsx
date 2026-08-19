@@ -12,6 +12,7 @@ import {
 import { Line } from "react-chartjs-2";
 import styles from "./CoinMarketCapChart.module.css";
 import { getCoinGeckoId } from "./coinConfig";
+import { convertUsdToUserCurrencyAmount, getUserDisplaySymbol, useUsdToEurRate } from "../../../../utils/euroCoinUtils";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
@@ -27,7 +28,8 @@ const samplePrices = (points, maxPoints = 72) => {
   return points.filter((_, index) => index % step === 0 || index === points.length - 1);
 };
 
-const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
+const CoinMarketCapChart = ({ slug, symbol, cmcId, currency = "USD" }) => {
+  useUsdToEurRate();
   const [days, setDays] = useState(30);
   const [prices, setPrices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,9 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
       ),
       datasets: [
         {
-          data: sampled.map(([, price]) => price),
+          data: sampled.map(([, price]) =>
+            convertUsdToUserCurrencyAmount(price, currency)
+          ),
           borderColor: "#5b8def",
           backgroundColor: "rgba(91, 141, 239, 0.14)",
           borderWidth: 2,
@@ -107,7 +111,9 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
         },
       ],
     };
-  }, [prices]);
+  }, [prices, currency]);
+
+  const currencySymbol = getUserDisplaySymbol(currency);
 
   const chartOptions = useMemo(
     () => ({
@@ -126,7 +132,8 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
           titleColor: "#e2e8f0",
           bodyColor: "#93c5fd",
           callbacks: {
-            label: (context) => `$${Number(context.parsed.y).toFixed(2)}`,
+            label: (context) =>
+              `${currencySymbol}${Number(context.parsed.y).toFixed(2)}`,
           },
         },
       },
@@ -145,7 +152,8 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
           ticks: {
             color: "#64748b",
             font: { size: 10 },
-            callback: (value) => `$${Number(value).toLocaleString()}`,
+            callback: (value) =>
+              `${currencySymbol}${Number(value).toLocaleString()}`,
           },
           grid: {
             color: "rgba(255, 255, 255, 0.06)",
@@ -153,7 +161,7 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId }) => {
         },
       },
     }),
-    []
+    [currencySymbol]
   );
 
   if (!geckoId && !cmcId) {

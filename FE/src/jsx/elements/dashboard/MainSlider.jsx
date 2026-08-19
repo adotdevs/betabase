@@ -7,6 +7,7 @@ import { useAuthUser } from 'react-auth-kit';
 import { getsignUserApi } from '../../../Api/Service';
 import { toast } from 'react-toastify';
 import styles from './MainSlider.module.css';
+import { getUserDisplaySymbol } from '../../../utils/euroCoinUtils';
 
 const COIN_META = {
     bitcoin: { name: 'Bitcoin', chartcolor: 'rgba(247, 215, 168, 1)' },
@@ -59,12 +60,16 @@ const MainSlider = () => {
 
     useEffect(() => {
         getsignUser();
+    }, []);
+
+    useEffect(() => {
+        const vsCurrency = isUser?.currency === 'EUR' ? 'eur' : 'usd';
 
         const fetchCryptoPrices = async () => {
             try {
                 const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
                     params: {
-                        vs_currency: 'usd',
+                        vs_currency: vsCurrency,
                         ids: COIN_ORDER.join(','),
                         order: 'market_cap_desc',
                         per_page: COIN_ORDER.length,
@@ -94,23 +99,22 @@ const MainSlider = () => {
         fetchCryptoPrices();
         const interval = setInterval(fetchCryptoPrices, 60000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isUser?.currency]);
 
-    const formatDisplayPrice = (amount, user, eurConversionRate = 0.92) => {
+    const formatDisplayPrice = (amount, user) => {
         const raw = Number(amount) || 0;
-        const isEur = user?.currency === 'EUR';
-        const converted = isEur ? raw * eurConversionRate : raw;
+        const symbol = getUserDisplaySymbol(user?.currency);
 
-        if (converted >= 10000) {
+        if (raw >= 10000) {
             return {
-                symbol: isEur ? '€' : '$',
-                value: Math.round(converted).toLocaleString(undefined, { maximumFractionDigits: 0 }),
+                symbol,
+                value: Math.round(raw).toLocaleString(undefined, { maximumFractionDigits: 0 }),
             };
         }
 
         return {
-            symbol: isEur ? '€' : '$',
-            value: converted.toLocaleString(undefined, {
+            symbol,
+            value: raw.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
             }),

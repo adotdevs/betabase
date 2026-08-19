@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
 import { getsignUserApi, getUserCoinApi } from "../../../Api/Service";
-import { isFiatCoin, USD_TO_EUR_RATE, convertFiatToUserCurrency, getUserDisplayCurrency } from "../../../utils/euroCoinUtils";
+import { isFiatCoin, getUsdToEurRate, convertFiatToUserCurrency, getUserDisplayCurrency, useUsdToEurRate } from "../../../utils/euroCoinUtils";
 import { Spinner } from "react-bootstrap";
 import styles from "./TransactionSec.module.css";
 import TransactionDetailModal from "./assets/TransactionDetailModal";
@@ -52,6 +52,7 @@ const CoinIcon = ({ meta }) => (
 );
 
 const TransactionSec = () => {
+    useUsdToEurRate();
     const [isLoading, setisLoading] = useState(true);
     const [UserTransactions, setUserTransactions] = useState([]);
   const [singleTransaction, setsingleTransaction] = useState(null);
@@ -163,7 +164,7 @@ const TransactionSec = () => {
         let value = Math.abs(parseFloat(transaction.amount)) * price;
 
         if (isUser.currency === "EUR") {
-      value *= USD_TO_EUR_RATE;
+      value *= getUsdToEurRate();
         }
 
         return value.toFixed(2);

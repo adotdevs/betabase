@@ -1,11 +1,119 @@
+import { useEffect, useState } from "react";
 import EurIco from "../assets/images/new/euro.svg";
 import DollarIco from "../assets/images/new/dollar.svg";
 import ChfIco from "../assets/images/new/chf.svg";
 import DkkIco from "../assets/images/new/dkk.svg";
 
-/** USD ↔ EUR rates used elsewhere in the app for crypto conversion */
-export const USD_TO_EUR_RATE = 0.92;
-export const EUR_TO_USD_RATE = 1 / USD_TO_EUR_RATE;
+const FALLBACK_USD_TO_EUR = 0.92;
+let liveUsdToEurRate = FALLBACK_USD_TO_EUR;
+const fxListeners = new Set();
+let fxInflight = null;
+let fxFetchedAt = 0;
+const FX_TTL_MS = 60_000;
+
+const isPlausibleLiveRate = (rate) => {
+  const n = Number(rate);
+  return Number.isFinite(n) && n > 0.7 && n < 1.1 && Math.abs(n - FALLBACK_USD_TO_EUR) > 0.002;
+};
+
+const notifyFxListeners = () => {
+  fxListeners.forEach((listener) => listener(liveUsdToEurRate));
+};
+
+export const getUsdToEurRate = () => liveUsdToEurRate;
+export const getEurToUsdRate = () => 1 / liveUsdToEurRate;
+
+export const setUsdToEurRate = (rate) => {
+  const next = Number(rate);
+  if (!isPlausibleLiveRate(next) && Math.abs(next - FALLBACK_USD_TO_EUR) > 0.0001) {
+    return;
+  }
+  if (!isPlausibleLiveRate(next)) return;
+  if (Math.abs(next - liveUsdToEurRate) < 0.00001) return;
+  liveUsdToEurRate = next;
+  notifyFxListeners();
+};
+
+export const subscribeUsdToEurRate = (listener) => {
+  fxListeners.add(listener);
+  listener(liveUsdToEurRate);
+  return () => fxListeners.delete(listener);
+};
+
+export const useUsdToEurRate = () => {
+  const [rate, setRate] = useState(liveUsdToEurRate);
+  useEffect(() => subscribeUsdToEurRate(setRate), []);
+  useEffect(() => {
+    refreshLiveUsdToEurRate();
+  }, []);
+  return rate;
+};
+
+export const refreshLiveUsdToEurRate = async () => {
+  if (fxInflight) return fxInflight;
+  if (Date.now() - fxFetchedAt < FX_TTL_MS && isPlausibleLiveRate(liveUsdToEurRate)) {
+    return liveUsdToEurRate;
+  }
+
+  fxInflight = (async () => {
+    try {
+      const response = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur"
+      );
+      const data = await response.json();
+      const usd = Number(data?.bitcoin?.usd);
+      const eur = Number(data?.bitcoin?.eur);
+      if (usd > 0 && eur > 0) {
+        setUsdToEurRate(eur / usd);
+        fxFetchedAt = Date.now();
+        return liveUsdToEurRate;
+      }
+    } catch (_) {
+      // try ECB next
+    }
+
+    try {
+      const response = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR");
+      const data = await response.json();
+      const rate = Number(data?.rates?.EUR);
+      if (isPlausibleLiveRate(rate)) {
+        setUsdToEurRate(rate);
+        fxFetchedAt = Date.now();
+        return liveUsdToEurRate;
+      }
+    } catch (_) {
+      // keep current rate
+    }
+
+    return liveUsdToEurRate;
+  })().finally(() => {
+    fxInflight = null;
+  });
+
+  return fxInflight;
+};
+
+/** Apply live USD→EUR from CoinMarketCap payload (`usdToEurRate` or BTC quotes). */
+export const applyLiveFxFromPricePayload = (payload) => {
+  if (!payload || typeof payload !== "object") return;
+
+  const usd = Number(payload.btcPrice?.quote?.USD?.price);
+  const eur = Number(payload.btcPrice?.quote?.EUR?.price);
+  if (usd > 0 && eur > 0) {
+    setUsdToEurRate(eur / usd);
+  }
+
+  const direct = Number(payload.usdToEurRate);
+  if (isPlausibleLiveRate(direct)) {
+    setUsdToEurRate(direct);
+  }
+
+  refreshLiveUsdToEurRate();
+};
+
+/** @deprecated use getUsdToEurRate() — kept as the fallback constant */
+export const USD_TO_EUR_RATE = FALLBACK_USD_TO_EUR;
+export const EUR_TO_USD_RATE = 1 / FALLBACK_USD_TO_EUR;
 /** Approximate fiat ↔ USD for portfolio totals (1 unit → USD) */
 export const CHF_TO_USD_RATE = 1.12;
 export const USD_TO_CHF_RATE = 1 / CHF_TO_USD_RATE;
@@ -105,6 +213,16 @@ export const isDkkFiatCoin = (name) => {
 
 export const isFiatCoin = (name) => Boolean(getFiatCurrencyByName(name));
 
+export const getFiatUsdRate = (fiatOrKey) => {
+  const fiat =
+    typeof fiatOrKey === "string"
+      ? getFiatCurrencyByKey(fiatOrKey) || getFiatCurrencyByName(fiatOrKey)
+      : fiatOrKey;
+  if (!fiat) return 1;
+  if (fiat.key === "euro") return getEurToUsdRate();
+  return fiat.usdRate;
+};
+
 /** Fiat coins tracked as additionalCoins but hidden from user crypto portfolio */
 export const isFiatCoinHiddenFromCrypto = (coinName) => isFiatCoin(coinName);
 
@@ -135,7 +253,7 @@ export const buildFiatAmountsFromTransactions = (transactions, status = "complet
 export const sumFiatAmountsToUsd = (fiatAmounts = {}) =>
   FIAT_CURRENCIES.reduce((total, fiat) => {
     const amount = Number(fiatAmounts[fiat.amountKey] ?? 0) || 0;
-    return total + amount * fiat.usdRate;
+    return total + amount * getFiatUsdRate(fiat);
   }, 0);
 
 /** @deprecated use sumFiatCoinAmount(transactions, 'euro', status) */
@@ -170,7 +288,7 @@ export const combinePortfolioTotal = (
     typeof fiatAmountsOrEuro === "number" ||
     typeof fiatAmountsOrEuro === "string"
   ) {
-    fiatUsdTotal = (Number(fiatAmountsOrEuro) || 0) * EUR_TO_USD_RATE;
+    fiatUsdTotal = (Number(fiatAmountsOrEuro) || 0) * getEurToUsdRate();
     displayCurrency = userCurrency;
   } else {
     fiatUsdTotal = sumFiatAmountsToUsd(fiatAmountsOrEuro);
@@ -178,7 +296,7 @@ export const combinePortfolioTotal = (
   }
 
   if (String(displayCurrency).toUpperCase() === "EUR") {
-    return cryptoTotal * USD_TO_EUR_RATE + fiatUsdTotal * USD_TO_EUR_RATE;
+    return cryptoTotal * getUsdToEurRate() + fiatUsdTotal * getUsdToEurRate();
   }
 
   return cryptoTotal + fiatUsdTotal;
@@ -209,7 +327,7 @@ export const convertCryptoToUserCurrency = (amount, rate, userCurrency = "USD") 
   const value = Math.abs(Number(amount) || 0) * (Number(rate) || 0);
 
   if (String(userCurrency).toUpperCase() === "EUR") {
-    return (value * USD_TO_EUR_RATE).toFixed(2);
+    return (value * getUsdToEurRate()).toFixed(2);
   }
 
   return value.toFixed(2);
@@ -217,6 +335,15 @@ export const convertCryptoToUserCurrency = (amount, rate, userCurrency = "USD") 
 
 export const getUserDisplayCurrency = (userCurrency = "USD") =>
   String(userCurrency || "USD").toUpperCase() === "EUR" ? "EUR" : "USD";
+
+/** Convert a USD amount into the user's display currency */
+export const convertUsdToUserCurrencyAmount = (usdAmount, userCurrency = "USD") => {
+  const value = Number(usdAmount) || 0;
+  if (getUserDisplayCurrency(userCurrency) === "EUR") {
+    return value * getUsdToEurRate();
+  }
+  return value;
+};
 
 export const getUserDisplaySymbol = (userCurrency = "USD") =>
   getUserDisplayCurrency(userCurrency) === "EUR" ? "€" : "$";
@@ -235,16 +362,13 @@ export const fiatAmountToUsd = (amount, fiatKeyOrName) => {
   const fiat = getFiatCurrencyByKey(fiatKeyOrName) || getFiatCurrencyByName(fiatKeyOrName);
   const nativeAmount = Math.abs(Number(amount) || 0);
   if (!fiat) return nativeAmount;
-  return nativeAmount * fiat.usdRate;
+  return nativeAmount * getFiatUsdRate(fiat);
 };
 
 /** Convert native fiat amount to the user's display currency (EUR or USD) */
 export const convertFiatToUserCurrency = (amount, fiatKeyOrName, userCurrency = "USD") => {
   const usdValue = fiatAmountToUsd(amount, fiatKeyOrName);
-  if (getUserDisplayCurrency(userCurrency) === "EUR") {
-    return usdValue * USD_TO_EUR_RATE;
-  }
-  return usdValue;
+  return convertUsdToUserCurrencyAmount(usdValue, userCurrency);
 };
 
 /** Fiat balance with native label plus EUR/USD equivalent when different */

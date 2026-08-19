@@ -24,8 +24,10 @@ import {
   getTransactionsForCoin,
   pickAlternateCoin,
 } from "./swap/swapUtils";
+import { useUsdToEurRate } from "../../../utils/euroCoinUtils";
 
 const Swap = () => {
+  useUsdToEurRate();
     const authUser = useAuthUser();
   const navigate = useNavigate();
   const location = useLocation();

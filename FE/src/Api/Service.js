@@ -10,6 +10,13 @@ import {
   putSimpleApi
 } from "./axiosService";
 import { baseUrl } from "../utils/Constant";
+import { applyLiveFxFromPricePayload } from "../utils/euroCoinUtils";
+
+const withLiveFx = async (request) => {
+  const data = await request;
+  applyLiveFxFromPricePayload(data);
+  return data;
+};
 
 export const registerApi = (data) => {
   return postApi("register", data);
@@ -41,7 +48,7 @@ export const allUsersApi = (params = {}) => {
   return getApi(`allUser${queryString ? `?${queryString}` : ''}`, {});
 };
 export const getCoinsUserApi = (id) => {
-  return getApi(`getCoinsUser/${id}`);
+  return withLiveFx(getApi(`getCoinsUser/${id}`));
 };
 export const signleUsersApi = (id) => {
   return getApi(`singleUser/${id}`);
@@ -87,7 +94,7 @@ export const bypassSingleUserApi = (id) => {
   return patchApi(`bypassSingleUser/${id}`);
 };
 export const getCoinsApi = (id) => {
-  return getApi(`getCoins/${id}`);
+  return withLiveFx(getApi(`getCoins/${id}`));
 };
 
 export const patchCoinsApi = (id) => {
@@ -131,7 +138,7 @@ export const getEachUserApi = (id, data) => {
   return getApi(`getEachUser/${id}`, data);
 };
 export const getUserCoinApi = (id, data) => {
-  return getApi(`getUserCoin/${id}`, data);
+  return withLiveFx(getApi(`getUserCoin/${id}`, data));
 };
 export const updateNotificationStatusApi = (id, status) => {
   return getApi(`updateNotificationStatus/${id}/${status}`);

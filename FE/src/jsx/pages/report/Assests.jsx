@@ -9,7 +9,7 @@ import styles from './Assests.module.css';
 import AssetsOverview from './assets/AssetsOverview';
 import CoinDetail from './assets/CoinDetail';
 import { buildPortfolioCoins, findCoinBySlug, getTransactionsForCoin } from './assets/coinConfig';
-import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency } from '../../../utils/euroCoinUtils';
+import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency, getUsdToEurRate } from '../../../utils/euroCoinUtils';
 import { formatBankPaymentOptionLabel } from './assets/paymentDisplayUtils';
 
 const getCoinPrice = (coinSymbol, livePrices = {}) => {
@@ -1259,7 +1259,7 @@ const Orders = () => {
                                                     {(() => {
                                                         const amountInUSD = transactionDetail.amountMinus * liveBtc;
                                                         if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
                                                             return `${amountInEUR.toFixed(2)} EUR`;
                                                         } else {
                                                             return `${amountInUSD.toFixed(2)} USD`;
@@ -1273,7 +1273,7 @@ const Orders = () => {
                                                     {(() => {
                                                         const amountInUSD = transactionDetail.amountMinus * (liveEth || 2640);
                                                         if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
                                                             return `${amountInEUR.toFixed(2)} EUR`;
                                                         } else {
                                                             return `${amountInUSD.toFixed(2)} USD`;
@@ -1287,7 +1287,7 @@ const Orders = () => {
                                                     {(() => {
                                                         const amountInUSD = transactionDetail.amountMinus * 1;
                                                         if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
                                                             return `${amountInEUR.toFixed(2)} EUR`;
                                                         } else {
                                                             return `${amountInUSD.toFixed(2)} USD`;
@@ -1319,7 +1319,7 @@ const Orders = () => {
                                                         const amountInUSD =
                                                             transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol);
                                                         if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * 0.92;
+                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
                                                             return `${amountInEUR.toFixed(2)} EUR`;
                                                         } else {
                                                             return `${amountInUSD.toFixed(2)} USD`;

@@ -11,7 +11,7 @@ import Coin6 from "../../../../assets/images/new/6.png";
 import Coin7 from "../../../../assets/images/new/7.png";
 import Coin8 from "../../../../assets/images/new/8.png";
 import SolIco from "../../../../assets/images/new/solana.png";
-import { isFiatCoinHiddenFromCrypto } from "../../../../utils/euroCoinUtils";
+import { isFiatCoinHiddenFromCrypto, convertUsdToUserCurrencyAmount, getUserDisplayCurrency } from "../../../../utils/euroCoinUtils";
 
 export const coinLogos = {
   bnb: BNBcoin,
@@ -172,10 +172,8 @@ export const getTransactionsForCoin = (coinSymbol, transactions = []) => {
 export const formatFiatValue = (amountUsd, currency = "USD") => {
   const num = Number(amountUsd);
   const safe = Number.isFinite(num) ? num : 0;
-  if (currency === "EUR") {
-    return `${(safe * 0.92).toFixed(2)} EUR`;
-  }
-  return `${safe.toFixed(2)} USD`;
+  const converted = convertUsdToUserCurrencyAmount(safe, currency);
+  return `${converted.toFixed(2)} ${getUserDisplayCurrency(currency)}`;
 };
 
 export const formatCoinAmount = (value) => {

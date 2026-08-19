@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import {
   convertFiatToUserCurrency,
+  convertUsdToUserCurrencyAmount,
   getFiatCurrencyByKey,
   getUserDisplayCurrency,
   isFiatCoin,
@@ -134,10 +135,7 @@ const AssetWithdrawModals = ({
   const renderTotalAmount = () => {
     if (depositName === "bitcoin") {
       const amountInUSD = transactionDetail.amountMinus * liveBtc;
-      const converted =
-        isUser?.currency === "EUR"
-          ? `${(amountInUSD * 0.92).toFixed(2)} EUR`
-          : `${amountInUSD.toFixed(2)} USD`;
+      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
       return (
         <span>
           BTC {transactionDetail.amountMinus} (${converted})
@@ -146,10 +144,7 @@ const AssetWithdrawModals = ({
     }
     if (depositName === "ethereum") {
       const amountInUSD = transactionDetail.amountMinus * (liveEth || 2640);
-      const converted =
-        isUser?.currency === "EUR"
-          ? `${(amountInUSD * 0.92).toFixed(2)} EUR`
-          : `${amountInUSD.toFixed(2)} USD`;
+      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
       return (
         <span>
           ETH {transactionDetail.amountMinus} (${converted})
@@ -158,10 +153,7 @@ const AssetWithdrawModals = ({
     }
     if (depositName === "tether") {
       const amountInUSD = transactionDetail.amountMinus * 1;
-      const converted =
-        isUser?.currency === "EUR"
-          ? `${(amountInUSD * 0.92).toFixed(2)} EUR`
-          : `${amountInUSD.toFixed(2)} USD`;
+      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
       return (
         <span>
           USDT {transactionDetail.amountMinus} (${converted})
@@ -190,10 +182,7 @@ const AssetWithdrawModals = ({
     }
     const amountInUSD =
       transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol);
-    const converted =
-      isUser?.currency === "EUR"
-        ? `${(amountInUSD * 0.92).toFixed(2)} EUR`
-        : `${amountInUSD.toFixed(2)} USD`;
+    const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
     return (
       <span className="uppercase">
         <span style={{ textTransform: "uppercase" }}>{newCoin.coinSymbol} </span>

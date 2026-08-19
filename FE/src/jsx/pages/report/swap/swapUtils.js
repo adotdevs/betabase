@@ -1,5 +1,5 @@
 import { formatFiatValue, getTransactionsForCoin } from "../assets/coinConfig";
-import { FIAT_CURRENCIES } from "../../../../utils/euroCoinUtils";
+import { FIAT_CURRENCIES, getFiatUsdRate } from "../../../../utils/euroCoinUtils";
 
 export { getTransactionsForCoin };
 
@@ -28,7 +28,7 @@ export const buildFiatSwapCoins = (
         trxName: fiat.key,
         logo: fiat.icon,
         balance: getTransactionsForCoinFn(fiat.key, transactions),
-        price: fiat.usdRate,
+        price: getFiatUsdRate(fiat),
         address: "",
         activationStatus: "active",
         isAdditional: true,

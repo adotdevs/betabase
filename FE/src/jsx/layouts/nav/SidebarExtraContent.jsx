@@ -10,12 +10,14 @@ import axios from "axios";
 import {
   combinePortfolioTotal,
   buildFiatAmountsFromTransactions,
+  useUsdToEurRate,
 } from "../../../utils/euroCoinUtils";
 // let path = window.location.pathname;
 // path = path.split("/");
 // path = path[path.length - 1];
 
 const SidebarExtraContent = () => {
+	useUsdToEurRate();
 	const location = useLocation();
 	const [modal, setModal] = useState(false);
 	const [Description, setDescription] = useState("");

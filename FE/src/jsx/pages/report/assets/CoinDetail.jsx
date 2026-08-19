@@ -11,6 +11,7 @@ import {
   getActivationStatusLabel,
   isCoinActive,
 } from "./coinConfig";
+import { useUsdToEurRate } from "../../../../utils/euroCoinUtils";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -25,6 +26,7 @@ const CoinDetail = ({
   onRequestActivation,
   activatingCoinTrx = "",
 }) => {
+  useUsdToEurRate();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [actionModal, setActionModal] = useState(null);
@@ -188,7 +190,7 @@ const CoinDetail = ({
             <div className={styles.panelHeader}>
               <h3>Price chart</h3>
             </div>
-            <CoinMarketCapChart slug={coin.slug} cmcId={coin.cmcId} symbol={coin.symbol} />
+            <CoinMarketCapChart slug={coin.slug} cmcId={coin.cmcId} symbol={coin.symbol} currency={isUser?.currency} />
           </section>
 
           <section className={styles.panel}>
