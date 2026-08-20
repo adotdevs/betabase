@@ -7,7 +7,7 @@ const toStaticHelpPath = () => {
     path = "/help";
   }
 
-  if (path.endsWith(".html")) {
+  if (/\.(html|json|js|css|xml|txt|svg|png|jpe?g|webp|ico)$/i.test(path)) {
     return path;
   }
 

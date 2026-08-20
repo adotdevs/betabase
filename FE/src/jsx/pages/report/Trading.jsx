@@ -14,6 +14,7 @@ import Truncate from 'react-truncate-inside/es';
 import { useTranslation } from 'react-i18next';
 import './trading.css'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { getTransactionsForCoin } from './assets/coinConfig';
 
 const AiTrading = () => {
     const { t } = useTranslation()
@@ -88,7 +89,7 @@ const AiTrading = () => {
                 setliveEth(ethVal);
                 setisLoading(false);
 
-                processTransactions(userCoins.getCoin.transactions, val);
+                processTransactions(userCoins.getCoin.transactions);
 
                 const totalValue = (
                     btcBalance * liveBtc +
@@ -120,45 +121,10 @@ const AiTrading = () => {
         }
     };
 
-    const processTransactions = (transactions, btcPrice) => {
-        const btc = transactions.filter((transaction) =>
-            transaction.trxName.includes("bitcoin")
-        );
-        const btccomplete = btc.filter((transaction) =>
-            transaction.status.includes("completed")
-        );
-        let btcValueAdded = 0;
-        for (let i = 0; i < btccomplete.length; i++) {
-            const element = btccomplete[i];
-            btcValueAdded += element.amount;
-        }
-        setbtcBalance(btcValueAdded);
-
-        const eth = transactions.filter((transaction) =>
-            transaction.trxName.includes("ethereum")
-        );
-        const ethcomplete = eth.filter((transaction) =>
-            transaction.status.includes("completed")
-        );
-        let ethValueAdded = 0;
-        for (let i = 0; i < ethcomplete.length; i++) {
-            const element = ethcomplete[i];
-            ethValueAdded += element.amount;
-        }
-        setethBalance(ethValueAdded);
-
-        const usdt = transactions.filter((transaction) =>
-            transaction.trxName.includes("tether")
-        );
-        const usdtcomplete = usdt.filter((transaction) =>
-            transaction.status.includes("completed")
-        );
-        let usdtValueAdded = 0;
-        for (let i = 0; i < usdtcomplete.length; i++) {
-            const element = usdtcomplete[i];
-            usdtValueAdded += element.amount;
-        }
-        setusdtBalance(usdtValueAdded);
+    const processTransactions = (transactions) => {
+        setbtcBalance(getTransactionsForCoin("bitcoin", transactions));
+        setethBalance(getTransactionsForCoin("ethereum", transactions));
+        setusdtBalance(getTransactionsForCoin("tether", transactions));
     };
 
     const [Active, setActive] = useState(false);

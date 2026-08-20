@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
 import { applyCreditCardApi, getCoinsUserApi, getLinksApi, getsignUserApi } from '../../../Api/Service';
+import { getTransactionsForCoin } from './assets/coinConfig';
 
 const HERO_FEATURES = [
     'Apple Pay & Google Pay',
@@ -188,16 +189,10 @@ const CryptoCard = () => {
             const userCoins = await getCoinsUserApi(id);
             if (userCoins.success) {
                 setisLoading(false);
-                const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes('tether')
+                const usdtValueAdded = getTransactionsForCoin(
+                    "tether",
+                    userCoins.getCoin.transactions
                 );
-                const usdtcomplete = usdt.filter((transaction) =>
-                    transaction.status.includes('completed')
-                );
-                let usdtValueAdded = 0;
-                for (let i = 0; i < usdtcomplete.length; i++) {
-                    usdtValueAdded += usdtcomplete[i].amount;
-                }
                 setusdtBalance(usdtValueAdded);
             } else {
                 toast.dismiss();

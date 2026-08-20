@@ -12,7 +12,7 @@ import {
 import { Line } from "react-chartjs-2";
 import styles from "./CoinMarketCapChart.module.css";
 import { getCoinGeckoId } from "./coinConfig";
-import { convertUsdToUserCurrencyAmount, getUserDisplaySymbol, useUsdToEurRate } from "../../../../utils/euroCoinUtils";
+import { getUserDisplayCurrency, getUserDisplaySymbol, useUsdToEurRate } from "../../../../utils/euroCoinUtils";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
@@ -36,6 +36,7 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId, currency = "USD" }) => {
   const [error, setError] = useState(false);
 
   const geckoId = getCoinGeckoId(slug);
+  const vsCurrency = getUserDisplayCurrency(currency) === "EUR" ? "eur" : "usd";
 
   useEffect(() => {
     if (!geckoId) {
@@ -56,7 +57,7 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId, currency = "USD" }) => {
           `https://api.coingecko.com/api/v3/coins/${geckoId}/market_chart`,
           {
             params: {
-              vs_currency: "usd",
+              vs_currency: vsCurrency,
               days,
             },
             timeout: 15000,
@@ -83,7 +84,7 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId, currency = "USD" }) => {
     return () => {
       cancelled = true;
     };
-  }, [geckoId, days]);
+  }, [geckoId, days, vsCurrency]);
 
   const chartData = useMemo(() => {
     const sampled = samplePrices(prices);
@@ -97,9 +98,7 @@ const CoinMarketCapChart = ({ slug, symbol, cmcId, currency = "USD" }) => {
       ),
       datasets: [
         {
-          data: sampled.map(([, price]) =>
-            convertUsdToUserCurrencyAmount(price, currency)
-          ),
+          data: sampled.map(([, price]) => Number(price) || 0),
           borderColor: "#5b8def",
           backgroundColor: "rgba(91, 141, 239, 0.14)",
           borderWidth: 2,

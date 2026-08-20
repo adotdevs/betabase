@@ -9,6 +9,7 @@ import TonCoin from '../../../assets/images/new/3.png';
 import { toast } from 'react-toastify';
 import { useAuthUser } from 'react-auth-kit';
 import { createUserTransactionApi, getCoinsUserApi, getLinksApi, getsignUserApi, getUserCoinApi, getStakingSettingsApi, getStakingRewardsApi } from '../../../Api/Service'
+import { getTransactionsForCoin } from './assets/coinConfig';
 import axios from 'axios';
 import { Button, Card, Col, Form, DropdownDivider, InputGroup, Modal, Row, Spinner } from 'react-bootstrap';
 import './style.css'
@@ -196,19 +197,10 @@ const Staking = () => {
                     };
 
                     const searchTerm = transactionNameMap[coinKey] || coinKey.toLowerCase();
-                    const coinTransactions = userCoins.getCoin.transactions.filter(transaction =>
-                        transaction.trxName.toLowerCase().includes(searchTerm)
+                    newBalances[coinKey] = getTransactionsForCoin(
+                        searchTerm,
+                        userCoins.getCoin.transactions
                     );
-
-                    const completedTransactions = coinTransactions.filter(transaction =>
-                        transaction.status.includes('completed')
-                    );
-
-                    let totalBalance = 0;
-                    for (let i = 0; i < completedTransactions.length; i++) {
-                        totalBalance += completedTransactions[i].amount;
-                    }
-                    newBalances[coinKey] = totalBalance;
                 });
 
                 setBalances(newBalances);

@@ -11,7 +11,11 @@ import Coin6 from "../../../../assets/images/new/6.png";
 import Coin7 from "../../../../assets/images/new/7.png";
 import Coin8 from "../../../../assets/images/new/8.png";
 import SolIco from "../../../../assets/images/new/solana.png";
-import { isFiatCoinHiddenFromCrypto, convertUsdToUserCurrencyAmount, getUserDisplayCurrency } from "../../../../utils/euroCoinUtils";
+import {
+  isFiatCoinHiddenFromCrypto,
+  getUserDisplayCurrency,
+  sumCoinAvailableBalance,
+} from "../../../../utils/euroCoinUtils";
 
 export const coinLogos = {
   bnb: BNBcoin,
@@ -152,28 +156,13 @@ export const slugFromTrxName = (trxName) =>
     .trim()
     .replace(/\s+/g, "-");
 
-export const getTransactionsForCoin = (coinSymbol, transactions = []) => {
-  const needle = String(coinSymbol || "").toLowerCase();
-  if (!needle) return 0;
+export const getTransactionsForCoin = (coinSymbol, transactions = []) =>
+  sumCoinAvailableBalance(transactions, coinSymbol);
 
-  const coinTransactions = transactions.filter((transaction) =>
-    String(transaction.trxName || "").toLowerCase().includes(needle)
-  );
-  const completedTransactions = coinTransactions.filter((transaction) =>
-    String(transaction.status || "").toLowerCase().includes("completed")
-  );
-
-  return completedTransactions.reduce(
-    (total, transaction) => total + parseFloat(transaction.amount || 0),
-    0
-  );
-};
-
-export const formatFiatValue = (amountUsd, currency = "USD") => {
-  const num = Number(amountUsd);
+export const formatFiatValue = (amount, currency = "USD") => {
+  const num = Number(amount);
   const safe = Number.isFinite(num) ? num : 0;
-  const converted = convertUsdToUserCurrencyAmount(safe, currency);
-  return `${converted.toFixed(2)} ${getUserDisplayCurrency(currency)}`;
+  return `${safe.toFixed(2)} ${getUserDisplayCurrency(currency)}`;
 };
 
 export const formatCoinAmount = (value) => {
@@ -197,6 +186,7 @@ export const buildPortfolioCoins = ({
   usdtBalance,
   liveBtc,
   liveEth,
+  liveUsdt,
   liveBnb,
   liveXrp,
   liveDoge,
@@ -236,7 +226,7 @@ export const buildPortfolioCoins = ({
       );
     } else if (coin.trxName === "tether") {
       balance = usdtBalance;
-      price = 1;
+      price = liveUsdt ?? 1;
       address = UserData?.usdtTokenAddress || "";
       activationStatus = resolveCoinActivationStatus(
         address,

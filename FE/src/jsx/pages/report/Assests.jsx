@@ -9,7 +9,7 @@ import styles from './Assests.module.css';
 import AssetsOverview from './assets/AssetsOverview';
 import CoinDetail from './assets/CoinDetail';
 import { buildPortfolioCoins, findCoinBySlug, getTransactionsForCoin } from './assets/coinConfig';
-import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency, getUsdToEurRate } from '../../../utils/euroCoinUtils';
+import { getFiatBalanceFromCoins, getFiatCurrencyByKey, isFiatCoin, convertFiatToUserCurrency, getUserDisplayCurrency, isFiatNativeMatchingUserCurrency, extractLivePrices, notifyWalletBalanceUpdated } from '../../../utils/euroCoinUtils';
 import { formatBankPaymentOptionLabel } from './assets/paymentDisplayUtils';
 
 const getCoinPrice = (coinSymbol, livePrices = {}) => {
@@ -84,6 +84,7 @@ const Orders = () => {
     const [liveNear, setliveNear] = useState(null);
     const [liveUsdc, setliveUsdc] = useState(null);
     const [liveTrx, setliveTrx] = useState(null);
+    const [liveUsdt, setliveUsdt] = useState(null);
 
     const authUser = useAuthUser();
     const Navigate = useNavigate();
@@ -145,168 +146,15 @@ const Orders = () => {
 
             if (userCoins.success) {
                 setUserData(userCoins.getCoin);
-                // setUserTransactions;
-                let val = 0;
-                if (userCoins && userCoins.btcPrice && userCoins.btcPrice.quote && userCoins.btcPrice.quote.USD) {
-
-                    val = userCoins.btcPrice.quote.USD.price
-                } else {
-                    val = 96075.25
-                }
-                
-                console.log("allTransactions.ethPrice.quote.USD.price",userCoins)
-                setliveBtc(val);
-                let ethVal = 0;
-                if (userCoins && userCoins.ethPrice && userCoins.ethPrice.quote && userCoins.ethPrice.quote.USD) {
-                    ethVal = userCoins.ethPrice.quote.USD.price
-                } else {
-                    ethVal = 2640
-                }
-                setliveEth(ethVal);
-                let bnbVal = 0;
-                if (userCoins && userCoins.bnbPrice && userCoins.bnbPrice.quote && userCoins.bnbPrice.quote.USD) {
-                    bnbVal = userCoins.bnbPrice.quote.USD.price
-                } else {
-                    bnbVal = 210.25
-                }
-                setliveBnb(bnbVal);
-                let xrpVal = 0;
-                if (userCoins && userCoins.xrpPrice && userCoins.xrpPrice.quote && userCoins.xrpPrice.quote.USD) {
-                    xrpVal = userCoins.xrpPrice.quote.USD.price
-                } else {
-                    xrpVal = 0.5086
-                }
-                setliveXrp(xrpVal);
-                let dogeVal = 0;
-                if (userCoins && userCoins.dogePrice && userCoins.dogePrice.quote && userCoins.dogePrice.quote.USD) {
-                    dogeVal = userCoins.dogePrice.quote.USD.price
-                } else {
-                    dogeVal = 0.1163
-                }
-                setliveDoge(dogeVal);
-                let solVal = 0;
-                if (userCoins && userCoins.solPrice && userCoins.solPrice.quote && userCoins.solPrice.quote.USD) {
-                    solVal = userCoins.solPrice.quote.USD.price
-                } else {
-                    solVal = 245.01
-                }
-                setliveSol(solVal);
-                let tonVal = 0;
-                if (userCoins && userCoins.tonPrice && userCoins.tonPrice.quote && userCoins.tonPrice.quote.USD) {
-                    tonVal = userCoins.tonPrice.quote.USD.price
-                } else {
-                    tonVal = 5.76
-                }
-                setliveTon(tonVal);
-                let linkVal = 0;
-                if (userCoins && userCoins.linkPrice && userCoins.linkPrice.quote && userCoins.linkPrice.quote.USD) {
-                    linkVal = userCoins.linkPrice.quote.USD.price
-                } else {
-                    linkVal = 12.52
-                }
-                setliveLink(linkVal);
-                let dotVal = 0;
-                if (userCoins && userCoins.dotPrice && userCoins.dotPrice.quote && userCoins.dotPrice.quote.USD) {
-                    dotVal = userCoins.dotPrice.quote.USD.price
-                } else {
-                    dotVal = 4.76
-                }
-                setliveDot(dotVal);
-                let nearVal = 0;
-                if (userCoins && userCoins.nearPrice && userCoins.nearPrice.quote && userCoins.nearPrice.quote.USD) {
-                    nearVal = userCoins.nearPrice.quote.USD.price
-                } else {
-                    nearVal = 5.59
-                }
-                setliveNear(nearVal);
-                let usdcVal = 0;
-                if (userCoins && userCoins.usdcPrice && userCoins.usdcPrice.quote && userCoins.usdcPrice.quote.USD) {
-                    usdcVal = userCoins.usdcPrice.quote.USD.price
-                } else {
-                    usdcVal = 0.99
-                }
-                setliveUsdc(usdcVal);
-                let trxVal = 0;
-                if (userCoins && userCoins.trxPrice && userCoins.trxPrice.quote && userCoins.trxPrice.quote.USD) {
-                    trxVal = userCoins.trxPrice.quote.USD.price
-                } else {
-                    trxVal = 0.1531
-                }
-                setliveTrx(trxVal);
                 setisLoading(false);
-                // tx
-
                 setuserCoins(userCoins)
                 setnewUserCoins(userCoins.getCoin.additionalCoins)
-                const btc = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("bitcoin")
-                );
-                const btccomplete = btc.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let btcCount = 0;
-                let btcValueAdded = 0;
-                for (let i = 0; i < btccomplete.length; i++) {
-                    const element = btccomplete[i];
-                    btcCount = element.amount;
-                    btcValueAdded += btcCount;
-                }
-                setbtcBalance(btcValueAdded);
-                // tx
-                // tx
-                const eth = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("ethereum")
-                );
-                const ethcomplete = eth.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let ethCount = 0;
-                let ethValueAdded = 0;
-                for (let i = 0; i < ethcomplete.length; i++) {
-                    const element = ethcomplete[i];
-                    ethCount = element.amount;
-                    ethValueAdded += ethCount;
-                }
-                setethBalance(ethValueAdded);
-                // tx
-                // tx
-                const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-                    transaction.trxName.includes("tether")
-                );
-                const usdtcomplete = usdt.filter((transaction) =>
-                    transaction.status.includes("completed")
-                );
-                let usdtCount = 0;
-                let usdtValueAdded = 0;
-                for (let i = 0; i < usdtcomplete.length; i++) {
-                    const element = usdtcomplete[i];
-                    usdtCount = element.amount;
-                    usdtValueAdded += usdtCount;
-                }
-                setusdtBalance(usdtValueAdded);
+                const txs = userCoins.getCoin.transactions || [];
+                setbtcBalance(getTransactionsForCoin("bitcoin", txs));
+                setethBalance(getTransactionsForCoin("ethereum", txs));
+                setusdtBalance(getTransactionsForCoin("tether", txs));
                 // tx
 
-                const totalValue = (
-                    btcValueAdded * liveBtc +
-                    ethValueAdded * (liveEth || 2640) +
-                    usdtValueAdded
-                ).toFixed(2);
-
-                //
-                const [integerPart, fractionalPart] = totalValue.split(".");
-
-                const formattedTotalValue = parseFloat(integerPart).toLocaleString(
-                    "en-US",
-                    {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                    }
-                );
-
-                //
-                setfractionBalance(fractionalPart);
                 return;
             } else {
                 toast.dismiss();
@@ -368,6 +216,24 @@ const Orders = () => {
             return;
         }
     }, [location.pathname]);
+
+    useEffect(() => {
+        if (!userCoins || !userCoins.btcPrice) return;
+        const prices = extractLivePrices(userCoins, isUser?.currency);
+        setliveBtc(prices.btc);
+        setliveEth(prices.eth);
+        setliveUsdt(prices.usdt);
+        setliveBnb(prices.bnb);
+        setliveXrp(prices.xrp);
+        setliveDoge(prices.doge);
+        setliveSol(prices.sol);
+        setliveTon(prices.ton);
+        setliveLink(prices.link);
+        setliveDot(prices.dot);
+        setliveNear(prices.near);
+        setliveUsdc(prices.usdc);
+        setliveTrx(prices.trx);
+    }, [userCoins, isUser?.currency]);
     // withdraw
     const [modal3, setModal3] = useState(false);
     const [otpModal, setotpModal] = useState(false);
@@ -578,6 +444,8 @@ const Orders = () => {
                         setisDisable(false)
                         toast.success(newTransaction.msg);
                         closeDeposit();
+                        getCoins(authUser().user);
+                        notifyWalletBalanceUpdated();
                     } else {
                         closeDeposit();
                         getUserRestrcition()
@@ -636,6 +504,8 @@ const Orders = () => {
                         setConfirmationPopup(false);
 
                         setModal3(false);
+                        getCoins(authUser().user);
+                        notifyWalletBalanceUpdated();
                     } else {
                         closeDeposit();
                         getUserRestrcition()
@@ -801,6 +671,7 @@ const Orders = () => {
                 usdtBalance,
                 liveBtc,
                 liveEth,
+                liveUsdt,
                 liveBnb,
                 liveXrp,
                 liveDoge,
@@ -823,6 +694,7 @@ const Orders = () => {
             usdtBalance,
             liveBtc,
             liveEth,
+            liveUsdt,
             liveBnb,
             liveXrp,
             liveDoge,
@@ -1255,44 +1127,23 @@ const Orders = () => {
                                         <p className="mb-0 nui-label text-sm lks">
                                             {depositName === "bitcoin" ? (
                                                 <span>
-                                                    BTC {transactionDetail.amountMinus} ($
-                                                    {(() => {
-                                                        const amountInUSD = transactionDetail.amountMinus * liveBtc;
-                                                        if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
-                                                            return `${amountInEUR.toFixed(2)} EUR`;
-                                                        } else {
-                                                            return `${amountInUSD.toFixed(2)} USD`;
-                                                        }
-                                                    })()}
+                                                    BTC {transactionDetail.amountMinus} (
+                                                    {(Number(transactionDetail.amountMinus || 0) * (liveBtc || 0)).toFixed(2)}{" "}
+                                                    {getUserDisplayCurrency(isUser?.currency)}
                                                     )
                                                 </span>
                                             ) : depositName === "ethereum" ? (
                                                 <span>
-                                                    ETH {transactionDetail.amountMinus} ($
-                                                    {(() => {
-                                                        const amountInUSD = transactionDetail.amountMinus * (liveEth || 2640);
-                                                        if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
-                                                            return `${amountInEUR.toFixed(2)} EUR`;
-                                                        } else {
-                                                            return `${amountInUSD.toFixed(2)} USD`;
-                                                        }
-                                                    })()}
+                                                    ETH {transactionDetail.amountMinus} (
+                                                    {(Number(transactionDetail.amountMinus || 0) * (liveEth || 0)).toFixed(2)}{" "}
+                                                    {getUserDisplayCurrency(isUser?.currency)}
                                                     )
                                                 </span>
                                             ) : depositName === "tether" ? (
                                                 <span>
-                                                    USDT {transactionDetail.amountMinus} ($
-                                                    {(() => {
-                                                        const amountInUSD = transactionDetail.amountMinus * 1;
-                                                        if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
-                                                            return `${amountInEUR.toFixed(2)} EUR`;
-                                                        } else {
-                                                            return `${amountInUSD.toFixed(2)} USD`;
-                                                        }
-                                                    })()}
+                                                    USDT {transactionDetail.amountMinus} (
+                                                    {(Number(transactionDetail.amountMinus || 0) * (liveUsdt || 1)).toFixed(2)}{" "}
+                                                    {getUserDisplayCurrency(isUser?.currency)}
                                                     )
                                                 </span>
                                             ) : isFiatCoin(depositName) ? (
@@ -1314,17 +1165,9 @@ const Orders = () => {
                                             ) : (
                                                 <span className="uppercase">
                                                     <span style={{ textTransform: "uppercase" }}>{newCoin.coinSymbol} </span>
-                                                    {transactionDetail.amountMinus} ($
-                                                    {(() => {
-                                                        const amountInUSD =
-                                                            transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol);
-                                                        if (isUser.currency === "EUR") {
-                                                            const amountInEUR = amountInUSD * getUsdToEurRate();
-                                                            return `${amountInEUR.toFixed(2)} EUR`;
-                                                        } else {
-                                                            return `${amountInUSD.toFixed(2)} USD`;
-                                                        }
-                                                    })()}
+                                                    {transactionDetail.amountMinus} (
+                                                    {(Number(transactionDetail.amountMinus || 0) * getCoinPrice(newCoin.coinSymbol)).toFixed(2)}{" "}
+                                                    {getUserDisplayCurrency(isUser?.currency)}
                                                     )
                                                 </span>
                                             )}

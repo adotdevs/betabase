@@ -12,7 +12,7 @@ const faqData = [
     id: 1,
     question: "What is Betabase Wallet?",
     answer:
-      "Betabase Wallet is a secure, easy-to-use platform for managing, sending, and receiving cryptocurrencies. It supports multiple tokens and offers advanced security features to protect your digital assets.",
+      "Betabase Wallet is a secure, easy-to-use platform for managing, sending, and receiving cryptocurrencies. It supports multiple tokens and offers advanced security features to protect your digital assets. BETA 9 INVESTMENTS PTE. LTD. UEN 202508851H | 106D AH SOO WALK, Singapore 536730",
   },
   {
     id: 2,
@@ -43,6 +43,12 @@ const faqData = [
     question: "Can I connect my bank account or credit card to Betabase Wallet?",
     answer:
       "Yes, Betabase Wallet allows you to link your bank account or credit card for easy purchasing and transferring of cryptocurrencies. Enjoy a simple, secure way to fund your wallet and manage your assets.",
+  },
+  {
+    id: 7,
+    question: "Registered company details",
+    answer:
+      "BETA 9 INVESTMENTS PTE. LTD. UEN 202508851H | 106D AH SOO WALK, Singapore 536730",
   },
 ];
 

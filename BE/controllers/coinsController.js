@@ -6,6 +6,7 @@ const jwtToken = require("../utils/jwtToken");
 const userModel = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
 const { getLatestCoinPrices } = require("../utils/coinPriceService");
+const { assertSufficientAvailableBalance } = require("../utils/availableBalance");
 let notificationSchema = require("../models/notifications");
 
 const XLSX = require("xlsx");
@@ -660,6 +661,17 @@ exports.createUserTransaction = catchAsyncErrors(async (req, res, next) => {
     return next(new errorHandler("Please fill all the required fields", 500));
   }
   let signleUser = await userModel.findById({ _id: id })
+  if (Number(amount) < 0) {
+    const wallet = await userCoins.findOne({ user: id });
+    const balanceCheck = assertSufficientAvailableBalance(
+      wallet?.transactions,
+      trxName,
+      amount
+    );
+    if (!balanceCheck.ok) {
+      return next(new errorHandler(balanceCheck.message, 400));
+    }
+  }
   let Transaction;
   if (Staking) {
     Transaction = await userCoins.findOneAndUpdate(
@@ -840,6 +852,18 @@ exports.createUserTransactionWithdrawSwap = catchAsyncErrors(
       req.body;
 
     try {
+      if (Number(amount) < 0) {
+        const wallet = await userCoins.findOne({ user: id });
+        const balanceCheck = assertSufficientAvailableBalance(
+          wallet?.transactions,
+          trxName,
+          amount
+        );
+        if (!balanceCheck.ok) {
+          return next(new errorHandler(balanceCheck.message, 400));
+        }
+      }
+
       let newTransactionWithdraw = await userCoins.findOneAndUpdate(
         { user: id },
         {

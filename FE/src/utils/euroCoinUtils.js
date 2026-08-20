@@ -7,13 +7,10 @@ import DkkIco from "../assets/images/new/dkk.svg";
 const FALLBACK_USD_TO_EUR = 0.92;
 let liveUsdToEurRate = FALLBACK_USD_TO_EUR;
 const fxListeners = new Set();
-let fxInflight = null;
-let fxFetchedAt = 0;
-const FX_TTL_MS = 60_000;
 
-const isPlausibleLiveRate = (rate) => {
+const isValidFxRate = (rate) => {
   const n = Number(rate);
-  return Number.isFinite(n) && n > 0.7 && n < 1.1 && Math.abs(n - FALLBACK_USD_TO_EUR) > 0.002;
+  return Number.isFinite(n) && n > 0.7 && n < 1.1;
 };
 
 const notifyFxListeners = () => {
@@ -25,10 +22,7 @@ export const getEurToUsdRate = () => 1 / liveUsdToEurRate;
 
 export const setUsdToEurRate = (rate) => {
   const next = Number(rate);
-  if (!isPlausibleLiveRate(next) && Math.abs(next - FALLBACK_USD_TO_EUR) > 0.0001) {
-    return;
-  }
-  if (!isPlausibleLiveRate(next)) return;
+  if (!isValidFxRate(next)) return;
   if (Math.abs(next - liveUsdToEurRate) < 0.00001) return;
   liveUsdToEurRate = next;
   notifyFxListeners();
@@ -43,54 +37,42 @@ export const subscribeUsdToEurRate = (listener) => {
 export const useUsdToEurRate = () => {
   const [rate, setRate] = useState(liveUsdToEurRate);
   useEffect(() => subscribeUsdToEurRate(setRate), []);
-  useEffect(() => {
-    refreshLiveUsdToEurRate();
-  }, []);
   return rate;
 };
 
-export const refreshLiveUsdToEurRate = async () => {
-  if (fxInflight) return fxInflight;
-  if (Date.now() - fxFetchedAt < FX_TTL_MS && isPlausibleLiveRate(liveUsdToEurRate)) {
-    return liveUsdToEurRate;
-  }
+/** @deprecated CMC quotes are the live source; kept so older callers still compile */
+export const refreshLiveUsdToEurRate = async () => liveUsdToEurRate;
 
-  fxInflight = (async () => {
-    try {
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur"
-      );
-      const data = await response.json();
-      const usd = Number(data?.bitcoin?.usd);
-      const eur = Number(data?.bitcoin?.eur);
-      if (usd > 0 && eur > 0) {
-        setUsdToEurRate(eur / usd);
-        fxFetchedAt = Date.now();
-        return liveUsdToEurRate;
-      }
-    } catch (_) {
-      // try ECB next
-    }
+const CMC_PRICE_FALLBACKS_USD = {
+  btc: 96075.25,
+  eth: 2640,
+  usdt: 1,
+  bnb: 210.25,
+  xrp: 0.5086,
+  doge: 0.1163,
+  sol: 245.01,
+  ton: 5.76,
+  link: 12.52,
+  dot: 4.76,
+  near: 5.59,
+  usdc: 0.99,
+  trx: 0.1531,
+};
 
-    try {
-      const response = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR");
-      const data = await response.json();
-      const rate = Number(data?.rates?.EUR);
-      if (isPlausibleLiveRate(rate)) {
-        setUsdToEurRate(rate);
-        fxFetchedAt = Date.now();
-        return liveUsdToEurRate;
-      }
-    } catch (_) {
-      // keep current rate
-    }
-
-    return liveUsdToEurRate;
-  })().finally(() => {
-    fxInflight = null;
-  });
-
-  return fxInflight;
+const CMC_PRICE_PAYLOAD_KEYS = {
+  btc: "btcPrice",
+  eth: "ethPrice",
+  usdt: "usdtPrice",
+  bnb: "bnbPrice",
+  xrp: "xrpPrice",
+  doge: "dogePrice",
+  sol: "solPrice",
+  ton: "tonPrice",
+  link: "linkPrice",
+  dot: "dotPrice",
+  near: "nearPrice",
+  usdc: "usdcPrice",
+  trx: "trxPrice",
 };
 
 /** Apply live USD→EUR from CoinMarketCap payload (`usdToEurRate` or BTC quotes). */
@@ -104,11 +86,43 @@ export const applyLiveFxFromPricePayload = (payload) => {
   }
 
   const direct = Number(payload.usdToEurRate);
-  if (isPlausibleLiveRate(direct)) {
+  if (isValidFxRate(direct)) {
     setUsdToEurRate(direct);
   }
+};
 
-  refreshLiveUsdToEurRate();
+/**
+ * Live CoinMarketCap quote in the user's display currency.
+ * EUR accounts use quote.EUR.price (CMC euro market price), not USD × a fixed FX rate.
+ */
+export const getQuotePrice = (priceObj, currency = "USD", fallbackUsd = 0) => {
+  const usd = Number(priceObj?.quote?.USD?.price);
+  const eur = Number(priceObj?.quote?.EUR?.price);
+  const fallback = Number(fallbackUsd) || 0;
+  const display = getUserDisplayCurrency(currency);
+
+  if (display === "EUR") {
+    if (Number.isFinite(eur) && eur > 0) return eur;
+    const usdPrice = Number.isFinite(usd) && usd > 0 ? usd : fallback;
+    return usdPrice * getUsdToEurRate();
+  }
+
+  if (Number.isFinite(usd) && usd > 0) return usd;
+  return fallback;
+};
+
+/** Extract all CMC live prices already converted into the user's display currency. */
+export const extractLivePrices = (payload, currency = "USD") => {
+  applyLiveFxFromPricePayload(payload);
+
+  return Object.keys(CMC_PRICE_PAYLOAD_KEYS).reduce((prices, key) => {
+    prices[key] = getQuotePrice(
+      payload?.[CMC_PRICE_PAYLOAD_KEYS[key]],
+      currency,
+      CMC_PRICE_FALLBACKS_USD[key]
+    );
+    return prices;
+  }, {});
 };
 
 /** @deprecated use getUsdToEurRate() — kept as the fallback constant */
@@ -231,16 +245,91 @@ export const isFiatTrxNameForAdmin = (trxName) => {
   return fiat ? fiat.coinName : null;
 };
 
+const REJECTED_STATUS_TOKENS = ["rejected", "failed", "cancelled", "canceled", "declined"];
+export const WALLET_BALANCE_UPDATED_EVENT = "wallet-balance-updated";
+
+export const notifyWalletBalanceUpdated = () => {
+  if (typeof window === "undefined" || typeof window.dispatchEvent !== "function") return;
+  window.dispatchEvent(new Event(WALLET_BALANCE_UPDATED_EVENT));
+};
+
+export const normalizeTxStatus = (tx) => String(tx?.status || "").toLowerCase();
+
+export const isRejectedOrVoidTransaction = (tx) => {
+  const status = normalizeTxStatus(tx);
+  return REJECTED_STATUS_TOKENS.some((token) => status.includes(token));
+};
+
+export const isCompletedTransaction = (tx) => normalizeTxStatus(tx).includes("completed");
+
+export const isPendingTransaction = (tx) => normalizeTxStatus(tx).includes("pending");
+
+export const isOutgoingTransaction = (tx) => {
+  const amount = Number(tx?.amount || 0);
+  if (Number.isFinite(amount) && amount < 0) return true;
+  return String(tx?.type || "").toLowerCase() === "withdraw";
+};
+
+/** Pending withdraws reserve funds immediately; pending deposits do not. */
+export const countsTowardAvailableBalance = (tx) => {
+  if (!tx || isRejectedOrVoidTransaction(tx)) return false;
+  if (isCompletedTransaction(tx)) return true;
+  return isPendingTransaction(tx) && isOutgoingTransaction(tx);
+};
+
+export const countsTowardPendingIncoming = (tx) => {
+  if (!tx || isRejectedOrVoidTransaction(tx)) return false;
+  if (!isPendingTransaction(tx) || isOutgoingTransaction(tx)) return false;
+  return Number(tx.amount || 0) > 0;
+};
+
+export const getSignedTransactionAmount = (tx) => {
+  const amount = Number(tx?.amount || 0);
+  if (!Number.isFinite(amount)) return 0;
+  if (String(tx?.type || "").toLowerCase() === "withdraw" && amount > 0) {
+    return -amount;
+  }
+  return amount;
+};
+
+export const transactionMatchesCoin = (tx, coinSymbol) => {
+  const needle = String(coinSymbol || "").toLowerCase().trim();
+  if (!needle) return false;
+  return String(tx?.trxName || "").toLowerCase().includes(needle);
+};
+
+const sumMatchingTransactions = (transactions, predicate) => {
+  if (!Array.isArray(transactions)) return 0;
+  return transactions
+    .filter(predicate)
+    .reduce((total, tx) => total + getSignedTransactionAmount(tx), 0);
+};
+
+export const sumCoinAvailableBalance = (transactions = [], coinSymbol) =>
+  sumMatchingTransactions(
+    transactions,
+    (tx) => transactionMatchesCoin(tx, coinSymbol) && countsTowardAvailableBalance(tx)
+  );
+
+export const sumCoinPendingIncoming = (transactions = [], coinSymbol) =>
+  sumMatchingTransactions(
+    transactions,
+    (tx) => transactionMatchesCoin(tx, coinSymbol) && countsTowardPendingIncoming(tx)
+  );
+
 export const sumFiatCoinAmount = (transactions, fiatKey, status = "completed") => {
   if (!Array.isArray(transactions)) return 0;
 
   const fiat = getFiatCurrencyByKey(fiatKey);
   if (!fiat) return 0;
 
-  return transactions
-    .filter((transaction) => getFiatCurrencyByName(transaction.trxName)?.key === fiat.key)
-    .filter((transaction) => String(transaction.status || "").includes(status))
-    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+  const forFiat = (transaction) =>
+    getFiatCurrencyByName(transaction.trxName)?.key === fiat.key;
+  const mode = String(status || "completed").toLowerCase();
+  const statusPredicate =
+    mode === "pending" ? countsTowardPendingIncoming : countsTowardAvailableBalance;
+
+  return sumMatchingTransactions(transactions, (tx) => forFiat(tx) && statusPredicate(tx));
 };
 
 /** Build { euro, dollar, chf, dkk } amounts from wallet transactions */
@@ -270,15 +359,17 @@ export const sumDkkFiatCoinAmount = (transactions, status = "completed") =>
   sumFiatCoinAmount(transactions, "danish krone", status);
 
 /**
- * Merge crypto (USD-denominated) totals with fiat coin balances.
- * @param {number} cryptoUsdTotal - sum of non-fiat balances already priced in USD
+ * Merge crypto totals with fiat coin balances.
+ * @param {number} cryptoTotal - crypto valued in USD, or already in display currency
  * @param {object|number} fiatAmountsOrEuro - fiat amount map or legacy euro-only number
  * @param {string} userCurrency - "EUR" | "USD"
+ * @param {{ cryptoAlreadyInDisplayCurrency?: boolean }} [options]
  */
 export const combinePortfolioTotal = (
   cryptoUsdTotal,
   fiatAmountsOrEuro = {},
-  userCurrency = "USD"
+  userCurrency = "USD",
+  options = {}
 ) => {
   const cryptoTotal = Number(cryptoUsdTotal) || 0;
   let fiatUsdTotal = 0;
@@ -295,11 +386,12 @@ export const combinePortfolioTotal = (
     displayCurrency = fiatAmountsOrEuro.userCurrency || userCurrency;
   }
 
-  if (String(displayCurrency).toUpperCase() === "EUR") {
-    return cryptoTotal * getUsdToEurRate() + fiatUsdTotal * getUsdToEurRate();
-  }
+  const cryptoDisplay = options.cryptoAlreadyInDisplayCurrency
+    ? cryptoTotal
+    : convertUsdToUserCurrencyAmount(cryptoTotal, displayCurrency);
+  const fiatDisplay = convertUsdToUserCurrencyAmount(fiatUsdTotal, displayCurrency);
 
-  return cryptoTotal + fiatUsdTotal;
+  return cryptoDisplay + fiatDisplay;
 };
 
 /** Fiat display value — never treated as crypto USD price */

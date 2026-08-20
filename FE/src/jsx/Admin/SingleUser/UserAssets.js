@@ -14,6 +14,7 @@ import {
   updateCoinAddressApi, updateNewCoinAddressApi
 } from "../../../Api/Service";
 import { FIAT_CURRENCIES, getFiatCurrencyByName, isFiatCoin, isFiatTrxNameForAdmin } from "../../../utils/euroCoinUtils";
+import { getTransactionsForCoin } from "../../pages/report/assets/coinConfig";
 import AdminCoinWalletRow from "./AdminCoinWalletRow";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -282,53 +283,10 @@ const UserAssets = () => {
         setuserCoins(userCoins)
        
         setnewUserCoins(userCoins.getCoin.additionalCoins)
-        // tx
-        const btc = userCoins.getCoin.transactions.filter((transaction) =>
-          transaction.trxName.includes("bitcoin")
-        );
-        const btccomplete = btc.filter((transaction) =>
-          transaction.status.includes("completed")
-        );
-        let btcCount = 0;
-        let btcValueAdded = 0;
-        for (let i = 0; i < btccomplete.length; i++) {
-          const element = btccomplete[i];
-          btcCount = element.amount;
-          btcValueAdded += btcCount;
-        }
-        setbtcBalance(btcValueAdded);
-        // tx
-        // tx
-        const eth = userCoins.getCoin.transactions.filter((transaction) =>
-          transaction.trxName.includes("ethereum")
-        );
-        const ethcomplete = eth.filter((transaction) =>
-          transaction.status.includes("completed")
-        );
-        let ethCount = 0;
-        let ethValueAdded = 0;
-        for (let i = 0; i < ethcomplete.length; i++) {
-          const element = ethcomplete[i];
-          ethCount = element.amount;
-          ethValueAdded += ethCount;
-        }
-        setethBalance(ethValueAdded);
-        // tx
-        // tx
-        const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-          transaction.trxName.includes("tether")
-        );
-        const usdtcomplete = usdt.filter((transaction) =>
-          transaction.status.includes("completed")
-        );
-        let usdtCount = 0;
-        let usdtValueAdded = 0;
-        for (let i = 0; i < usdtcomplete.length; i++) {
-          const element = usdtcomplete[i];
-          usdtCount = element.amount;
-          usdtValueAdded += usdtCount;
-        }
-        setusdtBalance(usdtValueAdded);
+        const txs = userCoins.getCoin.transactions || [];
+        setbtcBalance(getTransactionsForCoin("bitcoin", txs));
+        setethBalance(getTransactionsForCoin("ethereum", txs));
+        setusdtBalance(getTransactionsForCoin("tether", txs));
         // tx
 
         setcoinAddress({
@@ -364,24 +322,6 @@ const UserAssets = () => {
       case "trx": return liveTrx || 0.1531;
       default: return 0; // Unknown coin price
     }
-  };
-  const getTransactionsForCoin = (coinSymbol, transactions) => {
-    // Filter transactions for the specific coin symbol
-    const coinTransactions = transactions.filter((transaction) =>
-      transaction.trxName.includes(coinSymbol)
-    );
-    // Filter completed transactions
-    const completedTransactions = coinTransactions.filter((transaction) =>
-      transaction.status.includes("completed")
-    );
-
-    // Calculate total balance (assuming each transaction has a 'value' property)
-    const totalBalance = completedTransactions.reduce((acc, transaction) => {
-     
-      return acc + transaction.amount; // Adjust according to your transaction structure
-    }, 0);
-
-    return totalBalance;
   };
   const patchCoins = async () => {
     try {

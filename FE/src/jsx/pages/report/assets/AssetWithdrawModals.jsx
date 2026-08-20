@@ -10,7 +10,6 @@ import {
 } from "react-bootstrap";
 import {
   convertFiatToUserCurrency,
-  convertUsdToUserCurrencyAmount,
   getFiatCurrencyByKey,
   getUserDisplayCurrency,
   isFiatCoin,
@@ -64,6 +63,7 @@ const AssetWithdrawModals = ({
   getCoinPrice,
   liveBtc,
   liveEth,
+  liveUsdt,
 }) => {
   const renderAvailableBalance = () => {
     const selectMax = (amount) => setMaxWithdrawAmount(amount);
@@ -133,30 +133,28 @@ const AssetWithdrawModals = ({
   };
 
   const renderTotalAmount = () => {
+    const displayCurrency = getUserDisplayCurrency(isUser?.currency);
     if (depositName === "bitcoin") {
-      const amountInUSD = transactionDetail.amountMinus * liveBtc;
-      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
+      const converted = `${(Number(transactionDetail.amountMinus || 0) * (liveBtc || 0)).toFixed(2)} ${displayCurrency}`;
       return (
         <span>
-          BTC {transactionDetail.amountMinus} (${converted})
+          BTC {transactionDetail.amountMinus} ({converted})
         </span>
       );
     }
     if (depositName === "ethereum") {
-      const amountInUSD = transactionDetail.amountMinus * (liveEth || 2640);
-      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
+      const converted = `${(Number(transactionDetail.amountMinus || 0) * (liveEth || 0)).toFixed(2)} ${displayCurrency}`;
       return (
         <span>
-          ETH {transactionDetail.amountMinus} (${converted})
+          ETH {transactionDetail.amountMinus} ({converted})
         </span>
       );
     }
     if (depositName === "tether") {
-      const amountInUSD = transactionDetail.amountMinus * 1;
-      const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
+      const converted = `${(Number(transactionDetail.amountMinus || 0) * (liveUsdt || 1)).toFixed(2)} ${displayCurrency}`;
       return (
         <span>
-          USDT {transactionDetail.amountMinus} (${converted})
+          USDT {transactionDetail.amountMinus} ({converted})
         </span>
       );
     }
@@ -180,13 +178,11 @@ const AssetWithdrawModals = ({
         </span>
       );
     }
-    const amountInUSD =
-      transactionDetail.amountMinus * getCoinPrice(newCoin.coinSymbol);
-    const converted = `${convertUsdToUserCurrencyAmount(amountInUSD, isUser?.currency).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
+    const converted = `${(Number(transactionDetail.amountMinus || 0) * getCoinPrice(newCoin.coinSymbol)).toFixed(2)} ${getUserDisplayCurrency(isUser?.currency)}`;
     return (
       <span className="uppercase">
         <span style={{ textTransform: "uppercase" }}>{newCoin.coinSymbol} </span>
-        {transactionDetail.amountMinus} (${converted})
+        {transactionDetail.amountMinus} ({converted})
       </span>
     );
   };

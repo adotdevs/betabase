@@ -12,9 +12,19 @@ cd help-center
 .\build-and-copy.ps1
 ```
 
-This rebrands "Acme Exchange" → **Betabase**, fixes URLs, and copies into `FE/public/help/`.
+This rebrands "Acme Exchange" → **Betabase**, fixes URLs, copies into `FE/public/help/`, and rebuilds the full-text search index.
 
 3. Deploy the frontend.
+
+## Search
+
+Every help page has a search box in the header. It searches **all articles and category pages**, including full body text (not just titles).
+
+Rebuild the index after adding or editing articles:
+
+```powershell
+node help-center/build-search-index.js
+```
 
 ## Hostinger manual upload
 

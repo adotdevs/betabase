@@ -24,7 +24,7 @@ import {
   getTransactionsForCoin,
   pickAlternateCoin,
 } from "./swap/swapUtils";
-import { useUsdToEurRate } from "../../../utils/euroCoinUtils";
+import { extractLivePrices, useUsdToEurRate } from "../../../utils/euroCoinUtils";
 
 const Swap = () => {
   useUsdToEurRate();
@@ -119,25 +119,16 @@ const Swap = () => {
         }
 
         const transactions = userCoins.getCoin?.transactions || [];
-        const livePrices = {
-          bnb: userCoins?.bnbPrice?.quote?.USD?.price ?? 210.25,
-          xrp: userCoins?.xrpPrice?.quote?.USD?.price ?? 0.5086,
-          doge: userCoins?.dogePrice?.quote?.USD?.price ?? 0.1163,
-          sol: userCoins?.solPrice?.quote?.USD?.price ?? 245.01,
-          ton: userCoins?.tonPrice?.quote?.USD?.price ?? 5.76,
-          link: userCoins?.linkPrice?.quote?.USD?.price ?? 12.52,
-          dot: userCoins?.dotPrice?.quote?.USD?.price ?? 4.76,
-          near: userCoins?.nearPrice?.quote?.USD?.price ?? 5.59,
-          usdc: userCoins?.usdcPrice?.quote?.USD?.price ?? 0.99,
-          trx: userCoins?.trxPrice?.quote?.USD?.price ?? 0.1531,
-        };
+        const accountCurrency = userProfile?.signleUser?.currency || "USD";
+        const livePrices = extractLivePrices(userCoins, accountCurrency);
 
         setWalletSnapshot({
           userData: userCoins.getCoin,
           additionalCoins: userCoins.getCoin?.additionalCoins || [],
           transactions,
-          liveBtc: userCoins?.btcPrice?.quote?.USD?.price ?? 96075.25,
-          liveEth: userCoins?.ethPrice?.quote?.USD?.price ?? 2640,
+          liveBtc: livePrices.btc,
+          liveEth: livePrices.eth,
+          liveUsdt: livePrices.usdt,
           livePrices,
           btcBalance: getTransactionsForCoin("bitcoin", transactions),
           ethBalance: getTransactionsForCoin("ethereum", transactions),
@@ -173,6 +164,7 @@ const Swap = () => {
       usdtBalance: walletSnapshot.usdtBalance,
       liveBtc: walletSnapshot.liveBtc,
       liveEth: walletSnapshot.liveEth,
+      liveUsdt: walletSnapshot.liveUsdt,
       liveBnb: walletSnapshot.livePrices.bnb,
       liveXrp: walletSnapshot.livePrices.xrp,
       liveDoge: walletSnapshot.livePrices.doge,
@@ -190,11 +182,12 @@ const Swap = () => {
     const fiatCoins = buildFiatSwapCoins(
       walletSnapshot.additionalCoins,
       walletSnapshot.transactions,
-      getTransactionsForCoin
+      getTransactionsForCoin,
+      userCurrency
     );
 
     return [...cryptoCoins, ...fiatCoins];
-  }, [walletSnapshot]);
+  }, [walletSnapshot, userCurrency]);
 
   const swapAvailable = swapCoins.length >= 2;
   const hasFromCoin = Boolean(fromCoin);

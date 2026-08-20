@@ -1,17 +1,13 @@
 const axios = require("axios");
 
-const CMC_SYMBOLS = "BTC,ETH,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX";
-const CMC_QUOTES_URL =
-  `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${CMC_SYMBOLS}&convert=USD,EUR`;
-const CMC_QUOTES_URL_USD =
-  `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${CMC_SYMBOLS}&convert=USD`;
-
-const CACHE_TTL_MS = 55_000;
+const CMC_SYMBOLS = "BTC,ETH,USDT,BNB,XRP,DOGE,SOL,TON,LINK,DOT,NEAR,USDC,TRX";
+const CACHE_TTL_MS = 30_000;
 const FALLBACK_USD_TO_EUR = 0.92;
 
 const FALLBACK_USD = {
   BTC: 96075.25,
   ETH: 2640,
+  USDT: 1,
   BNB: 210.25,
   XRP: 0.5086,
   DOGE: 0.1163,
@@ -27,6 +23,7 @@ const FALLBACK_USD = {
 const PRICE_KEYS = [
   ["btcPrice", "BTC"],
   ["ethPrice", "ETH"],
+  ["usdtPrice", "USDT"],
   ["bnbPrice", "BNB"],
   ["xrpPrice", "XRP"],
   ["dogePrice", "DOGE"],
@@ -46,55 +43,38 @@ let cache = {
 };
 
 let inflightRequest = null;
+let lastLiveUsdToEurRate = FALLBACK_USD_TO_EUR;
 
-const isPlausibleLiveRate = (rate) => {
-  const n = Number(rate);
-  return Number.isFinite(n) && n > 0.7 && n < 1.1 && Math.abs(n - FALLBACK_USD_TO_EUR) > 0.002;
+const cmcQuotesUrl = (convert) =>
+  `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${CMC_SYMBOLS}&convert=${convert}`;
+
+const isFinitePositive = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0;
 };
+
+const isValidFxRate = (rate) => {
+  const n = Number(rate);
+  return Number.isFinite(n) && n > 0.7 && n < 1.1;
+};
+
+const quoteUsd = (entry) => Number(entry?.quote?.USD?.price);
+const quoteEur = (entry) => Number(entry?.quote?.EUR?.price);
+const normalizeCmcEntry = (entry) => (Array.isArray(entry) ? entry[0] : entry);
 
 const resolveUsdToEurRate = (coinData = {}) => {
-  const btc = coinData.BTC;
-  const usd = Number(btc?.quote?.USD?.price);
-  const eur = Number(btc?.quote?.EUR?.price);
+  const btc = normalizeCmcEntry(coinData.BTC);
+  const usd = quoteUsd(btc);
+  const eur = quoteEur(btc);
   if (usd > 0 && eur > 0) {
     const rate = eur / usd;
-    if (isPlausibleLiveRate(rate)) return rate;
+    if (isValidFxRate(rate)) return rate;
   }
   return null;
 };
 
-const fetchExternalUsdToEurRate = async () => {
-  try {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur",
-      { timeout: 8000 }
-    );
-    const usd = Number(data?.bitcoin?.usd);
-    const eur = Number(data?.bitcoin?.eur);
-    if (usd > 0 && eur > 0) {
-      const rate = eur / usd;
-      if (isPlausibleLiveRate(rate)) return rate;
-    }
-  } catch (error) {
-    console.warn("CoinGecko FX failed:", error.message);
-  }
-
-  try {
-    const { data } = await axios.get(
-      "https://api.frankfurter.app/latest?from=USD&to=EUR",
-      { timeout: 8000 }
-    );
-    const rate = Number(data?.rates?.EUR);
-    if (isPlausibleLiveRate(rate)) return rate;
-  } catch (error) {
-    console.warn("Frankfurter FX failed:", error.message);
-  }
-
-  return null;
-};
-
-const toQuoteObject = (usdPrice, usdToEurRate = FALLBACK_USD_TO_EUR) => {
-  const usd = Number(usdPrice);
+const toQuoteObject = (usdPrice, usdToEurRate = lastLiveUsdToEurRate) => {
+  const usd = Number(usdPrice) || 0;
   return {
     quote: {
       USD: { price: usd },
@@ -103,28 +83,37 @@ const toQuoteObject = (usdPrice, usdToEurRate = FALLBACK_USD_TO_EUR) => {
   };
 };
 
-const wrapQuote = (symbol, entry, usdToEurRate = FALLBACK_USD_TO_EUR) => {
-  const liveUsd = Number(entry?.quote?.USD?.price);
+const wrapQuote = (symbol, entry, usdToEurRate = lastLiveUsdToEurRate) => {
+  const liveEntry = normalizeCmcEntry(entry);
+  const liveUsd = quoteUsd(liveEntry);
+  const liveEur = quoteEur(liveEntry);
+
   if (!Number.isFinite(liveUsd)) {
     return toQuoteObject(FALLBACK_USD[symbol], usdToEurRate);
   }
 
-  const liveEur = Number(entry?.quote?.EUR?.price);
-  if (liveUsd > 0 && isPlausibleLiveRate(liveEur / liveUsd)) {
-    return entry;
+  if (isFinitePositive(liveEur)) {
+    return {
+      ...liveEntry,
+      quote: {
+        ...(liveEntry.quote || {}),
+        USD: { price: liveUsd },
+        EUR: { price: liveEur },
+      },
+    };
   }
 
   return {
-    ...entry,
+    ...liveEntry,
     quote: {
-      ...(entry.quote || {}),
+      ...(liveEntry.quote || {}),
       USD: { price: liveUsd },
       EUR: { price: liveUsd * usdToEurRate },
     },
   };
 };
 
-const buildPricePayload = (coinData = {}, usdToEurRate = FALLBACK_USD_TO_EUR) => {
+const buildPricePayload = (coinData = {}, usdToEurRate = lastLiveUsdToEurRate) => {
   const payload = { usdToEurRate };
 
   PRICE_KEYS.forEach(([responseKey, symbol]) => {
@@ -134,7 +123,7 @@ const buildPricePayload = (coinData = {}, usdToEurRate = FALLBACK_USD_TO_EUR) =>
   return payload;
 };
 
-const buildFallbackPayload = (usdToEurRate = FALLBACK_USD_TO_EUR) =>
+const buildFallbackPayload = (usdToEurRate = lastLiveUsdToEurRate) =>
   buildPricePayload(
     Object.fromEntries(
       Object.entries(FALLBACK_USD).map(([symbol, price]) => [
@@ -145,8 +134,8 @@ const buildFallbackPayload = (usdToEurRate = FALLBACK_USD_TO_EUR) =>
     usdToEurRate
   );
 
-const fetchCmc = async (url) => {
-  const response = await axios.get(url, {
+const fetchCmc = async (convert) => {
+  const response = await axios.get(cmcQuotesUrl(convert), {
     headers: {
       "X-CMC_PRO_API_KEY": process.env.BTC_KEY,
     },
@@ -160,16 +149,48 @@ const fetchCmc = async (url) => {
   return response.data.data;
 };
 
+const mergeUsdAndEurQuotes = (usdData = {}, eurData = {}) => {
+  const merged = {};
+  const symbols = new Set([...Object.keys(usdData), ...Object.keys(eurData)]);
+
+  symbols.forEach((symbol) => {
+    const usdEntry = usdData[symbol] || {};
+    const eurEntry = eurData[symbol] || {};
+    merged[symbol] = {
+      ...usdEntry,
+      ...eurEntry,
+      quote: {
+        ...(usdEntry.quote || {}),
+        ...(eurEntry.quote || {}),
+        USD: usdEntry.quote?.USD,
+        EUR: eurEntry.quote?.EUR || usdEntry.quote?.EUR,
+      },
+    };
+  });
+
+  return merged;
+};
+
 const fetchFromCoinMarketCap = async () => {
-  try {
-    return await fetchCmc(CMC_QUOTES_URL);
-  } catch (error) {
-    console.warn(
-      "CoinMarketCap USD+EUR quote failed, retrying USD only:",
-      error.response?.data?.status || error.message
-    );
-    return fetchCmc(CMC_QUOTES_URL_USD);
+  // Basic CMC plans only allow one `convert` currency per request.
+  const [usdData, eurResult] = await Promise.allSettled([
+    fetchCmc("USD"),
+    fetchCmc("EUR"),
+  ]);
+
+  if (usdData.status !== "fulfilled") {
+    throw usdData.reason;
   }
+
+  if (eurResult.status !== "fulfilled") {
+    console.warn(
+      "CoinMarketCap EUR quote failed:",
+      eurResult.reason?.response?.data?.status || eurResult.reason?.message
+    );
+  }
+
+  const eurData = eurResult.status === "fulfilled" ? eurResult.value : {};
+  return mergeUsdAndEurQuotes(usdData.value, eurData);
 };
 
 const getLatestCoinPrices = async () => {
@@ -185,17 +206,15 @@ const getLatestCoinPrices = async () => {
 
   inflightRequest = (async () => {
     try {
-      const [coinData, externalFx] = await Promise.all([
-        fetchFromCoinMarketCap(),
-        fetchExternalUsdToEurRate(),
-      ]);
-
+      const coinData = await fetchFromCoinMarketCap();
       const usdToEurRate =
-        resolveUsdToEurRate(coinData) ||
-        externalFx ||
-        FALLBACK_USD_TO_EUR;
+        resolveUsdToEurRate(coinData) || lastLiveUsdToEurRate || FALLBACK_USD_TO_EUR;
 
-      const prices = buildPricePayload(coinData, usdToEurRate);
+      if (isValidFxRate(usdToEurRate)) {
+        lastLiveUsdToEurRate = usdToEurRate;
+      }
+
+      const prices = buildPricePayload(coinData, lastLiveUsdToEurRate);
 
       cache = {
         prices,
@@ -215,8 +234,7 @@ const getLatestCoinPrices = async () => {
       }
 
       console.warn("Serving static fallback coin prices after CoinMarketCap failure");
-      const externalFx = await fetchExternalUsdToEurRate().catch(() => null);
-      const fallbackPrices = buildFallbackPayload(externalFx || FALLBACK_USD_TO_EUR);
+      const fallbackPrices = buildFallbackPayload(lastLiveUsdToEurRate);
       cache = {
         prices: fallbackPrices,
         fetchedAt: Date.now(),

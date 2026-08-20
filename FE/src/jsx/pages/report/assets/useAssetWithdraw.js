@@ -8,6 +8,7 @@ import {
 import {
   getFiatCurrencyByKey,
   isFiatCoin,
+  notifyWalletBalanceUpdated,
 } from "../../../../utils/euroCoinUtils";
 import { getTransactionsForCoin } from "./coinConfig";
 
@@ -289,6 +290,7 @@ export function useAssetWithdraw({
           setisDisable(false);
           toast.success(newTransaction.msg);
           closeDeposit();
+          notifyWalletBalanceUpdated();
           onSuccess?.();
         } else {
           closeDeposit();
@@ -337,6 +339,7 @@ export function useAssetWithdraw({
           setisDisable(false);
           toast.success(newTransaction.msg);
           closeDeposit();
+          notifyWalletBalanceUpdated();
           onSuccess?.();
         } else {
           closeDeposit();

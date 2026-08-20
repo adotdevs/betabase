@@ -1,5 +1,5 @@
 import { formatFiatValue, getTransactionsForCoin } from "../assets/coinConfig";
-import { FIAT_CURRENCIES, getFiatUsdRate } from "../../../../utils/euroCoinUtils";
+import { FIAT_CURRENCIES, convertFiatToUserCurrency } from "../../../../utils/euroCoinUtils";
 
 export { getTransactionsForCoin };
 
@@ -12,7 +12,8 @@ export const getSwapDecimals = (coin) => (isFiatSwapCoin(coin) ? 2 : 8);
 export const buildFiatSwapCoins = (
   additionalCoins = [],
   transactions = [],
-  getTransactionsForCoinFn = getTransactionsForCoin
+  getTransactionsForCoinFn = getTransactionsForCoin,
+  userCurrency = "USD"
 ) =>
   FIAT_CURRENCIES.filter((fiat) => SWAP_FIAT_KEYS.has(fiat.key))
     .map((fiat) => {
@@ -28,7 +29,7 @@ export const buildFiatSwapCoins = (
         trxName: fiat.key,
         logo: fiat.icon,
         balance: getTransactionsForCoinFn(fiat.key, transactions),
-        price: getFiatUsdRate(fiat),
+        price: convertFiatToUserCurrency(1, fiat.key, userCurrency),
         address: "",
         activationStatus: "active",
         isAdditional: true,

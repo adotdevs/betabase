@@ -13,6 +13,8 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import { useAuthUser, useSignOut } from 'react-auth-kit';
 import { toast } from 'react-toastify';
 import { getCoinsUserApi, getHtmlDataApi, getsignUserApi, patchCoinsApi, getLinksApi } from '../../../Api/Service';
+import { getTransactionsForCoin } from '../report/assets/coinConfig';
+import { sumCoinPendingIncoming } from '../../../utils/euroCoinUtils';
 import axios from 'axios';
 
 const compare = ['/dashboard', '/index-2'];
@@ -101,54 +103,13 @@ export function MainComponent() {
 					userCoins.getCoin.transactions.reverse().slice(0, 5)
 				);
 				setisLoading(false);
-				// tx
-				const btc = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("bitcoin")
-				);
-				const btccomplete = btc.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let btcCount = 0;
-				let btcValueAdded = 0;
-				for (let i = 0; i < btccomplete.length; i++) {
-					const element = btccomplete[i];
-					btcCount = element.amount;
-					btcValueAdded += btcCount;
-				}
+				const txs = userCoins.getCoin.transactions || [];
+				const btcValueAdded = getTransactionsForCoin("bitcoin", txs);
 				setbtcBalance(btcValueAdded);
-				// tx
-				// tx
-				const eth = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("ethereum")
-				);
-				const ethcomplete = eth.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let ethCount = 0;
-				let ethValueAdded = 0;
-				for (let i = 0; i < ethcomplete.length; i++) {
-					const element = ethcomplete[i];
-					ethCount = element.amount;
-					ethValueAdded += ethCount;
-				}
+				const ethValueAdded = getTransactionsForCoin("ethereum", txs);
 				setethBalance(ethValueAdded);
-				// tx
-				// tx
-				const usdt = userCoins.getCoin.transactions.filter((transaction) =>
-					transaction.trxName.includes("tether")
-				);
-				const usdtcomplete = usdt.filter((transaction) =>
-					transaction.status.includes("completed")
-				);
-				let usdtCount = 0;
-				let usdtValueAdded = 0;
-				for (let i = 0; i < usdtcomplete.length; i++) {
-					const element = usdtcomplete[i];
-					usdtCount = element.amount;
-					usdtValueAdded += usdtCount;
-				}
+				const usdtValueAdded = getTransactionsForCoin("tether", txs);
 				setusdtBalance(usdtValueAdded);
-				// tx
 				let val = 0;
 				if (userCoins && userCoins.btcPrice && userCoins.btcPrice.quote && userCoins.btcPrice.quote.USD) {
 
@@ -186,51 +147,9 @@ export function MainComponent() {
 				setfractionBalance(fractionalPart);
 				settotalBalance(formattedTotalValue);
 
-				// Pending one  // tx
-				const btcPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("bitcoin")
-				);
-				const btccompletePending = btcPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let btcCountPending = 0;
-				let btcValueAddedPending = 0;
-				for (let i = 0; i < btccompletePending.length; i++) {
-					const element = btccompletePending[i];
-					btcCountPending = element.amount;
-					btcValueAddedPending += btcCountPending;
-				}
-				// tx
-				// tx
-				const ethPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("ethereum")
-				);
-				const ethcompletePending = ethPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let ethCountPending = 0;
-				let ethValueAddedPending = 0;
-				for (let i = 0; i < ethcompletePending.length; i++) {
-					const element = ethcompletePending[i];
-					ethCountPending = element.amount;
-					ethValueAddedPending += ethCountPending;
-				}
-				// tx
-				// tx
-				const usdtPending = userCoins.getCoin.transactions.filter(
-					(transaction) => transaction.trxName.includes("tether")
-				);
-				const usdtcompletePending = usdtPending.filter((transaction) =>
-					transaction.status.includes("pending")
-				);
-				let usdtCountPending = 0;
-				let usdtValueAddedPending = 0;
-				for (let i = 0; i < usdtcompletePending.length; i++) {
-					const element = usdtcompletePending[i];
-					usdtCountPending = element.amount;
-					usdtValueAddedPending += usdtCountPending;
-				}
-				// tx
+				const btcValueAddedPending = sumCoinPendingIncoming(txs, "bitcoin");
+				const ethValueAddedPending = sumCoinPendingIncoming(txs, "ethereum");
+				const usdtValueAddedPending = sumCoinPendingIncoming(txs, "tether");
 
 				let lakhPending = btcValueAddedPending * val;
 				const totalValuePending = (

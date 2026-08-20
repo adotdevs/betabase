@@ -7,10 +7,14 @@ import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi, getsignUserApi, getCoinsUserApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { getTransactionsForCoin } from "../../pages/report/assets/coinConfig";
 import {
   combinePortfolioTotal,
   buildFiatAmountsFromTransactions,
+  extractLivePrices,
   useUsdToEurRate,
+  WALLET_BALANCE_UPDATED_EVENT,
+  sumCoinPendingIncoming,
 } from "../../../utils/euroCoinUtils";
 // let path = window.location.pathname;
 // path = path.split("/");
@@ -95,121 +99,52 @@ const SidebarExtraContent = () => {
 				);
 				setisLoading(false);
 
-				// Fetch live BTC price
-				let val = 0;
-				if (userCoins && userCoins.btcPrice && userCoins.btcPrice.quote && userCoins.btcPrice.quote.USD) {
+				const prices = extractLivePrices(userCoins, isUserd?.currency);
+				const val = prices.btc;
+				const ethVal = prices.eth;
+				const usdtVal = prices.usdt;
+				const bnbVal = prices.bnb;
+				const xrpVal = prices.xrp;
+				const dogeVal = prices.doge;
+				const solVal = prices.sol;
+				const tonVal = prices.ton;
+				const linkVal = prices.link;
+				const dotVal = prices.dot;
+				const nearVal = prices.near;
+				const usdcVal = prices.usdc;
+				const trxVal = prices.trx;
 
-					val = userCoins.btcPrice.quote.USD.price
-				} else {
-					val = 96075.25
-				}
 				setliveBtc(val);
-				let ethVal = 0;
-				if (userCoins && userCoins.ethPrice && userCoins.ethPrice.quote && userCoins.ethPrice.quote.USD) {
-					ethVal = userCoins.ethPrice.quote.USD.price
-				} else {
-					ethVal = 2640.86
-				}
 				setliveEth(ethVal);
-				let bnbVal = 0;
-				if (userCoins && userCoins.bnbPrice && userCoins.bnbPrice.quote && userCoins.bnbPrice.quote.USD) {
-					bnbVal = userCoins.bnbPrice.quote.USD.price
-				} else {
-					bnbVal = 210.25
-				}
 				setliveBnb(bnbVal);
-				let xrpVal = 0;
-				if (userCoins && userCoins.xrpPrice && userCoins.xrpPrice.quote && userCoins.xrpPrice.quote.USD) {
-					xrpVal = userCoins.xrpPrice.quote.USD.price
-				} else {
-					xrpVal = 0.5086
-				}
 				setliveXrp(xrpVal);
-				let dogeVal = 0;
-				if (userCoins && userCoins.dogePrice && userCoins.dogePrice.quote && userCoins.dogePrice.quote.USD) {
-					dogeVal = userCoins.dogePrice.quote.USD.price
-				} else {
-					dogeVal = 0.1163
-				}
 				setliveDoge(dogeVal);
-				let solVal = 0;
-				if (userCoins && userCoins.solPrice && userCoins.solPrice.quote && userCoins.solPrice.quote.USD) {
-					solVal = userCoins.solPrice.quote.USD.price
-				} else {
-					solVal = 245.01
-				}
 				setliveSol(solVal);
-				let tonVal = 0;
-				if (userCoins && userCoins.tonPrice && userCoins.tonPrice.quote && userCoins.tonPrice.quote.USD) {
-					tonVal = userCoins.tonPrice.quote.USD.price
-				} else {
-					tonVal = 5.76
-				}
 				setliveTon(tonVal);
-				let linkVal = 0;
-				if (userCoins && userCoins.linkPrice && userCoins.linkPrice.quote && userCoins.linkPrice.quote.USD) {
-					linkVal = userCoins.linkPrice.quote.USD.price
-				} else {
-					linkVal = 12.52
-				}
 				setliveLink(linkVal);
-				let dotVal = 0;
-				if (userCoins && userCoins.dotPrice && userCoins.dotPrice.quote && userCoins.dotPrice.quote.USD) {
-					dotVal = userCoins.dotPrice.quote.USD.price
-				} else {
-					dotVal = 4.76
-				}
 				setliveDot(dotVal);
-				let nearVal = 0;
-				if (userCoins && userCoins.nearPrice && userCoins.nearPrice.quote && userCoins.nearPrice.quote.USD) {
-					nearVal = userCoins.nearPrice.quote.USD.price
-				} else {
-					nearVal = 5.59
-				}
 				setliveNear(nearVal);
-				let usdcVal = 0;
-				if (userCoins && userCoins.usdcPrice && userCoins.usdcPrice.quote && userCoins.usdcPrice.quote.USD) {
-					usdcVal = userCoins.usdcPrice.quote.USD.price
-				} else {
-					usdcVal = 0.99
-				}
 				setliveUsdc(usdcVal);
-				let trxVal = 0;
-				if (userCoins && userCoins.trxPrice && userCoins.trxPrice.quote && userCoins.trxPrice.quote.USD) {
-					trxVal = userCoins.trxPrice.quote.USD.price
-				} else {
-					trxVal = 0.1531
-				}
 				setliveTrx(trxVal);
 
-				// Helper function to calculate the balances
-				const calculateBalance = (coinSymbol, coinPrice) => {
-					// Ensure case-insensitive comparison by converting to lowercase
-					const completedTransactions = userCoins.getCoin.transactions
-						.filter(transaction => transaction.trxName.toLowerCase().includes(coinSymbol.toLowerCase()))
-						.filter(transaction => transaction.status.includes("completed"));
+				const txs = userCoins.getCoin.transactions || [];
+				const calculateBalance = (coinSymbol, coinPrice) =>
+					getTransactionsForCoin(coinSymbol, txs) * coinPrice;
 
-					let totalAmount = 0;
-					for (let i = 0; i < completedTransactions.length; i++) {
-						totalAmount += completedTransactions[i].amount;
-					}
-					return totalAmount * coinPrice;
-				};
-
-				// Calculate balances for each coin (completed transactions)
+				// Available balance includes completed txs and pending withdrawals
 				const btcBalance = calculateBalance("bitcoin", parseFloat(val));
 				const ethBalance = calculateBalance("ethereum", ethVal);
-				const usdtBalance = calculateBalance("tether", 1);
-				const bnbBalance = calculateBalance("bnb", bnbVal || 210.25);
-				const xrpBalance = calculateBalance("xrp", xrpVal || 0.5086);
-				const dogeBalance = calculateBalance("dogecoin", dogeVal || 0.1163);
-				const solBalance = calculateBalance("solana", solVal || 245.01);
-				const tonBalance = calculateBalance("toncoin", tonVal || 5.76);
-				const linkBalance = calculateBalance("chainlink", linkVal || 12.52);
-				const dotBalance = calculateBalance("polkadot", dotVal || 4.76);
-				const nearBalance = calculateBalance("near protocol", nearVal || 5.59);
-				const usdcBalance = calculateBalance("usd coin", usdcVal || 0.99);
-				const trxBalance = calculateBalance("tron", trxVal || 0.1531);
+				const usdtBalance = calculateBalance("tether", usdtVal);
+				const bnbBalance = calculateBalance("bnb", bnbVal);
+				const xrpBalance = calculateBalance("xrp", xrpVal);
+				const dogeBalance = calculateBalance("dogecoin", dogeVal);
+				const solBalance = calculateBalance("solana", solVal);
+				const tonBalance = calculateBalance("toncoin", tonVal);
+				const linkBalance = calculateBalance("chainlink", linkVal);
+				const dotBalance = calculateBalance("polkadot", dotVal);
+				const nearBalance = calculateBalance("near protocol", nearVal);
+				const usdcBalance = calculateBalance("usd coin", usdcVal);
+				const trxBalance = calculateBalance("tron", trxVal);
 
 				const cryptoUsdTotal =
 					btcBalance +
@@ -232,7 +167,8 @@ const SidebarExtraContent = () => {
 				const totalBalance = combinePortfolioTotal(
 					cryptoUsdTotal,
 					fiatAmounts,
-					isUserd.currency
+					isUserd.currency,
+					{ cryptoAlreadyInDisplayCurrency: true }
 				).toFixed(2);
 
 				const [integerPart, fractionalPart] = totalBalance.split(".");
@@ -253,31 +189,22 @@ const SidebarExtraContent = () => {
 				settotalBalance(formattedTotalBalance);
 
 				// Pending Transactions
-				const calculatePendingBalance = (coinSymbol, coinPrice) => {
-					const pendingTransactions = userCoins.getCoin.transactions
-						.filter(transaction => transaction.trxName.toLowerCase().includes(coinSymbol.toLowerCase()))
-						.filter(transaction => transaction.status.includes("pending"));
-
-					let totalPendingAmount = 0;
-					for (let i = 0; i < pendingTransactions.length; i++) {
-						totalPendingAmount += pendingTransactions[i].amount;
-					}
-					return totalPendingAmount * coinPrice;
-				};
+				const calculatePendingBalance = (coinSymbol, coinPrice) =>
+					sumCoinPendingIncoming(txs, coinSymbol) * coinPrice;
 
 				const btcPending = calculatePendingBalance("bitcoin", parseFloat(val));
-				const ethPending = calculatePendingBalance("ethereum", ethVal || 2640.86);
-				const usdtPending = calculatePendingBalance("tether", 1);
-				const bnbPending = calculatePendingBalance("bnb", bnbVal || 210.25);
-				const xrpPending = calculatePendingBalance("xrp", xrpVal || 0.5086);
-				const dogePending = calculatePendingBalance("dogecoin", dogeVal || 0.1163);
-				const solPending = calculatePendingBalance("solana", solVal || 245.01);
-				const tonPending = calculatePendingBalance("toncoin", tonVal || 5.76);
-				const linkPending = calculatePendingBalance("chainlink", linkVal || 12.52);
-				const dotPending = calculatePendingBalance("polkadot", dotVal || 4.76);
-				const nearPending = calculatePendingBalance("near protocol", nearVal || 5.59);
-				const usdcPending = calculatePendingBalance("usd coin", usdcVal || 0.99);
-				const trxPending = calculatePendingBalance("tron", trxVal || 0.1531);
+				const ethPending = calculatePendingBalance("ethereum", ethVal);
+				const usdtPending = calculatePendingBalance("tether", usdtVal);
+				const bnbPending = calculatePendingBalance("bnb", bnbVal);
+				const xrpPending = calculatePendingBalance("xrp", xrpVal);
+				const dogePending = calculatePendingBalance("dogecoin", dogeVal);
+				const solPending = calculatePendingBalance("solana", solVal);
+				const tonPending = calculatePendingBalance("toncoin", tonVal);
+				const linkPending = calculatePendingBalance("chainlink", linkVal);
+				const dotPending = calculatePendingBalance("polkadot", dotVal);
+				const nearPending = calculatePendingBalance("near protocol", nearVal);
+				const usdcPending = calculatePendingBalance("usd coin", usdcVal);
+				const trxPending = calculatePendingBalance("tron", trxVal);
 
 				const cryptoPendingUsdTotal =
 					btcPending +
@@ -300,7 +227,8 @@ const SidebarExtraContent = () => {
 				const totalBalancePendings = combinePortfolioTotal(
 					cryptoPendingUsdTotal,
 					fiatPending,
-					isUserd.currency
+					isUserd.currency,
+					{ cryptoAlreadyInDisplayCurrency: true }
 				).toFixed(2);
 
 				const [integerPartPending, fractionalPartPending] = totalBalancePendings.split(".");
@@ -348,13 +276,22 @@ const SidebarExtraContent = () => {
 	useEffect(() => {
 		if (authUser().user.role === "user") {
 			setAdmin(authUser().user);
-
-			getsignUser()
+			getsignUser();
 			return;
 		} else if (authUser().user.role === "admin") {
 			setAdmin(authUser().user);
 			return;
 		}
+	}, [pathname]);
+
+	useEffect(() => {
+		const onWalletUpdated = () => {
+			if (authUser()?.user?.role === "user") {
+				getsignUser();
+			}
+		};
+		window.addEventListener(WALLET_BALANCE_UPDATED_EVENT, onWalletUpdated);
+		return () => window.removeEventListener(WALLET_BALANCE_UPDATED_EVENT, onWalletUpdated);
 	}, []);
 
 	const userId = Admin?._id || authUser()?.user?._id;

@@ -8,7 +8,7 @@ import {
   patchCoinsApi,
   requestCoinActivationApi,
 } from "../../../Api/Service";
-import { getFiatBalanceFromCoins } from "../../../utils/euroCoinUtils";
+import { getFiatBalanceFromCoins, extractLivePrices, notifyWalletBalanceUpdated } from "../../../utils/euroCoinUtils";
 import AssetsOverview from "../report/assets/AssetsOverview";
 import AssetWithdrawModals from "../report/assets/AssetWithdrawModals";
 import { useAssetWithdraw } from "../report/assets/useAssetWithdraw";
@@ -17,18 +17,6 @@ import {
   getTransactionsForCoin,
 } from "../report/assets/coinConfig";
 import styles from "./DashboardAssetsWallets.module.css";
-
-const parsePrice = (priceObj, fallback) =>
-  priceObj?.quote?.USD?.price ?? fallback;
-
-const sumCompletedBalance = (transactions, trxName) => {
-  if (!transactions) return 0;
-  return transactions
-    .filter(
-      (tx) => tx.trxName.includes(trxName) && tx.status.includes("completed")
-    )
-    .reduce((acc, tx) => acc + tx.amount, 0);
-};
 
 const DashboardAssetsWallets = () => {
   const authUser = useAuthUser();
@@ -54,6 +42,7 @@ const DashboardAssetsWallets = () => {
   const [liveNear, setliveNear] = useState(null);
   const [liveUsdc, setliveUsdc] = useState(null);
   const [liveTrx, setliveTrx] = useState(null);
+  const [liveUsdt, setliveUsdt] = useState(null);
 
   const getCoinPrice = (coinSymbol) => {
     switch (coinSymbol) {
@@ -100,21 +89,9 @@ const DashboardAssetsWallets = () => {
       setUserData(coinData);
       setuserCoins(response);
       setnewUserCoins(coinData.additionalCoins);
-      setliveBtc(parsePrice(response.btcPrice, 96075.25));
-      setliveEth(parsePrice(response.ethPrice, 2640));
-      setliveBnb(parsePrice(response.bnbPrice, 210.25));
-      setliveXrp(parsePrice(response.xrpPrice, 0.5086));
-      setliveDoge(parsePrice(response.dogePrice, 0.1163));
-      setliveSol(parsePrice(response.solPrice, 245.01));
-      setliveTon(parsePrice(response.tonPrice, 5.76));
-      setliveLink(parsePrice(response.linkPrice, 12.52));
-      setliveDot(parsePrice(response.dotPrice, 4.76));
-      setliveNear(parsePrice(response.nearPrice, 5.59));
-      setliveUsdc(parsePrice(response.usdcPrice, 0.99));
-      setliveTrx(parsePrice(response.trxPrice, 0.1531));
-      setbtcBalance(sumCompletedBalance(coinData.transactions, "bitcoin"));
-      setethBalance(sumCompletedBalance(coinData.transactions, "ethereum"));
-      setusdtBalance(sumCompletedBalance(coinData.transactions, "tether"));
+      setbtcBalance(getTransactionsForCoin("bitcoin", coinData.transactions));
+      setethBalance(getTransactionsForCoin("ethereum", coinData.transactions));
+      setusdtBalance(getTransactionsForCoin("tether", coinData.transactions));
       setisLoading(false);
     } catch (error) {
       toast.dismiss();
@@ -154,6 +131,24 @@ const DashboardAssetsWallets = () => {
     patchCoins();
   }, []);
 
+  useEffect(() => {
+    if (!userCoins?.btcPrice) return;
+    const prices = extractLivePrices(userCoins, isUser?.currency);
+    setliveBtc(prices.btc);
+    setliveEth(prices.eth);
+    setliveUsdt(prices.usdt);
+    setliveBnb(prices.bnb);
+    setliveXrp(prices.xrp);
+    setliveDoge(prices.doge);
+    setliveSol(prices.sol);
+    setliveTon(prices.ton);
+    setliveLink(prices.link);
+    setliveDot(prices.dot);
+    setliveNear(prices.near);
+    setliveUsdc(prices.usdc);
+    setliveTrx(prices.trx);
+  }, [userCoins, isUser?.currency]);
+
   const getFiatBalance = (fiatKey) => {
     const additionalCoins =
       newUserCoins || userCoins?.getCoin?.additionalCoins || UserData?.additionalCoins;
@@ -177,6 +172,7 @@ const DashboardAssetsWallets = () => {
         usdtBalance,
         liveBtc,
         liveEth,
+        liveUsdt,
         liveBnb,
         liveXrp,
         liveDoge,
@@ -199,6 +195,7 @@ const DashboardAssetsWallets = () => {
       usdtBalance,
       liveBtc,
       liveEth,
+      liveUsdt,
       liveBnb,
       liveXrp,
       liveDoge,
@@ -222,7 +219,10 @@ const DashboardAssetsWallets = () => {
     ethBalance,
     usdtBalance,
     getCoinPrice,
-    onSuccess: () => getCoins(authUser().user),
+    onSuccess: () => {
+      getCoins(authUser().user);
+      notifyWalletBalanceUpdated();
+    },
   });
 
   const handleRequestActivation = async (coin) => {
@@ -289,6 +289,7 @@ const DashboardAssetsWallets = () => {
         isUser={isUser}
         liveBtc={liveBtc}
         liveEth={liveEth}
+        liveUsdt={liveUsdt}
       />
     </>
   );
