@@ -10,45 +10,45 @@ import {
 const faqData = [
   {
     id: 1,
-    question: "What is Betabase Wallet?",
+    question: "Registered company details",
     answer:
-      "Betabase Wallet is a secure, easy-to-use platform for managing, sending, and receiving cryptocurrencies. It supports multiple tokens and offers advanced security features to protect your digital assets. BETA 9 INVESTMENTS PTE. LTD. UEN 202508851H | 106D AH SOO WALK, Singapore 536730",
+      "BETA 9 INVESTMENTS PTE. LTD. UEN 202508851H | 106D AH SOO WALK, Singapore 536730",
   },
   {
     id: 2,
+    question: "What is Betabase Wallet?",
+    answer:
+      "Betabase Wallet is a secure, easy-to-use platform for managing, sending, and receiving cryptocurrencies. It supports multiple tokens and offers advanced security features to protect your digital assets.",
+  },
+  {
+    id: 3,
     question: "How do I get started?",
     answer:
       "Simply register online or download the Windows app, create an account, and follow the setup instructions. You'll be able to securely store, send, and receive a wide range of cryptocurrencies in just a few steps.",
   },
   {
-    id: 3,
+    id: 4,
     question: "Is my crypto safe in Betabase Wallet?",
     answer:
       "Yes, your crypto is protected with top-level encryption, multi-layer authentication, and cold storage solutions, ensuring maximum security for your digital assets.",
   },
   {
-    id: 4,
+    id: 5,
     question: "What crypto is supported?",
     answer:
       "Betabase Wallet supports a wide variety of cryptocurrencies, including Bitcoin, Ethereum, and many popular altcoins. Check our supported tokens list for the full range of assets you can store and manage.",
   },
   {
-    id: 5,
+    id: 6,
     question: "Can I stake my crypto in Betabase Wallet?",
     answer:
       "Yes, Betabase Wallet offers a simple staking option that allows you to earn rewards by staking your tokens directly within the app. Just choose your desired crypto, and start staking to maximize your returns.",
   },
   {
-    id: 6,
+    id: 7,
     question: "Can I connect my bank account or credit card to Betabase Wallet?",
     answer:
       "Yes, Betabase Wallet allows you to link your bank account or credit card for easy purchasing and transferring of cryptocurrencies. Enjoy a simple, secure way to fund your wallet and manage your assets.",
-  },
-  {
-    id: 7,
-    question: "Registered company details",
-    answer:
-      "BETA 9 INVESTMENTS PTE. LTD. UEN 202508851H | 106D AH SOO WALK, Singapore 536730",
   },
 ];
 
