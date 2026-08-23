@@ -13,6 +13,7 @@ import avatar from "../../../assets/images/avatar/1.jpg";
 import { ThemeContext } from "../../../context/ThemeContext";
 import  Logout  from "../nav/Logout";
 import { SVGICON } from "../../constant/theme";
+import CryptoNewsTicker from "../../elements/dashboard/CryptoNewsTicker";
 
 const listBlog = [
   { icon:SVGICON.LtcSvgIcon, name:'LTC in DexignLab'},
@@ -265,7 +266,7 @@ const Header = ({ onNote }) => {
             </div>
           </nav>
         </div>
-         {path === "dashboard" || path=== "index-2" ? 
+         {path === "dashboard" || path=== "index-2" ?  
             <div className="page-titles">
               <div className="sub-dz-head">
                   <div className="d-flex align-items-center dz-head-title">
@@ -299,6 +300,7 @@ const Header = ({ onNote }) => {
                 </ol>
             </div>
           }
+        <CryptoNewsTicker />
       </div>
      
     </>    

@@ -50,6 +50,7 @@ export const allUsersApi = (params = {}) => {
 export const getCoinsUserApi = (id) => {
   return withLiveFx(getApi(`getCoinsUser/${id}`));
 };
+export const getCryptoNewsApi = () => getApi("cryptoNews");
 export const signleUsersApi = (id) => {
   return getApi(`singleUser/${id}`);
 };

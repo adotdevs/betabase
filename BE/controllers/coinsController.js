@@ -5,7 +5,7 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const jwtToken = require("../utils/jwtToken");
 const userModel = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
-const { getLatestCoinPrices } = require("../utils/coinPriceService");
+const { getLatestCoinPrices, getCryptoNews } = require("../utils/coinPriceService");
 const { assertSufficientAvailableBalance } = require("../utils/availableBalance");
 let notificationSchema = require("../models/notifications");
 
@@ -231,6 +231,17 @@ exports.getCoinsUser = catchAsyncErrors(async (req, res, next) => {
     msg: "Dones",
     ...prices,
     getCoin,
+  });
+});
+
+exports.getCryptoNews = catchAsyncErrors(async (req, res) => {
+  const news = await getCryptoNews();
+
+  res.status(200).send({
+    success: true,
+    msg: "Done",
+    source: news.source,
+    news: news.items || [],
   });
 });
 exports.updateCoinAddress = catchAsyncErrors(async (req, res, next) => {

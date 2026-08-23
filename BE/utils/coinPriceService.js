@@ -249,6 +249,123 @@ const getLatestCoinPrices = async () => {
   return inflightRequest;
 };
 
+const NEWS_CACHE_TTL_MS = 10 * 60 * 1000;
+let newsCache = {
+  items: null,
+  fetchedAt: 0,
+  source: null,
+};
+
+const normalizeNewsItem = (item, index = 0) => {
+  const title = String(item?.title || item?.subtitle || item?.meta?.title || "").trim();
+  if (!title) return null;
+
+  return {
+    id: String(item?.id || item?.slug || item?.source_url || title || index),
+    kind: "article",
+    title,
+    source: String(item?.source_name || item?.source || item?.meta?.source_name || "CoinMarketCap"),
+    url: String(
+      item?.source_url ||
+        item?.url ||
+        item?.meta?.source_url ||
+        "https://coinmarketcap.com/headlines/news/"
+    ),
+    publishedAt: item?.released_at || item?.published_at || item?.createdAt || null,
+  };
+};
+
+const fetchCmcContentNews = async () => {
+  const endpoints = [
+    "https://pro-api.coinmarketcap.com/v1/content/latest",
+    "https://pro-api.coinmarketcap.com/v1/content/posts/latest",
+  ];
+
+  let lastError = null;
+  for (const url of endpoints) {
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          "X-CMC_PRO_API_KEY": process.env.BTC_KEY,
+        },
+        params: { limit: 20 },
+        timeout: 12000,
+      });
+
+      const rows = Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data)
+          ? response.data
+          : [];
+      const items = rows.map(normalizeNewsItem).filter(Boolean);
+      if (items.length) return items;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("CoinMarketCap content news unavailable");
+};
+
+const fetchCmcMarketHeadlines = async () => {
+  const usdData = await fetchCmc("USD");
+
+  return Object.values(usdData)
+    .map((entry) => normalizeCmcEntry(entry))
+    .filter((coin) => coin?.name && coin?.symbol)
+    .map((coin) => {
+      const change = Number(coin.quote?.USD?.percent_change_24h);
+      const price = Number(coin.quote?.USD?.price);
+      const direction = Number.isFinite(change) && change < 0 ? "down" : "up";
+      const changeText = Number.isFinite(change)
+        ? `${Math.abs(change).toFixed(2)}%`
+        : "—";
+      const priceText = Number.isFinite(price)
+        ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+        : "";
+
+      return {
+        id: String(coin.symbol),
+        kind: "quote",
+        name: coin.name,
+        symbol: String(coin.symbol).toUpperCase(),
+        title: `${coin.name} (${coin.symbol}) is ${direction} ${changeText} in 24h${priceText ? ` at ${priceText}` : ""}`,
+        source: "CoinMarketCap",
+        url: coin.slug
+          ? `https://coinmarketcap.com/currencies/${coin.slug}/`
+          : "https://coinmarketcap.com/",
+        price: Number.isFinite(price) ? price : null,
+        change: Number.isFinite(change) ? change : 0,
+        direction,
+      };
+    })
+    .sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+};
+
+const getCryptoNews = async () => {
+  const now = Date.now();
+  if (newsCache.items?.length && now - newsCache.fetchedAt < NEWS_CACHE_TTL_MS) {
+    return newsCache;
+  }
+
+  try {
+    const items = await fetchCmcContentNews();
+    newsCache = { items, fetchedAt: now, source: "content" };
+    return newsCache;
+  } catch (error) {
+    const cmcStatus = error.response?.data?.status;
+    console.warn(
+      "CoinMarketCap news content unavailable, using market headlines:",
+      cmcStatus || error.message
+    );
+
+    const items = await fetchCmcMarketHeadlines();
+    newsCache = { items, fetchedAt: Date.now(), source: "quotes" };
+    return newsCache;
+  }
+};
+
 module.exports = {
   getLatestCoinPrices,
+  getCryptoNews,
 };

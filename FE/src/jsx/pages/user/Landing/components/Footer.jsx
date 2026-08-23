@@ -23,6 +23,19 @@ const Footer = () => (
           <FooterInfoBlock style={{ paddingLeft: "10px", justifyContent: "start" }}>
             <p><a href="mailto:support@betabase.pro">support@betabase.pro</a></p>
           </FooterInfoBlock>
+          <SocialLinks>
+            <a
+              href="https://www.facebook.com/profile.php?id=61593554224020"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow Betabase on Facebook"
+              title="Facebook"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14.5 8.5H16V6h-1.6C12.1 6 11 7.3 11 9.2V11H9v2.5h2V20h3v-6.5h2.1l.4-2.5H14V9.5c0-.6.3-1 1-1Z" />
+              </svg>
+            </a>
+          </SocialLinks>
         </FooterInfoBlock>
 
         <FooterInfoBlock style={{ justifyContent: 'left', width: "70%" }}>
@@ -176,6 +189,40 @@ const FooterNav = styled.nav`
   @media screen and (min-width: 576px) {
     justify-content: flex-start;
     gap: 16px 32px;
+  }
+`;
+
+const SocialLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-left: 10px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #5a5a6a;
+    background: rgba(255, 255, 255, 0.04);
+    color: #dddddd;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    &:hover {
+      color: #ffffff;
+      border-color: ${landingGreenColor};
+      background: ${landingGreenColor};
+      transform: translateY(-1px);
+    }
   }
 `;
 

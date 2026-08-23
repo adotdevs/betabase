@@ -56,7 +56,7 @@ const TransactionSec = () => {
     const [isLoading, setisLoading] = useState(true);
     const [UserTransactions, setUserTransactions] = useState([]);
   const [singleTransaction, setsingleTransaction] = useState(null);
-  const [isUser, setIsUser] = useState({});
+    const [isUser, setIsUser] = useState({});
   const [filter, setFilter] = useState("all");
   const [pricePayload, setPricePayload] = useState(null);
 

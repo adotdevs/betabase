@@ -402,6 +402,7 @@ const useMenuList = () => {
             title: 'Tax Assessment',
             classsChange: 'mm-active',
             to: '/tax-assessment-questionnaire?from=dashboard',
+            external: true,
             iconStyle: <i className="material-symbols-outlined">assignment</i>,
         },
     ];

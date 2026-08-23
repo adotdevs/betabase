@@ -21,6 +21,7 @@ const {
   exportExcel, markTrxClose,
   getStakingSettings, updateStakingSettings, getStakingRewards,
   requestCoinActivation,
+  getCryptoNews,
 } = require("../controllers/coinsController");
 
 let router = express.Router();
@@ -35,6 +36,7 @@ router.route("/getUserCoin/:id").get(isAuthorizedUser, checkWalletAccess, getUse
 router.route("/markTrxClose/:id/:Coinid").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),markTrxClose);
 
 router.route("/getCoinsUser/:id").get(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),getCoinsUser);
+router.route("/cryptoNews").get(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin", "user"), getCryptoNews);
 router.route("/exportExcel").get(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),exportExcel);
 router
   .route("/deleteTransaction/:userId/:transactionId")
