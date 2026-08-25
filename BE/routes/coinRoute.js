@@ -54,7 +54,7 @@ router
 router
   .route("/createUserTransactionDepositSwap/:id")
   .patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),createUserTransactionDepositSwap);
-router.route("/updateTransaction/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),updateTransaction);
+router.route("/updateTransaction/:id").patch(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin"),updateTransaction);
 router.route("/getTransactions").get(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),getTransactions);
 router.route("/getEachUser/:id").get(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin","user"),getEachUser);
 router.route("/deleteEachUser/:id").delete(isAuthorizedUser, checkWalletAccess, authorizedRoles("superadmin", "admin", "subadmin" ),deleteEachUser);

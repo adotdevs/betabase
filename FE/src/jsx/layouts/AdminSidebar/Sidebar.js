@@ -498,7 +498,7 @@ const SideBar = (props) => {
                   </svg>
 
                   <span className="whitespace-nowrap font-sans text-sm block">
-                    Pending Transactions
+                    Transactions
                   </span>
                 </NavLink>
               </li>
