@@ -9,12 +9,48 @@ import AustraliaLogo from '../../../../../assets/f2.png';
 import ESMA from '../../../../../assets/f3.png';
 import FCA from '../../../../../assets/f4.png';
 
+const FOOTER_GROUPS = [
+  {
+    title: 'Legal',
+    links: [
+      { to: '/terms-of-use', label: 'Terms of Use' },
+      { to: '/privacy-policy', label: 'Privacy Policy' },
+      { to: '/risk-warning', label: 'Risk Warning' },
+    ],
+  },
+  {
+    title: 'Programs',
+    links: [
+      { to: '/affiliate-program-terms', label: 'Affiliate Program' },
+      { to: '/referral-program-terms', label: 'Referral Program' },
+      { to: '/law-enforcement', label: 'Law Enforcement' },
+    ],
+  },
+  {
+    title: 'Support',
+    links: [
+      { to: '/help/', label: 'Help Center' },
+      { to: '/tax-assessment-questionnaire', label: 'Tax Assessment' },
+    ],
+  },
+];
+
 const Footer = () => (
   <LandingFooter>
     <LandingContainer>
       <FooterNav>
-        <Link to="/help/">Help Center</Link>
-        <Link to="/tax-assessment-questionnaire">Tax Assessment Questionnaire</Link>
+        {FOOTER_GROUPS.map((group) => (
+          <FooterGroup key={group.title}>
+            <FooterGroupTitle>{group.title}</FooterGroupTitle>
+            <FooterLinkList>
+              {group.links.map((link) => (
+                <Link key={link.to} to={link.to}>
+                  {link.label}
+                </Link>
+              ))}
+            </FooterLinkList>
+          </FooterGroup>
+        ))}
       </FooterNav>
 
       <FooterInfo>
@@ -165,30 +201,58 @@ width: 100%;
 `;
 
 const FooterNav = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px 28px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
   width: 100%;
+  align-self: stretch;
   margin-bottom: 32px;
-  padding-bottom: 24px;
+  padding-bottom: 28px;
   border-bottom: 1px solid #454554;
 
+  @media screen and (min-width: 576px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 40px;
+    margin-bottom: 40px;
+  }
+`;
+
+const FooterGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+`;
+
+const FooterGroupTitle = styled.span`
+  display: block;
+  margin: 0;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+`;
+
+const FooterLinkList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
   a {
-    color: #dddddd;
+    color: #c7cccf;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+    line-height: 1.35;
     text-decoration: none;
     transition: color 0.2s ease;
 
     &:hover {
       color: ${landingGreenColor};
     }
-  }
-
-  @media screen and (min-width: 576px) {
-    justify-content: flex-start;
-    gap: 16px 32px;
   }
 `;
 
