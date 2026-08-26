@@ -40,6 +40,7 @@ const UserVerifications = () => {
   const authUser = useAuthUser();
   const Navigate = useNavigate();
   const [isDisable, setisDisable] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [UserData, setUserData] = useState({});
   const [previewErrors, setPreviewErrors] = useState({ cnic: false, bill: false });
   const [Active, setActive] = useState(false);
@@ -60,6 +61,7 @@ const UserVerifications = () => {
       toast.error(error?.message || "Failed to load user");
     } finally {
       setisDisable(false);
+      setIsPageLoading(false);
     }
   };
 
@@ -221,8 +223,9 @@ const UserVerifications = () => {
       Navigate("/dashboard");
       return;
     }
+    setIsPageLoading(true);
     getSignleUser();
-  }, []);
+  }, [id]);
 
   const submitDoc = UserData.submitDoc;
   const hasCnicDoc = Boolean(submitDoc?.cnic);
@@ -233,9 +236,7 @@ const UserVerifications = () => {
     ? "Documents submitted"
     : hasAnyDocs
       ? "Partial submission"
-      : submitDoc?.status === "pending"
-        ? "Awaiting submission"
-        : "Loading...";
+      : "Awaiting submission";
   const kycApproved = UserData.kyc === true;
   const userName = [UserData.firstName, UserData.lastName].filter(Boolean).join(" ");
 
@@ -270,28 +271,39 @@ const UserVerifications = () => {
                                 {userName ? ` for ${userName}` : ""}.
                               </p>
                               <div className="mt-3 flex flex-wrap items-center gap-2">
-                                <span
-                                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                                    kycApproved
-                                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
-                                      : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-                                  }`}
-                                >
-                                  {kycApproved ? "KYC Approved" : "KYC Pending"}
-                                </span>
-                                <span className="inline-flex items-center rounded-full bg-muted-100 px-3 py-1 text-xs font-medium text-muted-600 dark:bg-muted-800 dark:text-muted-300">
-                                  {submissionLabel}
-                                </span>
+                                {isPageLoading ? (
+                                  <>
+                                    <span className="nui-placeload animate-nui-placeload h-6 w-28 rounded-full" />
+                                    <span className="nui-placeload animate-nui-placeload h-6 w-36 rounded-full" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                                        kycApproved
+                                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                                          : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                                      }`}
+                                    >
+                                      {kycApproved ? "KYC Approved" : "KYC Pending"}
+                                    </span>
+                                    <span className="inline-flex items-center rounded-full bg-muted-100 px-3 py-1 text-xs font-medium text-muted-600 dark:bg-muted-800 dark:text-muted-300">
+                                      {submissionLabel}
+                                    </span>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
 
                           <div className="flex w-full items-center justify-end border-t border-muted-200 pt-4 dark:border-muted-700">
-                            {!kycApproved ? (
+                            {isPageLoading ? (
+                              <span className="nui-placeload animate-nui-placeload h-10 w-[140px] rounded-md" />
+                            ) : !kycApproved ? (
                               <button
                                 onClick={() => updateKyc(true)}
                                 type="button"
-                                disabled={isDisable }
+                                disabled={isDisable}
                                 className="relative inline-flex h-10 min-w-[140px] items-center justify-center rounded-md border border-info-500 bg-info-500 px-5 py-2 text-sm font-normal text-white transition-all duration-300 hover:bg-info-400 disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 {isDisable ? (
@@ -318,7 +330,7 @@ const UserVerifications = () => {
                         </div>
                       </div>
 
-                      {!hasAnyDocs && (
+                      {!isPageLoading && !hasAnyDocs && (
                         <div className="px-6 py-8 text-center">
                           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted-100 dark:bg-muted-800">
                             <DocumentIcon />
@@ -334,7 +346,26 @@ const UserVerifications = () => {
                       )}
                     </div>
 
-                    {hasAnyDocs && (
+                    {isPageLoading && (
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {[0, 1].map((slot) => (
+                          <div
+                            key={slot}
+                            className="overflow-hidden rounded-xl border border-muted-200 bg-white p-5 shadow-sm dark:border-muted-700 dark:bg-muted-900"
+                          >
+                            <div className="nui-placeload animate-nui-placeload mb-4 h-5 w-40 rounded" />
+                            <div className="nui-placeload animate-nui-placeload mb-3 h-4 w-56 rounded" />
+                            <div className="nui-placeload animate-nui-placeload h-48 w-full rounded-lg" />
+                            <div className="mt-4 flex gap-2">
+                              <div className="nui-placeload animate-nui-placeload h-10 w-28 rounded-md" />
+                              <div className="nui-placeload animate-nui-placeload h-10 w-32 rounded-md" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {!isPageLoading && hasAnyDocs && (
                       <>
                         <div className="grid gap-6 md:grid-cols-2">
                           {hasCnicDoc &&

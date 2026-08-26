@@ -8,6 +8,10 @@ const {
   isCloudinaryPdfUrl,
   fetchCloudinaryPdfBuffer,
 } = require("../utils/cloudinaryKyc");
+const {
+  hasSubAdminAccessToUser,
+  subadminAccessibleUsersQuery,
+} = require("../utils/subAdminAssignment");
 
 const LOAN_SECTIONS = [
   "personalInfo",
@@ -32,9 +36,7 @@ const assertUserAccess = async (req, userId) => {
   }
 
   if (req.user.role === "subadmin") {
-    const hasAccess =
-      user.isShared === true ||
-      user.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(user, req.user._id);
     if (user.role !== "user" || !hasAccess) {
       throw new errorHandler("Access denied", 403);
     }
@@ -279,10 +281,7 @@ exports.getAllLoanApplications = catchAsyncErrors(async (req, res) => {
   if (req.user.role === "subadmin") {
     const assignedUsers = await UserModel.find({
       role: "user",
-      $or: [
-        { isShared: true },
-        { assignedSubAdmin: req.user._id },
-      ],
+      ...subadminAccessibleUsersQuery(req.user._id),
     }).select("_id");
     query.userId = { $in: assignedUsers.map((u) => u._id) };
   }

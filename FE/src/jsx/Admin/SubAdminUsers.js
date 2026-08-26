@@ -16,6 +16,7 @@ import { useAuthUser } from "react-auth-kit";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import AdminHeader from "./adminHeader";
+import { hasSubAdminAccessToUser } from "./assets/subAdminAssignment";
 const SubAdminUsers = () => {
   const [Users, setUsers] = useState([]);
   const [unVerified, setunVerified] = useState([]);
@@ -45,10 +46,7 @@ const SubAdminUsers = () => {
           return (
             user.role === "user" &&
             user.verified === true &&
-            (
-              user.isShared === true ||   // If user is shared, allow it
-              (user.isShared === false && user.assignedSubAdmin === currentUser) // If not shared but assigned, allow it
-            )
+            hasSubAdminAccessToUser(user, currentUser)
           );
         });
 
@@ -56,10 +54,7 @@ const SubAdminUsers = () => {
           return (
             user.role === "user" &&
             user.verified === false &&
-            (
-              user.isShared === true ||
-              (user.isShared === false && user.assignedSubAdmin === currentUser)
-            )
+            hasSubAdminAccessToUser(user, currentUser)
           );
         });
 
@@ -79,7 +74,7 @@ const SubAdminUsers = () => {
   const deleteEachUser = async (user) => {
     try {
       setisDisable(true);
-      const allUsers = await UnassignUserApi(user._id);
+      const allUsers = await UnassignUserApi(user._id, id.id);
 
       if (allUsers.success) {
         toast.dismiss();

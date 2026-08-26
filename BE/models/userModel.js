@@ -193,9 +193,15 @@ let userSchema = new mongoose.Schema({
   },
   assignedSubAdmin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user", // Reference to the sub-admin
+    ref: "user", // Legacy single assignee; kept in sync with assignedSubAdmins[0]
     default: null,
   },
+  assignedSubAdmins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
+  ],
   payments: [
     {
       type: {

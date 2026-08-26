@@ -1,0 +1,464 @@
+/* HeroUI-style chips & subadmin picker. !important beats .admin button { padding: 0 }. */
+
+.hui-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 12px 0 8px !important;
+  margin: 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 9999px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: filter 0.15s ease, transform 0.15s ease !important;
+}
+
+.hui-chip:hover {
+  filter: brightness(1.12) !important;
+  text-decoration: none !important;
+}
+
+.hui-chip--selectable {
+  margin-top: 0px !important;
+  margin-left: 10px !important;
+}
+
+.hui-chip-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.hui-chip-icon svg {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: inherit !important;
+}
+
+.hui-chip--verified {
+  background: rgba(23, 201, 100, 0.22) !important;
+  color: #17c964 !important;
+  border-color: rgba(23, 201, 100, 0.45) !important;
+}
+
+.hui-chip--submitted {
+  background: rgba(245, 165, 36, 0.22) !important;
+  color: #f5a524 !important;
+  border-color: rgba(245, 165, 36, 0.5) !important;
+}
+
+.hui-chip--partial {
+  background: rgba(0, 111, 238, 0.22) !important;
+  color: #66b3ff !important;
+  border-color: rgba(0, 111, 238, 0.45) !important;
+}
+
+.hui-chip--unverified {
+  background: rgba(243, 18, 96, 0.22) !important;
+  color: #ff6b9d !important;
+  border-color: rgba(243, 18, 96, 0.5) !important;
+}
+
+.hui-assign {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin: 0 0 16px !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid transparent !important;
+}
+
+.hui-assign--empty {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-style: dashed !important;
+}
+
+.hui-assign--filled {
+  background: rgba(23, 201, 100, 0.08) !important;
+  border-color: rgba(23, 201, 100, 0.28) !important;
+}
+
+.hui-assign--shared {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: rgba(0, 111, 238, 0.1) !important;
+  border-color: rgba(0, 111, 238, 0.32) !important;
+}
+
+.hui-assign-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #94a3b8 !important;
+}
+
+.hui-assign--filled .hui-assign-mark {
+  background: rgba(23, 201, 100, 0.18) !important;
+  color: #17c964 !important;
+}
+
+.hui-assign--shared .hui-assign-mark {
+  background: rgba(0, 111, 238, 0.18) !important;
+  color: #66b3ff !important;
+}
+
+.hui-assign-copy {
+  min-width: 0 !important;
+}
+
+.hui-assign-title {
+  margin: 0 !important;
+  color: #e8edf5 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+.hui-assign-sub {
+  margin: 2px 0 0 !important;
+  color: #9aa4b2 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.hui-assign-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.hui-assign-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: 100% !important;
+  height: 28px !important;
+  padding: 0 4px 0 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(23, 201, 100, 0.16) !important;
+  border: 1px solid rgba(23, 201, 100, 0.32) !important;
+}
+
+.hui-assign-chip-name {
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: 150px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #d1fae5 !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+}
+
+.hui-assign-chip-x {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  margin: 0 0 0 4px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  background-image: none !important;
+  color: #fecaca !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+}
+
+.hui-assign-chip-x:hover {
+  background: rgba(243, 18, 96, 0.28) !important;
+  color: #fff !important;
+}
+
+.hui-assign-chip-x svg {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.hui-picker-label {
+  display: block !important;
+  margin: 0 0 8px !important;
+  color: #c6d0dc !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.hui-picker {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  position: relative !important;
+}
+
+.hui-picker-selected {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  min-height: 28px !important;
+}
+
+.hui-picker-empty {
+  color: #8b95a3 !important;
+  font-size: 12px !important;
+}
+
+.hui-picker-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 28px !important;
+  padding: 0 4px 0 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(0, 111, 238, 0.18) !important;
+  border: 1px solid rgba(0, 111, 238, 0.4) !important;
+  color: #93c5fd !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+}
+
+.hui-picker-chip button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  margin: 0 0 0 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  background-image: none !important;
+  color: inherit !important;
+  cursor: pointer !important;
+}
+
+.hui-picker-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: #151a22 !important;
+  background-color: #151a22 !important;
+  background-image: none !important;
+  color: #e8edf5 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.hui-picker-trigger:hover,
+.hui-picker.is-open .hui-picker-trigger {
+  border-color: rgba(0, 111, 238, 0.55) !important;
+}
+
+.hui-picker-trigger-value {
+  color: #c6d0dc !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  line-height: 1.3 !important;
+}
+
+.hui-picker-caret {
+  flex-shrink: 0 !important;
+  color: #8b95a3 !important;
+  transition: transform 0.15s ease !important;
+}
+
+.hui-picker.is-open .hui-picker-caret {
+  transform: rotate(180deg) !important;
+}
+
+.hui-picker-list {
+  max-height: 220px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 6px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: #151a22 !important;
+}
+
+.hui-picker-empty-list {
+  margin: 0 !important;
+  padding: 16px 12px !important;
+  color: #8b95a3 !important;
+  font-size: 13px !important;
+  text-align: center !important;
+}
+
+.hui-assign-dialog {
+  overflow: hidden !important;
+}
+
+.hui-assign-dialog .MuiDialogContent-root {
+  overflow-x: hidden !important;
+}
+
+.hui-picker-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 10px 12px !important;
+  margin: 0 0 4px !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #e8edf5 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.hui-picker-row:last-child {
+  margin-bottom: 0 !important;
+}
+
+.hui-picker-row:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.hui-picker-row.is-selected {
+  background: rgba(0, 111, 238, 0.14) !important;
+  border-color: rgba(0, 111, 238, 0.35) !important;
+}
+
+.hui-picker-check {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+  border-radius: 6px !important;
+  border: 2px solid rgba(255, 255, 255, 0.28) !important;
+  background: transparent !important;
+  color: #fff !important;
+}
+
+.hui-picker-row.is-selected .hui-picker-check {
+  background: #006fee !important;
+  border-color: #006fee !important;
+}
+
+.hui-picker-avatar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
+  border-radius: 9999px !important;
+  background: rgba(0, 111, 238, 0.22) !important;
+  color: #93c5fd !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+.hui-picker-meta {
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.hui-picker-name {
+  color: #f3f6fb !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+}
+
+.hui-picker-email {
+  color: #8b95a3 !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.hui-picker-error {
+  margin: 8px 0 0 !important;
+  color: #f31260 !important;
+  font-size: 12px !important;
+}
+
+.hui-assign-btn {
+  width: 100% !important;
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  border: 2px solid #42a5f5 !important;
+  background: rgba(25, 118, 210, 0.16) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  cursor: pointer !important;
+}
+
+.hui-assign-btn,
+.hui-assign-btn *,
+.hui-assign-btn .MuiButton-startIcon,
+.hui-assign-btn .MuiButton-startIcon svg,
+.hui-assign-btn .MuiButton-label {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.hui-assign-btn:hover {
+  background: rgba(25, 118, 210, 0.28) !important;
+  border-color: #90caf9 !important;
+  color: #ffffff !important;
+}
+
+.hui-assign-btn.Mui-disabled,
+.hui-assign-btn:disabled {
+  border-color: #455a64 !important;
+  color: #9e9e9e !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}

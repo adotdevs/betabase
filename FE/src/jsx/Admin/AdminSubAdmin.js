@@ -19,6 +19,7 @@ import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import AdminHeader from "./adminHeader";
 import AdminSmtpConfigCardSection from "./components/AdminSmtpConfigCardSection";
+import { getAssignedSubAdminIds } from "./assets/subAdminAssignment";
 import {
   Grid,
   Card,
@@ -85,9 +86,10 @@ const AdminSubAdmin = () => {
 
           // First count dedicated users
           usersResponse.allUsers.forEach(user => {
-            if (user.assignedSubAdmin && !user.isShared) {
-              dedicatedCounts[user.assignedSubAdmin] = (dedicatedCounts[user.assignedSubAdmin] || 0) + 1;
-            }
+            if (user.isShared) return;
+            getAssignedSubAdminIds(user).forEach((subadminId) => {
+              dedicatedCounts[subadminId] = (dedicatedCounts[subadminId] || 0) + 1;
+            });
           });
 
           // Count shared users (same count for all subadmins)

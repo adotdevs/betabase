@@ -7,6 +7,10 @@ const userModel = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
 const { getLatestCoinPrices, getCryptoNews } = require("../utils/coinPriceService");
 const { assertSufficientAvailableBalance } = require("../utils/availableBalance");
+const {
+  getAssignedSubAdminIds,
+  syncAssignedSubAdmins,
+} = require("../utils/subAdminAssignment");
 let notificationSchema = require("../models/notifications");
 
 const XLSX = require("xlsx");
@@ -1035,26 +1039,32 @@ exports.UnassignUser = catchAsyncErrors(async (req, res, next) => {
   let signleUser = await userModel.findById({ _id: id });
 
   if (!signleUser) {
-    res.status(200).send({
+    return res.status(200).send({
       success: false,
       msg: "User not found or already has been unasssigned",
     });
   }
-  // Set assignedSubAdmin to null
-  signleUser.assignedSubAdmin = null;
+
+  const subAdminId = req.query.subAdminId || req.body?.subAdminId;
+  if (subAdminId) {
+    const remaining = getAssignedSubAdminIds(signleUser).filter(
+      (assignedId) => assignedId !== String(subAdminId)
+    );
+    syncAssignedSubAdmins(signleUser, remaining);
+  } else {
+    syncAssignedSubAdmins(signleUser, []);
+  }
   await signleUser.save();
-  if(signleUser.isShared){
-    res.status(200).send({
-    success: true,
-    msg: "User has been unasssigned successfully, but its shared globally to all sub admins",
-    // getCoin,
-  });
-    return
+
+  if (signleUser.isShared) {
+    return res.status(200).send({
+      success: true,
+      msg: "User has been unasssigned successfully, but its shared globally to all sub admins",
+    });
   }
   res.status(200).send({
     success: true,
     msg: "User has been unasssigned successfully",
-    // getCoin,
   });
 });
 

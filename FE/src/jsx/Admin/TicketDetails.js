@@ -11,6 +11,7 @@ import SideBar from "../layouts/AdminSidebar/Sidebar";
 import AdminHeader from "./adminHeader";
 import EmailTemplatesDialog from './components/EmailTemplatesDialog';
 import { isEmptyRichText, messageContainsHtml } from '../../utils/emailTemplateUtils';
+import { hasSubAdminAccessToUser } from './assets/subAdminAssignment';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './TicketDetails.css';
@@ -139,8 +140,7 @@ const AllTicket = () => {
                     return;
                 }
 
-                const hasPermission = user.isShared === true ||
-                    (user.isShared === false && user.assignedSubAdmin === authUser().user._id);
+                const hasPermission = hasSubAdminAccessToUser(user, authUser().user._id);
 
                 if (!hasPermission) {
                     toast.error("You don't have permission to view this ticket");

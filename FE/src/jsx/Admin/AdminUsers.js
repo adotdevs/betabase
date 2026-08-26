@@ -11,7 +11,8 @@ import {
   updateUserComplianceRestrictionApi,
   adminTicketsApi,
   addUserByEmailApi,
-  importUsersAsLeadsApi
+  importUsersAsLeadsApi,
+  UnassignUserApi
 } from "../../Api/Service";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -37,7 +38,6 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -71,12 +71,17 @@ import {
   Upload as UploadIcon,
   SelectAll as SelectAllIcon,
   Deselect as DeselectIcon,
-  Check as SelectCheckIcon
+  Check as SelectCheckIcon,
+  HourglassTop as HourglassTopIcon,
+  PersonAdd as PersonAddIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
 } from '@mui/icons-material';
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import AdminHeader from "./adminHeader";
 import exportStyles from "./AdminUsersExport.module.css";
+import { getAssignedSubAdminIds, hasSubAdminAccessToUser } from "./assets/subAdminAssignment";
+import "./assets/AdminUserCard.css";
 
 const CrmOutlineButton = ({ children, onClick, disabled, icon, variant = "primary" }) => (
   <button
@@ -147,6 +152,48 @@ const UserSelectCheckbox = ({ selected, onToggle }) => (
   </Box>
 );
 
+const getUserKycStatus = (user) => {
+  const hasCnic = Boolean(user?.submitDoc?.cnic);
+  const hasBill = Boolean(user?.submitDoc?.bill);
+  const docsSubmitted = user?.submitDoc?.status === "completed" || hasCnic || hasBill;
+  const iconSx = { fontSize: "14px" };
+
+  if (user?.kyc === true) {
+    return {
+      key: "verified",
+      label: "KYC Verified",
+      icon: <VerifiedIcon sx={iconSx} />,
+      accent: "#17c964",
+    };
+  }
+
+  if (docsSubmitted) {
+    const isPartial = (!hasCnic || !hasBill) && user?.submitDoc?.status !== "completed";
+    if (isPartial) {
+      return {
+        key: "partial",
+        label: "KYC Partial",
+        icon: <HourglassTopIcon sx={iconSx} />,
+        accent: "#006FEE",
+      };
+    }
+
+    return {
+      key: "submitted",
+      label: "KYC Submitted",
+      icon: <HourglassTopIcon sx={iconSx} />,
+      accent: "#f5a524",
+    };
+  }
+
+  return {
+    key: "unverified",
+    label: "KYC Unverified",
+    icon: <WarningIcon sx={iconSx} />,
+    accent: "#f31260",
+  };
+};
+
 // Memoized UserCard component to prevent unnecessary re-renders
 const UserCard = React.memo(({
   user,
@@ -171,80 +218,94 @@ const UserCard = React.memo(({
   onExportToCrm,
   isExportingToCrm = false,
   crmExportBusy = false,
+  canAssign = false,
+  onAssign,
+  onUnassignFromSubadmin,
+  unassigningKey = "",
 }) => {
+  const navigate = useNavigate();
   const getSubadminName = useCallback((subadminId) => {
-    const subadmin = subadmins.find(sub => sub._id === subadminId);
+    const subadmin = subadmins.find(sub => String(sub._id) === String(subadminId));
     return subadmin ? `${subadmin.firstName} ${subadmin.lastName}` : "Unknown Subadmin";
   }, [subadmins]);
 
   const openedTicketsCount = userTicketsCount[user._id] || 0;
+  const kycStatus = getUserKycStatus(user);
 
   const renderAssignmentInfo = useCallback((user) => {
     if (user.isShared) {
       return (
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1.5, bgcolor: 'primary.dark', borderRadius: 2 }}>
-          <ShareIcon sx={{ mr: 1, color: 'primary.light' }} />
-          <Box>
-            <Typography variant="subtitle2" fontWeight="600" color="primary.light">
-              Shared with all subadmins
-            </Typography>
-            <Typography variant="caption" color="primary.300">
-              Accessible to every subadmin
-            </Typography>
-          </Box>
-        </Box>
-      );
-    } else if (user.assignedSubAdmin) {
-      const subadminName = getSubadminName(user.assignedSubAdmin);
-      return (
-        <Button
-          component={Link}
-          to={`/admin/subadmin/users/${user.assignedSubAdmin}`}
-          startIcon={<AssignmentIcon />}
-          variant="outlined"
-          color="success"
-          size="small"
-          sx={{
-            mb: 2,
-            width: '100%',
-            justifyContent: 'flex-start',
-            textTransform: 'none',
-            p: 1.5,
-            borderColor: 'success.dark',
-            backgroundColor: 'success.dark',
-            color: 'success.light',
-            '&:hover': {
-              backgroundColor: 'success.main',
-              borderColor: 'success.light'
-            }
-          }}
-        >
-          <Box textAlign="left">
-            <Typography variant="subtitle2" color="lightgray" fontWeight="600">
-              Assigned to
-            </Typography>
-            <Typography variant="caption" color="lightgray" display="block">
-              {subadminName}
-            </Typography>
-          </Box>
-        </Button>
-      );
-    } else {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
-          <WarningIcon sx={{ mr: 1, color: 'grey.500' }} />
-          <Box>
-            <Typography variant="subtitle2" fontWeight="600" color="grey.400">
-              Not assigned
-            </Typography>
-            <Typography variant="caption" color="grey.500">
-              No subadmin assigned
-            </Typography>
-          </Box>
-        </Box>
+        <div className="hui-assign hui-assign--shared">
+          <span className="hui-assign-mark"><ShareIcon sx={{ fontSize: 18 }} /></span>
+          <div className="hui-assign-copy">
+            <p className="hui-assign-title">Shared with all subadmins</p>
+            <p className="hui-assign-sub">Accessible to every subadmin</p>
+          </div>
+        </div>
       );
     }
-  }, [getSubadminName]);
+
+    const assignedIds = getAssignedSubAdminIds(user);
+    if (assignedIds.length > 0) {
+      return (
+        <div className="hui-assign hui-assign--filled">
+          <div className="hui-assign-copy">
+            <p className="hui-assign-title">
+              {assignedIds.length === 1
+                ? "Assigned to 1 subadmin"
+                : `Assigned to ${assignedIds.length} subadmins`}
+            </p>
+            <p className="hui-assign-sub">Tap a name to open, or remove with ×</p>
+          </div>
+          <div className="hui-assign-chips">
+            {assignedIds.map((subadminId) => {
+              const isUnassigning = unassigningKey === `${user._id}:${subadminId}`;
+              return (
+                <div className="hui-assign-chip" key={subadminId}>
+                  <button
+                    type="button"
+                    className="hui-assign-chip-name"
+                    onClick={() => navigate(`/admin/subadmin/users/${subadminId}`)}
+                  >
+                    {getSubadminName(subadminId)}
+                  </button>
+                  {canAssign && (
+                    <button
+                      type="button"
+                      className="hui-assign-chip-x"
+                      disabled={isUnassigning}
+                      aria-label={`Unassign from ${getSubadminName(subadminId)}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (!isUnassigning) {
+                          onUnassignFromSubadmin?.(user, subadminId);
+                        }
+                      }}
+                    >
+                      {isUnassigning
+                        ? <CircularProgress size={10} sx={{ color: "inherit" }} />
+                        : <CloseIcon />}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="hui-assign hui-assign--empty">
+        <span className="hui-assign-mark"><PersonAddIcon sx={{ fontSize: 18 }} /></span>
+        <div className="hui-assign-copy">
+          <p className="hui-assign-title">Not assigned</p>
+          <p className="hui-assign-sub">No subadmin assigned yet</p>
+        </div>
+      </div>
+    );
+  }, [getSubadminName, canAssign, onUnassignFromSubadmin, unassigningKey, navigate]);
 
   return (
     <Card
@@ -259,6 +320,7 @@ const UserCard = React.memo(({
         overflow: 'visible',
         border: '1px solid',
         borderColor: selected ? 'primary.main' : 'grey.800',
+        borderTop: `3px solid ${kycStatus.accent}`,
         background: selected
           ? 'linear-gradient(135deg, #1a2332 0%, #2d3a4d 100%)'
           : 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
@@ -312,7 +374,16 @@ const UserCard = React.memo(({
       {/* Card Header */}
       <CardHeader
         title={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1, pr: 9 }}>
+            <Link
+              to={`/admin/users/${user._id}/verifications`}
+              className={`hui-chip hui-chip--${kycStatus.key}${selectable ? " hui-chip--selectable" : ""}`}
+              title={kycStatus.label}
+            >
+              <span className="hui-chip-icon">{kycStatus.icon}</span>
+              {kycStatus.label}
+            </Link>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
             <Typography variant="h6" fontWeight="700" sx={{
               background: 'linear-gradient(45deg, #64b5f6, #42a5f5)',
               WebkitBackgroundClip: 'text',
@@ -329,6 +400,7 @@ const UserCard = React.memo(({
               >
               </div>
             ) : ""}
+            </Box>
           </Box>
         }
         subheader={
@@ -391,9 +463,9 @@ const UserCard = React.memo(({
 
         }
         sx={{
-          pt: 3,
+          pt: selectable ? 1.25 : 3,
           pb: 1,
-          pl: selectable ? 5.5 : 2,
+          pl: selectable ? 7 : 2,
           pr: 2,
           '& .MuiCardHeader-content': {
             overflow: 'hidden'
@@ -590,6 +662,33 @@ const UserCard = React.memo(({
               </Button>
             )}
 
+            {canAssign && (
+              <Button
+                className="hui-assign-btn"
+                variant="outlined"
+                startIcon={<PersonAddIcon />}
+                size="small"
+                disabled={Boolean(user.isShared)}
+                onClick={() => onAssign?.(user)}
+                title={user.isShared ? "Shared users are already visible to all subadmins" : "Assign this user to one or more subadmins"}
+                sx={{
+                  width: '100%',
+                  borderRadius: 3,
+                  textTransform: 'none',
+                  fontWeight: '600',
+                  py: 1,
+                  minHeight: '40px',
+                  color: '#ffffff !important',
+                  borderColor: '#42a5f5 !important',
+                  '& .MuiButton-startIcon, & .MuiButton-startIcon *': {
+                    color: '#ffffff !important',
+                  },
+                }}
+              >
+                Assign to Subadmin
+              </Button>
+            )}
+
             {/* Restrict / Unrestrict Button */}
             {(authUser.role === "admin" || authUser.role === "superadmin") && (
               <Button
@@ -751,10 +850,14 @@ const AdminUsers = () => {
   // New state for assign user modal
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assignEmail, setAssignEmail] = useState("");
-  const [selectedSubadmin, setSelectedSubadmin] = useState("");
+  const [assignTarget, setAssignTarget] = useState({ type: "email" });
+  const [selectedSubadmins, setSelectedSubadmins] = useState([]);
   const [isAssigning, setIsAssigning] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [subadminError, setSubadminError] = useState("");
+  const [unassignConfirm, setUnassignConfirm] = useState(null);
+  const [unassigningKey, setUnassigningKey] = useState("");
+  const [subadminPickerOpen, setSubadminPickerOpen] = useState(false);
 
   // Pagination and filter states
   const [searchInput, setSearchInput] = useState(""); // Temporary input value
@@ -882,6 +985,7 @@ const AdminUsers = () => {
 
   // Optimized getAllUsers function with pagination
   const [isAssignUser, setisAssignUser] = useState(false);
+  const canAssignUsers = isSuperAdmin || (currentAuthUser.user.role === "admin" && Boolean(isAssignUser));
   const getAllUsers = useCallback(async (isVerified = true, pageOverride = null) => {
     try {
       setLoadingUsers(true);
@@ -908,12 +1012,12 @@ const AdminUsers = () => {
         // Frontend filtering for subadmin
         let filtered = allUsers.allUsers.filter(user =>
           user.role === "user" && user.verified === true &&
-          (user.isShared === true || user.assignedSubAdmin === currentUser._id)
+          hasSubAdminAccessToUser(user, currentUser._id)
         );
 
         let unverified = allUsers.allUsers.filter(user =>
           user.role === "user" && user.verified === false &&
-          (user.isShared === true || user.assignedSubAdmin === currentUser._id)
+          hasSubAdminAccessToUser(user, currentUser._id)
         );
 
         // Apply search filter on frontend
@@ -1037,6 +1141,47 @@ const AdminUsers = () => {
     }
   }, [currentAuthUser, isSubadmin, pagination.page, pagination.limit, unverifiedPagination.page, unverifiedPagination.limit, searchQuery, onlineFilter, sortBy]);
 
+  const patchUserInLists = useCallback((userId, patch) => {
+    const target = String(userId);
+    const apply = (user) => (String(user._id) === target ? { ...user, ...patch } : user);
+    setUsers((prev) => prev.map(apply));
+    setunVerified((prev) => prev.map(apply));
+  }, []);
+
+  const removeUserFromLists = useCallback((userId, wasVerified) => {
+    const target = String(userId);
+    const keep = (user) => String(user._id) !== target;
+    setUsers((prev) => prev.filter(keep));
+    setunVerified((prev) => prev.filter(keep));
+    if (wasVerified) {
+      setPagination((prev) => ({ ...prev, total: Math.max(0, (prev.total || 0) - 1) }));
+    } else {
+      setUnverifiedPagination((prev) => ({ ...prev, total: Math.max(0, (prev.total || 0) - 1) }));
+    }
+    setSelectedUserIds((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      next.forEach((id) => {
+        if (String(id) === target) {
+          next.delete(id);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, []);
+
+  const moveUserToVerifiedList = useCallback((user) => {
+    const target = String(user._id);
+    const verifiedUser = { ...user, verified: true };
+    setunVerified((prev) => prev.filter((item) => String(item._id) !== target));
+    setUsers((prev) => (
+      prev.some((item) => String(item._id) === target) ? prev : [verifiedUser, ...prev]
+    ));
+    setUnverifiedPagination((prev) => ({ ...prev, total: Math.max(0, (prev.total || 0) - 1) }));
+    setPagination((prev) => ({ ...prev, total: (prev.total || 0) + 1 }));
+  }, []);
+
   // Event handlers with useCallback
   const deleteEachUser = useCallback(async (user) => {
     try {
@@ -1045,7 +1190,7 @@ const AdminUsers = () => {
       if (allUsers.success) {
         toast.success(allUsers.msg);
         setOpen(false);
-        await getAllUsers();
+        removeUserFromLists(user._id, user.verified === true);
       } else {
         toast.error(allUsers.msg);
         setOpen(false);
@@ -1055,14 +1200,14 @@ const AdminUsers = () => {
     } finally {
       setisDisable(false);
     }
-  }, [getAllUsers]);
+  }, [removeUserFromLists]);
 
   const bypassSingleUser = useCallback(async (user) => {
     try {
       setisUsers(true);
       const signleUser = await bypassSingleUserApi(user._id);
       if (signleUser.success) {
-        await getAllUsers();
+        moveUserToVerifiedList(user);
         toast.success(signleUser.msg);
       } else {
         toast.error(signleUser.msg);
@@ -1072,7 +1217,7 @@ const AdminUsers = () => {
     } finally {
       setisUsers(false);
     }
-  }, [getAllUsers]);
+  }, [moveUserToVerifiedList]);
 
   const updateUserIsShared = useCallback(async (userId, isShared) => {
     try {
@@ -1080,7 +1225,7 @@ const AdminUsers = () => {
       const updatedUser = await updateSignleUsersStatusApi(userId, { isShared });
       if (updatedUser.success) {
         toast.success("User status updated successfully");
-        await getAllUsers();
+        patchUserInLists(userId, { isShared });
       } else {
         toast.error(updatedUser.msg);
       }
@@ -1089,7 +1234,7 @@ const AdminUsers = () => {
     } finally {
       setdisabledIn(false);
     }
-  }, [getAllUsers]);
+  }, [patchUserInLists]);
 
   const onOpenModal = useCallback((user) => {
     setOpen(true);
@@ -1119,8 +1264,11 @@ const AdminUsers = () => {
 
       if (response.success) {
         toast.success(response.msg);
+        patchUserInLists(user._id, {
+          isComplianceRestricted: nextRestricted,
+          complianceRestrictedAt: nextRestricted ? new Date().toISOString() : null,
+        });
         onCloseRestrictModal();
-        await getAllUsers();
       } else {
         toast.error(response.msg || "Failed to update compliance restriction");
       }
@@ -1129,24 +1277,70 @@ const AdminUsers = () => {
     } finally {
       setIsRestricting(false);
     }
-  }, [getAllUsers, onCloseRestrictModal]);
+  }, [patchUserInLists, onCloseRestrictModal]);
 
   // Assign modal functions
   const openAssignModal = useCallback(() => {
+    setAssignTarget({ type: "email" });
     setAssignModalOpen(true);
     setAssignEmail("");
-    setSelectedSubadmin("");
+    setSelectedSubadmins([]);
     setEmailError("");
     setSubadminError("");
+    setSubadminPickerOpen(false);
   }, []);
+
+  const openAssignModalForUser = useCallback((user) => {
+    if (user?.isShared) {
+      toast.error("Shared users are already visible to all subadmins");
+      return;
+    }
+    setAssignTarget({
+      type: "user",
+      userId: user._id,
+      email: user.email,
+      name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email,
+    });
+    setAssignModalOpen(true);
+    setAssignEmail(user.email || "");
+    setSelectedSubadmins([]);
+    setEmailError("");
+    setSubadminError("");
+    setSubadminPickerOpen(false);
+  }, []);
+
+  const openAssignModalForSelected = useCallback(() => {
+    if (selectedUserIds.size === 0) {
+      toast.error("Select at least one user");
+      return;
+    }
+    setAssignTarget({ type: "bulk", count: selectedUserIds.size });
+    setAssignModalOpen(true);
+    setAssignEmail("");
+    setSelectedSubadmins([]);
+    setEmailError("");
+    setSubadminError("");
+    setSubadminPickerOpen(false);
+  }, [selectedUserIds]);
 
   const closeAssignModal = useCallback(() => {
     setAssignModalOpen(false);
+    setAssignTarget({ type: "email" });
     setAssignEmail("");
-    setSelectedSubadmin("");
+    setSelectedSubadmins([]);
     setEmailError("");
     setSubadminError("");
     setIsAssigning(false);
+    setSubadminPickerOpen(false);
+  }, []);
+
+  const toggleSelectedSubadmin = useCallback((subadminId) => {
+    setSelectedSubadmins((prev) => (
+      prev.includes(subadminId)
+        ? prev.filter((id) => id !== subadminId)
+        : [...prev, subadminId]
+    ));
+    setSubadminError("");
   }, []);
 
   const validateEmail = useCallback((email) => {
@@ -1154,21 +1348,57 @@ const AdminUsers = () => {
     return emailRegex.test(email);
   }, []);
 
+  const applyLocalAssign = useCallback((userIds, emails, subAdminIds) => {
+    const targetIds = new Set((userIds || []).map((id) => String(id || "")).filter(Boolean));
+    const targetEmails = new Set(
+      (emails || []).map((email) => String(email || "").trim().toLowerCase()).filter(Boolean)
+    );
+    const newSubIds = [...new Set((subAdminIds || []).map((id) => String(id || "")).filter(Boolean))];
+    if (newSubIds.length === 0 || (targetIds.size === 0 && targetEmails.size === 0)) return;
+
+    const patchUser = (user) => {
+      const matchesId = targetIds.has(String(user._id));
+      const matchesEmail = targetEmails.has(String(user.email || "").toLowerCase());
+      if (!matchesId && !matchesEmail) return user;
+      if (user.isShared) return user;
+
+      const existing = getAssignedSubAdminIds(user);
+      const seen = new Set(existing);
+      const merged = [...existing];
+      newSubIds.forEach((id) => {
+        if (seen.has(id)) return;
+        seen.add(id);
+        merged.push(id);
+      });
+
+      return {
+        ...user,
+        assignedSubAdmins: merged,
+        assignedSubAdmin: merged[0] || null,
+      };
+    };
+
+    setUsers((prev) => prev.map(patchUser));
+    setunVerified((prev) => prev.map(patchUser));
+  }, []);
+
   const handleAssignUser = useCallback(async () => {
     setEmailError("");
     setSubadminError("");
 
     let isValid = true;
-    if (!assignEmail.trim()) {
-      setEmailError("Email is required");
-      isValid = false;
-    } else if (!validateEmail(assignEmail)) {
-      setEmailError("Please enter a valid email address");
-      isValid = false;
+    if (assignTarget.type === "email") {
+      if (!assignEmail.trim()) {
+        setEmailError("Email is required");
+        isValid = false;
+      } else if (!validateEmail(assignEmail)) {
+        setEmailError("Please enter a valid email address");
+        isValid = false;
+      }
     }
 
-    if (!selectedSubadmin) {
-      setSubadminError("Please select a subadmin");
+    if (!selectedSubadmins.length) {
+      setSubadminError("Please select at least one subadmin");
       isValid = false;
     }
 
@@ -1176,13 +1406,39 @@ const AdminUsers = () => {
 
     setIsAssigning(true);
     try {
-      const body = { email: assignEmail, id: selectedSubadmin };
+      const body = {
+        id: selectedSubadmins[0],
+        ids: selectedSubadmins,
+      };
+
+      if (assignTarget.type === "bulk") {
+        body.userIds = [...selectedUserIds];
+      } else if (assignTarget.type === "user") {
+        body.userIds = [assignTarget.userId];
+        body.email = assignTarget.email;
+      } else {
+        body.email = assignEmail;
+      }
+
       const response = await addUserByEmailApi(body);
 
       if (response.success) {
         toast.success(response.msg || "User assigned to subadmin successfully");
+        const assignedUserIds = assignTarget.type === "bulk"
+          ? [...selectedUserIds]
+          : assignTarget.type === "user"
+            ? [assignTarget.userId]
+            : [];
+        const assignedEmails = assignTarget.type === "email"
+          ? [assignEmail]
+          : assignTarget.type === "user"
+            ? [assignTarget.email]
+            : [];
+        applyLocalAssign(assignedUserIds, assignedEmails, selectedSubadmins);
+        if (assignTarget.type === "bulk") {
+          setSelectedUserIds(new Set());
+        }
         closeAssignModal();
-        await getAllUsers();
       } else {
         toast.error(response.msg || "Failed to assign user to subadmin");
       }
@@ -1192,7 +1448,60 @@ const AdminUsers = () => {
     } finally {
       setIsAssigning(false);
     }
-  }, [assignEmail, selectedSubadmin, validateEmail, getAllUsers, closeAssignModal]);
+  }, [assignEmail, assignTarget, selectedSubadmins, selectedUserIds, validateEmail, applyLocalAssign, closeAssignModal]);
+
+  const requestUnassignFromSubadmin = useCallback((user, subAdminId) => {
+    const subadmin = subadmins.find((sub) => String(sub._id) === String(subAdminId));
+    const name = subadmin ? `${subadmin.firstName} ${subadmin.lastName}` : "this subadmin";
+    setUnassignConfirm({
+      user,
+      subAdminId,
+      name,
+    });
+  }, [subadmins]);
+
+  const closeUnassignConfirm = useCallback(() => {
+    if (!unassigningKey) {
+      setUnassignConfirm(null);
+    }
+  }, [unassigningKey]);
+
+  const applyLocalUnassign = useCallback((userId, subAdminId) => {
+    const targetUser = String(userId);
+    const targetSub = String(subAdminId);
+    const patchUser = (user) => {
+      if (String(user._id) !== targetUser) return user;
+      const remaining = getAssignedSubAdminIds(user).filter((id) => id !== targetSub);
+      return {
+        ...user,
+        assignedSubAdmins: remaining,
+        assignedSubAdmin: remaining[0] || null,
+      };
+    };
+    setUsers((prev) => prev.map(patchUser));
+    setunVerified((prev) => prev.map(patchUser));
+  }, []);
+
+  const confirmUnassignFromSubadmin = useCallback(async () => {
+    if (!unassignConfirm?.user?._id || !unassignConfirm?.subAdminId) return;
+    const key = `${unassignConfirm.user._id}:${unassignConfirm.subAdminId}`;
+    setUnassigningKey(key);
+    try {
+      const response = await UnassignUserApi(unassignConfirm.user._id, unassignConfirm.subAdminId);
+      if (response.success) {
+        toast.success(response.msg || "User unassigned successfully");
+        setUnassignConfirm(null);
+        applyLocalUnassign(unassignConfirm.user._id, unassignConfirm.subAdminId);
+      } else {
+        toast.error(response.msg || "Failed to unassign user");
+      }
+    } catch (error) {
+      toast.error("Error unassigning user");
+      console.error("Unassign error:", error);
+    } finally {
+      setUnassigningKey("");
+    }
+  }, [unassignConfirm, applyLocalUnassign]);
 
   const toggleBar = useCallback(() => setActive(prev => !prev), []);
 
@@ -1687,8 +1996,7 @@ const AdminUsers = () => {
                   </Box>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
                   {
-                    currentAuthUser.user.role === "superadmin" ||
-                      currentAuthUser.user.role === "admin" && isAssignUser ? <Button
+                    canAssignUsers ? <Button
                         variant="contained"
                         startIcon={<AssignmentIcon />}
                         style={{ color: "white", background: "linear-gradient(45deg, #1976d2, #42a5f5)", paddingInline: "12px" }}
@@ -1706,18 +2014,24 @@ const AdminUsers = () => {
                           }
                         }}
                       >
-                      Assign User to Subadmin
+                      Assign User to Subadmins
                     </Button> : ""
 
                   }
                   </Stack>
                 </Box>
 
-                {isSuperAdmin && (
+                {(canAssignUsers || isSuperAdmin) && (
                   <div className={exportStyles.crmExportToolbar}>
                     <div className={exportStyles.crmExportToolbarInner}>
                       <div className={exportStyles.crmExportInfo}>
-                        <p className={exportStyles.crmExportTitle}>Export to CRM</p>
+                        <p className={exportStyles.crmExportTitle}>
+                          {canAssignUsers && isSuperAdmin
+                            ? "Assign or export selected users"
+                            : canAssignUsers
+                              ? "Assign selected users"
+                              : "Export to CRM"}
+                        </p>
                         <p className={exportStyles.crmExportSubtitle}>
                           {selectedUserIds.size} user{selectedUserIds.size === 1 ? '' : 's'} selected
                         </p>
@@ -1737,15 +2051,29 @@ const AdminUsers = () => {
                         >
                           Clear
                         </CrmOutlineButton>
-                        <CrmExportButton
-                          icon={<UploadIcon />}
-                          onClick={() => setExportConfirmOpen(true)}
-                          disabled={selectedUserIds.size === 0 || exportingToCrm}
-                          loading={exportingToCrm}
-                          title="Create CRM leads from selected wallet users"
-                        >
-                          Export to CRM ({selectedUserIds.size})
-                        </CrmExportButton>
+                        {canAssignUsers && (
+                          <button
+                            type="button"
+                            className={`${exportStyles.crmBtnBase} ${exportStyles.crmBtnAssign}`}
+                            onClick={openAssignModalForSelected}
+                            disabled={selectedUserIds.size === 0 || isAssigning}
+                            title="Assign selected users to one or more subadmins"
+                          >
+                            <span className={exportStyles.crmBtnIcon}><PersonAddIcon /></span>
+                            Assign to Subadmins ({selectedUserIds.size})
+                          </button>
+                        )}
+                        {isSuperAdmin && (
+                          <CrmExportButton
+                            icon={<UploadIcon />}
+                            onClick={() => setExportConfirmOpen(true)}
+                            disabled={selectedUserIds.size === 0 || exportingToCrm}
+                            loading={exportingToCrm}
+                            title="Create CRM leads from selected wallet users"
+                          >
+                            Export to CRM ({selectedUserIds.size})
+                          </CrmExportButton>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1788,13 +2116,17 @@ const AdminUsers = () => {
                               isUsers={isUsers}
                               isRestricting={isRestricting}
                               authUser={currentAuthUser.user}
-                              selectable={isSuperAdmin}
+                              selectable={canAssignUsers || isSuperAdmin}
                               selected={selectedUserIds.has(user._id)}
                               onToggleSelect={toggleUserSelection}
                               showCrmExport={isSuperAdmin}
                               onExportToCrm={handleExportSingleUserToCrm}
                               isExportingToCrm={exportingUserId === user._id}
                               crmExportBusy={exportingToCrm}
+                              canAssign={canAssignUsers}
+                              onAssign={openAssignModalForUser}
+                              onUnassignFromSubadmin={requestUnassignFromSubadmin}
+                              unassigningKey={unassigningKey}
                             />
                           </Grid>
                         ))
@@ -1938,13 +2270,17 @@ const AdminUsers = () => {
                                 isUsers={isUsers}
                                 isRestricting={isRestricting}
                                 authUser={currentAuthUser.user}
-                                selectable={isSuperAdmin}
+                                selectable={canAssignUsers || isSuperAdmin}
                                 selected={selectedUserIds.has(user._id)}
                                 onToggleSelect={toggleUserSelection}
                                 showCrmExport={isSuperAdmin}
                                 onExportToCrm={handleExportSingleUserToCrm}
                                 isExportingToCrm={exportingUserId === user._id}
                                 crmExportBusy={exportingToCrm}
+                                canAssign={canAssignUsers}
+                                onAssign={openAssignModalForUser}
+                                onUnassignFromSubadmin={requestUnassignFromSubadmin}
+                                unassigningKey={unassigningKey}
                               />
                             </Grid>
                           ))
@@ -2160,11 +2496,16 @@ const AdminUsers = () => {
         maxWidth="sm"
         fullWidth
         PaperProps={{
+          className: "hui-assign-dialog",
           sx: {
             backgroundColor: '#1e1e1e',
             backgroundImage: 'none',
             border: '1px solid #333',
-            borderRadius: 3
+            borderRadius: 3,
+            overflow: 'hidden',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
           }
         }}
       >
@@ -2173,121 +2514,168 @@ const AdminUsers = () => {
           borderBottom: '1px solid #333',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          flexShrink: 0,
         }}>
           <Typography variant="h6" fontWeight="600" sx={{ color: 'grey.100' }}>
-            Assign User to Subadmin
+            {assignTarget.type === "bulk"
+              ? `Assign ${assignTarget.count} Users to Subadmins`
+              : assignTarget.type === "user"
+                ? "Assign User to Subadmins"
+                : "Assign User to Subadmins"}
           </Typography>
           <IconButton onClick={closeAssignModal} sx={{ color: 'grey.400' }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ p: 3, bgcolor: '#1e1e1e' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Email Input */}
-            <Box>
-              <br/>
-              <TextField
-                fullWidth
-                label="User Email"
-                value={assignEmail}
-                onChange={(e) => setAssignEmail(e.target.value)}
-                error={!!emailError}
-                helperText={emailError}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: 'grey.100',
-                    '& fieldset': {
-                      borderColor: 'grey.600',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'grey.400',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'grey.400',
-                    backgroundColor: '#1e1e1e',
-                    paddingX: '4px',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                  '& .MuiInputLabel-shrink': {
-                    backgroundColor: '#1e1e1e',
-                  },
-                }}
-              />
-            </Box>
-
-            {/* Subadmin Dropdown */}
-            <Box>
-              <FormControl fullWidth error={!!subadminError}>
-                <InputLabel
-                  sx={{
-                    color: 'grey.400',
-                    '&.Mui-focused': {
-                      color: 'primary.main',
-                    }
+        <DialogContent
+          sx={{
+            p: 3,
+            bgcolor: '#1e1e1e',
+            overflow: subadminPickerOpen ? 'hidden' : 'auto',
+            flex: '1 1 auto',
+            minHeight: 0,
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            {assignTarget.type === "bulk" ? (
+              <Box sx={{ p: 2, bgcolor: 'grey.800', borderRadius: 2, mt: 1 }}>
+                <Typography variant="subtitle2" fontWeight="600" sx={{ color: 'grey.100' }}>
+                  {assignTarget.count} selected user{assignTarget.count === 1 ? "" : "s"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'grey.400', mt: 0.5 }}>
+                  Each selected user will be added to the subadmins you pick below.
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                <TextField
+                  fullWidth
+                  label="User Email"
+                  value={assignEmail}
+                  onChange={(e) => setAssignEmail(e.target.value)}
+                  error={!!emailError}
+                  helperText={emailError || (assignTarget.type === "user" ? assignTarget.name : "")}
+                  InputProps={{
+                    readOnly: assignTarget.type === "user",
                   }}
-                >
-                  Select Subadmin
-                </InputLabel>
-                <Select
-                  value={selectedSubadmin}
-                  onChange={(e) => setSelectedSubadmin(e.target.value)}
-                  label="Select Subadmin"
                   sx={{
-                    color: 'grey.100',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'grey.600',
+                    '& .MuiOutlinedInput-root': {
+                      color: 'grey.100',
+                      '& fieldset': {
+                        borderColor: 'grey.600',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'grey.400',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                      },
                     },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'grey.400',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'primary.main',
-                    },
-                    '& .MuiSvgIcon-root': {
+                    '& .MuiInputLabel-root': {
                       color: 'grey.400',
-                    }
+                      backgroundColor: '#1e1e1e',
+                      paddingX: '4px',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: 'primary.main',
+                    },
+                    '& .MuiInputLabel-shrink': {
+                      backgroundColor: '#1e1e1e',
+                    },
                   }}
+                />
+              </Box>
+            )}
+
+            <div>
+              <span className="hui-picker-label">Select subadmins</span>
+              <div className={`hui-picker${subadminPickerOpen ? " is-open" : ""}`}>
+                <div className="hui-picker-selected">
+                  {selectedSubadmins.length === 0 ? (
+                    <span className="hui-picker-empty">None selected yet</span>
+                  ) : selectedSubadmins.map((id) => {
+                    const subadmin = filteredSubadmins.find((s) => s._id === id);
+                    const label = subadmin ? `${subadmin.firstName} ${subadmin.lastName}` : id;
+                    return (
+                      <span className="hui-picker-chip" key={id}>
+                        {label}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${label}`}
+                          onClick={() => toggleSelectedSubadmin(id)}
+                        >
+                          <CloseIcon sx={{ fontSize: 12 }} />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  className="hui-picker-trigger"
+                  aria-expanded={subadminPickerOpen}
+                  aria-haspopup="listbox"
+                  onClick={() => setSubadminPickerOpen((open) => !open)}
                 >
-                  {filteredSubadmins.map((subadmin) => (
-                    <MenuItem
-                      key={subadmin._id}
-                      value={subadmin._id}
-                      sx={{ color: 'grey.900' }}
-                    >
-                      {subadmin.firstName} {subadmin.lastName} ({subadmin.email})
-                    </MenuItem>
-                  ))}
-                </Select>
-                {subadminError && (
-                  <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-                    {subadminError}
-                  </Typography>
+                  <span className="hui-picker-trigger-value">
+                    {selectedSubadmins.length === 0
+                      ? "Choose subadmins"
+                      : `${selectedSubadmins.length} selected`}
+                  </span>
+                  <KeyboardArrowDownIcon className="hui-picker-caret" sx={{ fontSize: 22 }} />
+                </button>
+                {subadminPickerOpen && (
+                  <div className="hui-picker-list" role="listbox" aria-multiselectable="true">
+                    {filteredSubadmins.length === 0 ? (
+                      <p className="hui-picker-empty-list">No subadmins available</p>
+                    ) : filteredSubadmins.map((subadmin) => {
+                      const selected = selectedSubadmins.includes(subadmin._id);
+                      const initials = `${(subadmin.firstName || "S")[0] || ""}${(subadmin.lastName || "A")[0] || ""}`.toUpperCase();
+                      return (
+                        <button
+                          type="button"
+                          key={subadmin._id}
+                          role="option"
+                          aria-selected={selected}
+                          className={`hui-picker-row${selected ? " is-selected" : ""}`}
+                          onClick={() => toggleSelectedSubadmin(subadmin._id)}
+                        >
+                          <span className="hui-picker-check">
+                            {selected ? <SelectCheckIcon sx={{ fontSize: 14 }} /> : null}
+                          </span>
+                          <span className="hui-picker-avatar">{initials}</span>
+                          <span className="hui-picker-meta">
+                            <span className="hui-picker-name">{subadmin.firstName} {subadmin.lastName}</span>
+                            <span className="hui-picker-email">{subadmin.email}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              </FormControl>
-            </Box>
+                {subadminError && (
+                  <p className="hui-picker-error">{subadminError}</p>
+                )}
+              </div>
+            </div>
 
             {/* Info Text */}
-            <Box sx={{ p: 2, bgcolor: 'grey.800', borderRadius: 2 }}>
+            <Box sx={{ p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
               <Typography variant="body2" sx={{ color: 'grey.300' }}>
-                <strong>Note:</strong> Enter the email of the user you want to assign to a subadmin.
-                The user must already exist in the system.
-                {isSuperAdmin
-                  ? " If the user is already assigned to another subadmin, they will be moved to the selected subadmin."
-                  : " The user must not be assigned to any other subadmin."}
+                <strong>Note:</strong>{" "}
+                {assignTarget.type === "bulk"
+                  ? "Selected users will be assigned to the subadmins you choose. Existing assignments are kept."
+                  : assignTarget.type === "user"
+                    ? "This user will be added to the selected subadmins without removing existing assignments."
+                    : "Enter the email of the user you want to assign, then select one or more subadmins. Assigning adds those subadmins without removing existing ones."}
               </Typography>
             </Box>
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3, bgcolor: 'grey.900', borderTop: '1px solid #333' }}>
+        <DialogActions sx={{ p: 3, bgcolor: 'grey.900', borderTop: '1px solid #333', flexShrink: 0 }}>
           <Button
             onClick={closeAssignModal}
             sx={{
@@ -2315,7 +2703,53 @@ const AdminUsers = () => {
               }
             }}
           >
-            {isAssigning ? 'Assigning...' : 'Assign User'}
+            {isAssigning
+              ? 'Assigning...'
+              : assignTarget.type === "bulk"
+                ? `Assign ${assignTarget.count} Users`
+                : 'Assign User'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(unassignConfirm)}
+        onClose={closeUnassignConfirm}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            backgroundColor: '#1e1e1e',
+            backgroundImage: 'none',
+            border: '1px solid #333',
+            borderRadius: 3
+          }
+        }}
+      >
+        <DialogTitle sx={{ bgcolor: 'grey.900', color: 'grey.100', fontWeight: 700 }}>
+          Unassign User
+        </DialogTitle>
+        <DialogContent sx={{ bgcolor: '#1e1e1e' }}>
+          <Typography variant="body1" sx={{ color: 'grey.300', mt: 1 }}>
+            Remove{" "}
+            <strong style={{ color: '#fff' }}>
+              {unassignConfirm?.user?.firstName} {unassignConfirm?.user?.lastName}
+            </strong>
+            {" "}from{" "}
+            <strong style={{ color: '#fff' }}>{unassignConfirm?.name}</strong>?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: 'grey.900' }}>
+          <Button onClick={closeUnassignConfirm} disabled={Boolean(unassigningKey)} sx={{ color: 'grey.300' }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmUnassignFromSubadmin}
+            disabled={Boolean(unassigningKey)}
+          >
+            {unassigningKey ? 'Unassigning...' : 'Unassign'}
           </Button>
         </DialogActions>
       </Dialog>

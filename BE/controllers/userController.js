@@ -22,6 +22,12 @@ const { default: mongoose } = require("mongoose");
 const Stock = require('../models/stock');
 const UserRestriction = require("../models/usersRestrictions");
 const errorLogs = require("../models/errorLogs");
+const {
+  getAssignedSubAdminIds,
+  hasSubAdminAccessToUser,
+  subadminAccessibleUsersQuery,
+  syncAssignedSubAdmins,
+} = require("../utils/subAdminAssignment");
 
 const formatTicketStatusLabel = (status) => {
   const labels = {
@@ -694,12 +700,9 @@ exports.allUser = catchAsyncErrors(async (req, res, next) => {
     }
 
     // ✅ Default subadmin behavior - return all accessible users
-    const allUsers = await UserModel.find({
-      $or: [
-        { isShared: true },
-        { assignedSubAdmin: signedUser._id }
-      ]
-    }).sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 });
+    const allUsers = await UserModel.find(
+      subadminAccessibleUsersQuery(signedUser._id)
+    ).sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 });
 
     // ✅ Append the logged-in subadmin user to ensure they can find their own permissions data
     const userExists = allUsers.some(user => user._id.toString() === signedUser._id.toString());
@@ -836,9 +839,7 @@ exports.singleUser = catchAsyncErrors(async (req, res, next) => {
   let responseUser = signleUser;
 
   if (req.user.role === "subadmin" && signleUser.role === "user") {
-    const hasAccess =
-      signleUser.isShared === true ||
-      signleUser.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(signleUser, req.user._id);
 
     if (hasAccess && req.user.permissions?.viewClientDetails !== true) {
       const sanitized = signleUser.toObject();
@@ -892,9 +893,7 @@ exports.updateSingleUser = catchAsyncErrors(async (req, res, next) => {
       return next(new errorHandler("Access denied", 403));
     }
 
-    const hasAccess =
-      targetUser.isShared === true ||
-      targetUser.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(targetUser, req.user._id);
 
     if (!hasAccess) {
       return next(new errorHandler("Access denied: User not assigned to you", 403));
@@ -1114,9 +1113,7 @@ exports.updateKyc = catchAsyncErrors(async (req, res, next) => {
 
 const assertAdminKycAccess = (req, user) => {
   if (req.user.role === "subadmin") {
-    const hasAccess =
-      user.isShared === true ||
-      user.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(user, req.user._id);
 
     if (user.role !== "user" || !hasAccess) {
       return false;
@@ -1211,9 +1208,7 @@ exports.viewKycDocument = catchAsyncErrors(async (req, res, next) => {
   }
 
   if (req.user.role === "subadmin") {
-    const hasAccess =
-      user.isShared === true ||
-      user.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(user, req.user._id);
 
     if (user.role !== "user" || !hasAccess) {
       return next(new errorHandler("Access denied", 403));
@@ -1529,12 +1524,9 @@ exports.adminTickets = catchAsyncErrors(async (req, res, next) => {
     // For subadmin, first get accessible user IDs
     let accessibleUserIds = null;
     if (currentUserRole === 'subadmin') {
-      const accessibleUsers = await UserModel.find({
-        $or: [
-          { isShared: true },
-          { assignedSubAdmin: currentUserId }
-        ]
-      }).select('_id').lean();
+      const accessibleUsers = await UserModel.find(
+        subadminAccessibleUsersQuery(currentUserId)
+      ).select('_id').lean();
       
       accessibleUserIds = accessibleUsers.map(user => user._id);
       
@@ -1573,7 +1565,7 @@ exports.adminTickets = catchAsyncErrors(async (req, res, next) => {
     // Fetch user details for all tickets in one batch query
     const userIds = [...new Set(tickets.map(ticket => ticket.user))];
     const users = await UserModel.find({ _id: { $in: userIds } })
-      .select('_id firstName lastName email isShared assignedSubAdmin')
+      .select('_id firstName lastName email isShared assignedSubAdmin assignedSubAdmins')
       .lean();
 
     // Create a map for quick user lookup
@@ -1691,53 +1683,133 @@ exports.updateTicketStatus = catchAsyncErrors(async (req, res, next) => {
 
 exports.addUserByEmail = catchAsyncErrors(async (req, res, next) => {
   try {
-    // const tickets = await Ticket.find({ status: 'open' }).populate('user');
-    const { email } = req.body;
-    const subAdminId = req.body.id; // Assuming you get sub-admin ID from authentication middleware
+    const rawIds = Array.isArray(req.body.ids)
+      ? req.body.ids
+      : req.body.id
+        ? [req.body.id]
+        : [];
+    const subAdminIds = [...new Set(rawIds.map((id) => String(id || "")).filter(Boolean))];
 
-    // Find the user by email
-    let user = await UserModel.findOne({ email });
+    const emails = [
+      ...(Array.isArray(req.body.emails) ? req.body.emails : []),
+      req.body.email,
+    ]
+      .map((email) => String(email || "").trim())
+      .filter(Boolean);
+    const uniqueEmails = [...new Set(emails)];
+    const userIds = [...new Set(
+      (Array.isArray(req.body.userIds) ? req.body.userIds : [])
+        .map((id) => String(id || ""))
+        .filter(Boolean)
+    )];
 
-    if (!user) {
+    if (uniqueEmails.length === 0 && userIds.length === 0) {
+      return next(new errorHandler("Email is required", 400));
+    }
+    if (subAdminIds.length === 0) {
+      return next(new errorHandler("Please select at least one subadmin", 400));
+    }
+
+    const validSubAdmins = await UserModel.find({
+      _id: { $in: subAdminIds },
+      role: "subadmin",
+    }).select("_id");
+
+    if (validSubAdmins.length !== subAdminIds.length) {
+      return next(new errorHandler("One or more selected accounts are not valid subadmins", 400));
+    }
+
+    const orQuery = [];
+    if (uniqueEmails.length) {
+      orQuery.push({ email: { $in: uniqueEmails } });
+    }
+    if (userIds.length) {
+      orQuery.push({ _id: { $in: userIds } });
+    }
+
+    const foundUsers = await UserModel.find(orQuery.length === 1 ? orQuery[0] : { $or: orQuery });
+    const uniqueUsers = [];
+    const seen = new Set();
+    foundUsers.forEach((user) => {
+      const id = user._id.toString();
+      if (seen.has(id)) return;
+      seen.add(id);
+      uniqueUsers.push(user);
+    });
+
+    if (uniqueUsers.length === 0) {
       return next(new errorHandler("User not found", 404));
     }
-    if (user._id == subAdminId) {
-      return next(new errorHandler("Sub admin cannot assign to themself", 404));
-    }
-    if (user.isShared) {
-      return next(new errorHandler("User already shared globally", 404));
-    }
-    if (user.role == "subadmin" || user.role == "admin" || user.role == "superadmin") {
-      return next(new errorHandler("Only regular users can be assigned to the sub admin", 404));
-    }
 
-    // Check if user is already assigned
-    const wasAlreadyAssigned = Boolean(user.assignedSubAdmin);
-    const previousSubAdminId = user.assignedSubAdmin?.toString();
-    const newSubAdminId = String(subAdminId);
+    let assigned = 0;
+    let alreadyAssigned = 0;
+    let skipped = 0;
 
-    if (wasAlreadyAssigned) {
-      if (req.user.role !== "superadmin") {
-        return next(new errorHandler("User already assigned to subadmin", 403));
+    for (const user of uniqueUsers) {
+      if (subAdminIds.includes(user._id.toString())) {
+        skipped += 1;
+        continue;
+      }
+      if (user.isShared) {
+        skipped += 1;
+        continue;
+      }
+      if (user.role === "subadmin" || user.role === "admin" || user.role === "superadmin") {
+        skipped += 1;
+        continue;
       }
 
-      if (previousSubAdminId === newSubAdminId) {
-        return res.status(200).json({
-          success: true,
-          msg: "User is already assigned to this subadmin",
-        });
+      const existingIds = getAssignedSubAdminIds(user);
+      const existingSet = new Set(existingIds);
+      const newIds = subAdminIds.filter((id) => !existingSet.has(id));
+
+      if (newIds.length === 0) {
+        alreadyAssigned += 1;
+        continue;
       }
+
+      syncAssignedSubAdmins(user, [...existingIds, ...newIds]);
+      await user.save();
+      assigned += 1;
     }
 
-    // Assign (or reassign for superadmin) the sub-admin
-    user.assignedSubAdmin = subAdminId;
-    await user.save();
+    if (assigned === 0 && alreadyAssigned === 0) {
+      return next(new errorHandler(
+        uniqueUsers.length === 1
+          ? "This user cannot be assigned to the selected subadmin"
+          : "None of the selected users could be assigned",
+        400
+      ));
+    }
 
-    const msg = wasAlreadyAssigned
-      ? "User reassigned to subadmin successfully"
-      : "User assigned successfully";
+    const isBulk = uniqueUsers.length > 1;
+    let msg;
+    if (!isBulk && assigned === 1) {
+      msg = subAdminIds.length === 1
+        ? "User assigned successfully"
+        : `User assigned to ${subAdminIds.length} subadmins successfully`;
+    } else if (!isBulk && alreadyAssigned > 0) {
+      msg = subAdminIds.length === 1
+        ? "User is already assigned to this subadmin"
+        : "User is already assigned to the selected subadmins";
+    } else {
+      const parts = [`Assigned ${assigned} user${assigned === 1 ? "" : "s"}`];
+      if (alreadyAssigned) {
+        parts.push(`${alreadyAssigned} already assigned`);
+      }
+      if (skipped) {
+        parts.push(`${skipped} skipped`);
+      }
+      msg = `${parts[0]}${parts.length > 1 ? `. ${parts.slice(1).join(", ")}.` : " successfully"}`;
+    }
 
-    res.status(200).json({ success: true, msg });
+    res.status(200).json({
+      success: true,
+      msg,
+      assigned,
+      alreadyAssigned,
+      skipped,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Sommething went wroong' });
   }
@@ -1802,12 +1874,9 @@ exports.getNotifications = catchAsyncErrors(async (req, res, next) => {
     // If subadmin, filter notifications for assigned or shared users only
     if (currentUserRole === 'subadmin') {
       // Find all users that are either shared or assigned to this subadmin
-      const accessibleUsers = await UserModel.find({
-        $or: [
-          { isShared: true },
-          { assignedSubAdmin: currentUserId }
-        ]
-      }).select('_id').lean();
+      const accessibleUsers = await UserModel.find(
+        subadminAccessibleUsersQuery(currentUserId)
+      ).select('_id').lean();
 
       const userIds = accessibleUsers.map(user => user._id);
 
@@ -2434,10 +2503,7 @@ const canAccessTicketResource = async (reqUser, ticketUserId) => {
       return false;
     }
 
-    return (
-      user.isShared === true ||
-      user.assignedSubAdmin?.toString() === reqUser._id.toString()
-    );
+    return hasSubAdminAccessToUser(user, reqUser._id);
   }
 
   return false;
@@ -3658,7 +3724,7 @@ const createFiatBankAccountController = (accountField, label) => {
   return {
     get: catchAsyncErrors(async (req, res, next) => {
       const user = await UserModel.findById(req.params.id).select(
-        `${accountField} role isShared assignedSubAdmin`
+        `${accountField} role isShared assignedSubAdmin assignedSubAdmins`
       );
 
       if (assertStaffCanAccessTargetUser(req, user, next) !== true) {
@@ -3760,9 +3826,7 @@ const assertStaffCanAccessTargetUser = (req, targetUser, next) => {
   }
 
   if (req.user.role === "subadmin") {
-    const hasAccess =
-      targetUser.isShared === true ||
-      targetUser.assignedSubAdmin?.toString() === req.user._id.toString();
+    const hasAccess = hasSubAdminAccessToUser(targetUser, req.user._id);
 
     if (!hasAccess) {
       return next(new errorHandler("Access denied", 403));
@@ -3774,7 +3838,7 @@ const assertStaffCanAccessTargetUser = (req, targetUser, next) => {
 };
 
 exports.getUserEuroBankAccount = catchAsyncErrors(async (req, res, next) => {
-  const user = await UserModel.findById(req.params.id).select("euroBankAccount role isShared assignedSubAdmin");
+  const user = await UserModel.findById(req.params.id).select("euroBankAccount role isShared assignedSubAdmin assignedSubAdmins");
 
   if (assertStaffCanAccessTargetUser(req, user, next) !== true) {
     return;
