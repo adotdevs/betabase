@@ -1,0 +1,103 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  box-shadow: var(--admin-shadow-sm);
+  overflow: hidden;
+}
+
+.scroller {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: var(--admin-text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.tab svg,
+.tab i {
+  flex: 0 0 auto;
+  font-size: 14px;
+}
+
+.tab:hover,
+.tab:focus-visible {
+  background: var(--admin-accent-soft);
+  color: var(--admin-text-primary);
+  outline: none;
+}
+
+.tab:global(.active),
+.tabActive {
+  background: var(--admin-accent-soft);
+  color: var(--admin-text-primary);
+  border-color: color-mix(in srgb, var(--admin-accent) 35%, var(--admin-border));
+  box-shadow: inset 0 -2px 0 var(--admin-accent);
+}
+
+.skelRow {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+.skelItem {
+  display: block;
+  height: 36px;
+  width: 118px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--admin-surface-3) 0%,
+    var(--admin-surface-2) 45%,
+    var(--admin-surface-3) 90%
+  );
+  background-size: 200% 100%;
+  animation: sideShimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skelItem {
+    animation: none;
+  }
+}
+
+@keyframes sideShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    border-radius: 14px;
+  }
+
+  .tab {
+    min-height: 38px;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+}

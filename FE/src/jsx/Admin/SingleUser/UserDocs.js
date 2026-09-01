@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -15,6 +17,7 @@ import { toast } from "react-toastify";
 
 import { FileCard, FullScreen, ImagePreview } from "@files-ui/react";
 import AdminHeader from "../adminHeader";
+import su from "./SingleUserLayout.module.css";
 const UserDocs = () => {
   const [isLoading, setisLoading] = useState(false);
   const [allFiles, setallFiles] = useState([]);
@@ -176,7 +179,7 @@ const UserDocs = () => {
     // console.log(btcBalance);
   }, []);
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div>
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
@@ -205,19 +208,14 @@ const UserDocs = () => {
               />
               <seokit />
               <div className="min-h-screen overflow-hidden">
-                <div className="grid gap-8 sm:grid-cols-12">
+                <div className={su.frame}>
                   <UserSideBar userid={id} />
-                  <div className="col-span-12 sm:col-span-8">
-                    <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md">
-                      <div className="flex items-center justify-between p-4">
+                  <div className={su.main}>
+                    <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md`}>
+                      <div className={su.panelHead}>
                         <div>
-                          <p
-                            className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                            tag="h2"
-                          >
-                            {" "}
-                            Manage Documents{" "}
-                          </p>
+                          <p className={su.kicker}>Files</p>
+                          <h2 className={su.title}>Manage Documents</h2>
                         </div>
                       </div>
                       <div>
@@ -281,7 +279,7 @@ const UserDocs = () => {
                         </div>
                       </div>
                       {isLoading ? (
-                        <div className="  p-5">Loading Assets...</div>
+                        <AdminSkeleton variant="list" rows={5} />
                       ) : (
                         <div className="p-4">
                           <h1 className="font-heading mb-3 font-bold text-2xl font- leading-normal leading-normal text-muted-800 hidden dark:text-white md:block">
@@ -344,6 +342,7 @@ const UserDocs = () => {
         <ImagePreview src={imgSrc} />
       </FullScreen>
     </div>
+    </AdminShell>
   );
 };
 

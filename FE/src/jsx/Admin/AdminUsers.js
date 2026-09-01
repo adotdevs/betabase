@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import { FiberManualRecord as DotIcon } from '@mui/icons-material';
 
@@ -80,8 +82,41 @@ import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import AdminHeader from "./adminHeader";
 import exportStyles from "./AdminUsersExport.module.css";
+import userCardStyles from "./assets/AdminUserCards.module.css";
+import usersStyles from "./AdminUsers.module.css";
 import { getAssignedSubAdminIds, hasSubAdminAccessToUser } from "./assets/subAdminAssignment";
 import "./assets/AdminUserCard.css";
+
+const UsersPager = ({ page, limit, total, pages, onChange, tone = "verified", placement = "bottom" }) => {
+  if (!total) return null;
+  const start = ((page - 1) * limit) + 1;
+  const end = Math.min(page * limit, total);
+  return (
+    <div
+      className={`${usersStyles.bar} ${placement === "top" ? usersStyles.barTop : usersStyles.barBottom} ${
+        tone === "unverified" ? usersStyles.barUnverified : usersStyles.barVerified
+      }`}
+    >
+      <p className={usersStyles.meta}>
+        Showing <span className={usersStyles.num}>{start}–{end}</span> of{" "}
+        <span className={usersStyles.num}>{total}</span>{" "}
+        {tone === "unverified" ? "unverified" : "verified"} users
+      </p>
+      {pages > 1 ? (
+        <Pagination
+          className={usersStyles.pager}
+          count={pages}
+          page={page}
+          onChange={onChange}
+          color="primary"
+          size="medium"
+          showFirstButton
+          showLastButton
+        />
+      ) : null}
+    </div>
+  );
+};
 
 const CrmOutlineButton = ({ children, onClick, disabled, icon, variant = "primary" }) => (
   <button
@@ -309,6 +344,7 @@ const UserCard = React.memo(({
 
   return (
     <Card
+      className={userCardStyles.card}
       sx={{
         height: '100%',
         display: 'flex',
@@ -481,7 +517,7 @@ const UserCard = React.memo(({
           (authUser.role === "admin" || authUser.role === "superadmin") && (
             <>
               {renderAssignmentInfo(user)}
-              <Box sx={{ mb: 2, p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
+              <Box className={userCardStyles.shareBox} sx={{ mb: 2, p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -612,6 +648,7 @@ const UserCard = React.memo(({
               to={`/admin/createTicket/${user._id}/${user.email}`}
               variant="outlined"
               startIcon={<ContactIcon />}
+              className={userCardStyles.contactBtn}
               style={{ color: 'white' }}
               size="small"
               sx={{
@@ -696,6 +733,7 @@ const UserCard = React.memo(({
                 startIcon={user.isComplianceRestricted ? <LockOpenIcon /> : <GavelIcon />}
                 size="small"
                 disabled={isRestricting}
+                className={user.isComplianceRestricted ? undefined : userCardStyles.outlineBtn}
                 style={{ color: 'white' }}
                 onClick={() => onRestrict(user)}
                 sx={{
@@ -756,6 +794,7 @@ const UserCard = React.memo(({
               <Button
                 variant="outlined"
                 color="primary.light"
+                className={userCardStyles.outlineBtn}
                 style={{ color: 'white' }}
                 startIcon={<DeleteIcon />}
                 size="small"
@@ -1597,34 +1636,24 @@ const AdminUsers = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <div className="admin dark-new-ui">
+      <AdminShell><div className="admin dark-new-ui">
         <div className="bg-gray-900 min-h-screen">
           <SideBar state={active} toggle={toggleBar} />
 
           <AdminHeader toggle={toggleBar} pageName="Users Management" />
           <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             <Box sx={{ width: '100%', p: 4 }}>
-              <LinearProgress
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'grey.800',
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: 'primary.main'
-                  }
-                }}
-              />
-              <Typography variant="h6" align="center" sx={{ mt: 2, color: 'grey.300' }}>
-                Loading users...
-              </Typography>
+              <AdminSkeleton variant="cards" rows={3} />
             </Box>
           </div>
         </div>
       </div>
+      </AdminShell>
     );
   }
 
   return (
+    <AdminShell>
     <div className="admin dark-new-ui">
       <div className="bg-gray-900 min-h-screen">
         <SideBar state={active} toggle={toggleBar} />
@@ -2079,21 +2108,21 @@ const AdminUsers = () => {
                   </div>
                 )}
 
+                {!isSubadmin && pagination.total > 0 && (
+                  <UsersPager
+                    page={pagination.page}
+                    limit={pagination.limit}
+                    total={pagination.total}
+                    pages={pagination.pages}
+                    onChange={handleVerifiedPageChange}
+                    tone="verified"
+                    placement="top"
+                  />
+                )}
+
                 {loadingUsers ? (
                   <Box sx={{ width: '100%', p: 4 }}>
-                    <LinearProgress
-                      sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: 'grey.800',
-                        '& .MuiLinearProgress-bar': {
-                          backgroundColor: 'success.main'
-                        }
-                      }}
-                    />
-                    <Typography variant="body1" align="center" sx={{ mt: 2, color: 'grey.300' }}>
-                      Loading verified users...
-                    </Typography>
+                    <AdminSkeleton variant="cards" rows={3} />
                   </Box>
                 ) : (
                   <>
@@ -2145,59 +2174,16 @@ const AdminUsers = () => {
                       )}
                     </Grid>
 
-                    {/* Pagination for Verified Users */}
                     {!isSubadmin && pagination.total > 0 && (
-                      <Paper 
-                        elevation={0}
-                        sx={{ 
-                          mt: 4,
-                          p: 3,
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          borderRadius: 3
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                          <Typography variant="body2" sx={{ color: 'grey.400', fontWeight: 500 }}>
-                            Showing <Box component="span" sx={{ color: 'success.light', fontWeight: 700 }}>
-                              {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)}
-                            </Box> of <Box component="span" sx={{ color: 'success.light', fontWeight: 700 }}>
-                              {pagination.total}
-                            </Box> verified users
-                          </Typography>
-                          {pagination.pages > 1 && (
-                            <Pagination
-                              count={pagination.pages}
-                              page={pagination.page}
-                              onChange={handleVerifiedPageChange}
-                              color="primary"
-                              size="medium"
-                              showFirstButton
-                              showLastButton
-                              sx={{
-                                '& .MuiPaginationItem-root': {
-                                  color: 'grey.300',
-                                  fontWeight: 600,
-                                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(66, 165, 245, 0.1)',
-                                    borderColor: 'primary.main'
-                                  },
-                                  '&.Mui-selected': {
-                                    background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-                                    color: 'white',
-                                    fontWeight: 700,
-                                    border: 'none',
-                                    '&:hover': {
-                                      background: 'linear-gradient(45deg, #1565c0, #1e88e5)'
-                                    }
-                                  }
-                                }
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </Paper>
+                      <UsersPager
+                        page={pagination.page}
+                        limit={pagination.limit}
+                        total={pagination.total}
+                        pages={pagination.pages}
+                        onChange={handleVerifiedPageChange}
+                        tone="verified"
+                        placement="bottom"
+                      />
                     )}
                   </>
                 )}
@@ -2232,21 +2218,21 @@ const AdminUsers = () => {
                     </Box>
                   </Box>
 
+                  {!isSubadmin && unverifiedPagination.total > 0 && (
+                    <UsersPager
+                      page={unverifiedPagination.page}
+                      limit={unverifiedPagination.limit}
+                      total={unverifiedPagination.total}
+                      pages={unverifiedPagination.pages}
+                      onChange={handleUnverifiedPageChange}
+                      tone="unverified"
+                      placement="top"
+                    />
+                  )}
+
                   {loadingUsers ? (
                     <Box sx={{ width: '100%', p: 4 }}>
-                      <LinearProgress
-                        sx={{
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: 'grey.800',
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: 'warning.main'
-                          }
-                        }}
-                      />
-                      <Typography variant="body1" align="center" sx={{ mt: 2, color: 'grey.300' }}>
-                        Loading unverified users...
-                      </Typography>
+                      <AdminSkeleton variant="cards" rows={3} />
                     </Box>
                   ) : (
                     <>
@@ -2299,59 +2285,16 @@ const AdminUsers = () => {
                         )}
                       </Grid>
 
-                      {/* Pagination for Unverified Users */}
                       {!isSubadmin && unverifiedPagination.total > 0 && (
-                        <Paper 
-                          elevation={0}
-                          sx={{ 
-                            mt: 4,
-                            p: 3,
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            borderRadius: 3
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                            <Typography variant="body2" sx={{ color: 'grey.400', fontWeight: 500 }}>
-                              Showing <Box component="span" sx={{ color: 'warning.light', fontWeight: 700 }}>
-                                {((unverifiedPagination.page - 1) * unverifiedPagination.limit) + 1} - {Math.min(unverifiedPagination.page * unverifiedPagination.limit, unverifiedPagination.total)}
-                              </Box> of <Box component="span" sx={{ color: 'warning.light', fontWeight: 700 }}>
-                                {unverifiedPagination.total}
-                              </Box> unverified users
-                            </Typography>
-                            {unverifiedPagination.pages > 1 && (
-                              <Pagination
-                                count={unverifiedPagination.pages}
-                                page={unverifiedPagination.page}
-                                onChange={handleUnverifiedPageChange}
-                                color="warning"
-                                size="medium"
-                                showFirstButton
-                                showLastButton
-                                sx={{
-                                  '& .MuiPaginationItem-root': {
-                                    color: 'grey.300',
-                                    fontWeight: 600,
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    '&:hover': {
-                                      backgroundColor: 'rgba(255, 152, 0, 0.1)',
-                                      borderColor: 'warning.main'
-                                    },
-                                    '&.Mui-selected': {
-                                      background: 'linear-gradient(45deg, #f57c00, #ff9800)',
-                                      color: 'white',
-                                      fontWeight: 700,
-                                      border: 'none',
-                                      '&:hover': {
-                                        background: 'linear-gradient(45deg, #e65100, #f57c00)'
-                                      }
-                                    }
-                                  }
-                                }}
-                              />
-                            )}
-                          </Box>
-                        </Paper>
+                        <UsersPager
+                          page={unverifiedPagination.page}
+                          limit={unverifiedPagination.limit}
+                          total={unverifiedPagination.total}
+                          pages={unverifiedPagination.pages}
+                          onChange={handleUnverifiedPageChange}
+                          tone="unverified"
+                          placement="bottom"
+                        />
                       )}
                     </>
                   )}
@@ -2787,6 +2730,7 @@ const AdminUsers = () => {
         </DialogActions>
       </Dialog>
     </div>
+    </AdminShell>
   );
 };
 

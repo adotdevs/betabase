@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import AdminShell from "./theme/AdminShell";
 import {
   deleteTransactionApi,
   getCoinsApi,
@@ -19,7 +20,7 @@ import TxFilterPills from "./assets/TxFilterPills";
 import AdminTransactionEditFields from "./assets/AdminTransactionEditFields";
 import AdminTransactionList from "./assets/AdminTransactionList";
 import { buildAdminPriceMap } from "./assets/adminTxDisplay";
-import "./assets/AdminTransactions.css";
+import styles from "./assets/AdminTransactions.module.css";
 import {
   matchesTransactionFilter,
   transactionMatchesSearch,
@@ -445,17 +446,17 @@ const PendingTransactions = () => {
 
   // Copy
   return (
-    <div className="admin dark-new-ui admin-tx-root">
-      <div className="bg-gray-900 min-h-screen pb-20">
+    <AdminShell><div className={`admin ${styles.page}`}>
+      <div className="bg-muted-100 dark:bg-muted-900 min-h-screen pb-20">
         <div>
           <SideBar state={Active} toggle={toggleBar} />
-          <div className="admin-tx admin-tx-page bg-gray-900 relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+          <div className="admin-tx admin-tx-page relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             <div className="admin-tx-shell mx-auto w-full max-w-7xl">
 
               <AdminHeader toggle={toggleBar} pageName="Transactions" />
               <div className="admin-tx-sticky">
-                    <div className="admin-tx-toolbar">
-                    <div className="admin-tx-search">
+                    <div className={`admin-tx-toolbar ${styles.toolbar}`}>
+                    <div className={`admin-tx-search ${styles.search}`}>
                           <input
                             id="ninja-input-8"
                             type="text"
@@ -463,7 +464,7 @@ const PendingTransactions = () => {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
-                          <div className="admin-tx-search-icon">
+                          <div className={`admin-tx-search-icon ${styles.searchIcon}`}>
                             <svg
                               data-v-cd102a71
                               xmlns="http://www.w3.org/2000/svg"
@@ -1542,6 +1543,7 @@ const PendingTransactions = () => {
         </div>
       )}
     </div>
+    </AdminShell>
   );
 };
 

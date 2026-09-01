@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import { useNavigate } from 'react-router-dom';
 import { useAuthUser } from 'react-auth-kit';
 import { adminTicketsApi, signleUsersApi, deleteTicketApi, updateTicketStatusApi } from '../../Api/Service';
@@ -275,7 +277,7 @@ const AllTicket = () => {
     }, []);
 
     return (
-        <div className="admin dark-new-ui">
+        <AdminShell><div className="admin dark-new-ui">
             <div className="bg-gray-900 min-h-screen">
                 <SideBar state={Active} toggle={toggleBar} />
                 
@@ -285,19 +287,7 @@ const AllTicket = () => {
 
             {isLoading ? (
                             <Box sx={{ width: '100%', p: 4 }}>
-                                <LinearProgress
-                                    sx={{
-                                        height: 8,
-                                        borderRadius: 4,
-                                        backgroundColor: 'grey.800',
-                                        '& .MuiLinearProgress-bar': {
-                                            backgroundColor: 'primary.main'
-                                        }
-                                    }}
-                                />
-                                <Typography variant="h6" align="center" sx={{ mt: 2, color: 'grey.300' }}>
-                                    Loading tickets...
-                                </Typography>
+                                <AdminSkeleton variant="stats" rows={4} />
                             </Box>
                         ) : (
                             <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
@@ -544,6 +534,9 @@ const AllTicket = () => {
                                                                                 background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
                                                                                 color: 'white !important',
                                                                                 textTransform: 'none',
+                                                                                px: '14px !important',
+                                                                                py: '7px !important',
+                                                                                minHeight: '34px !important',
                                                                                 '&:hover': {
                                                                                     background: 'linear-gradient(45deg, #1565c0, #1e88e5)',
                                                                                     color: 'white !important'
@@ -680,6 +673,7 @@ const AllTicket = () => {
                 </Dialog>
             </div>
                 </div>
+    </AdminShell>
     );
 };
 

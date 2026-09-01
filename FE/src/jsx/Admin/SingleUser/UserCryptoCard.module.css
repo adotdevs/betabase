@@ -23,11 +23,12 @@
   margin: 0 0 8px;
   font-size: 1.75rem;
   font-weight: 800;
+  color: #fff !important;
 }
 
 .heroSubtitle {
   margin: 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.85) !important;
   max-width: 640px;
   line-height: 1.6;
   font-size: 0.95rem;

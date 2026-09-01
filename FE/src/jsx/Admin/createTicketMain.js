@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
 import { useNavigate } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import CreateTicket from "./createTicket.js";
@@ -24,7 +25,7 @@ const Supportpage = () => {
   }, []);
 
   return (
-    <div className="admin dark-new-ui">
+    <AdminShell><div className="admin dark-new-ui">
       <div className="bg-gray-900 min-h-screen">
         <SideBar state={Active} toggle={toggleBar} />
 
@@ -36,6 +37,7 @@ const Supportpage = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

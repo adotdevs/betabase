@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -115,7 +116,7 @@ const AddAdmin = () => {
   }, []);
 
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div>
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
@@ -541,6 +542,7 @@ const AddAdmin = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

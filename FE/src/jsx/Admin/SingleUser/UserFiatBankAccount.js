@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
@@ -24,6 +26,8 @@ import { EURO_ACCOUNT_FIELDS, hasEuroBankAccountData } from "../../components/Eu
 import { getFiatCurrencyByKey } from "../../../utils/euroCoinUtils";
 import styles from "./UserEuroAccount.module.css";
 import "./style.css";
+import su from "./SingleUserLayout.module.css";
+import box from "./UserBankAccounts.module.css";
 
 const EMPTY_FORM = {
   bankName: "",
@@ -70,10 +74,11 @@ const FIAT_API_CONFIG = {
   },
 };
 
-const UserFiatBankAccount = ({ fiatKey }) => {
+const UserFiatBankAccount = ({ fiatKey, embedded = false, userName: userNameProp }) => {
   const { id } = useParams();
   const fiat = useMemo(() => getFiatCurrencyByKey(fiatKey), [fiatKey]);
   const apiConfig = FIAT_API_CONFIG[fiatKey];
+  const fieldId = (key) => `${(fiat?.coinSymbol || fiatKey || "fiat").replace(/\s+/g, "-")}-${key}`;
 
   const [Active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -91,14 +96,14 @@ const UserFiatBankAccount = ({ fiatKey }) => {
 
     try {
       setLoading(true);
-      const [userRes, accountRes] = await Promise.all([
-        signleUsersApi(id),
-        apiConfig.get(id),
-      ]);
+      const accountRes = await apiConfig.get(id);
 
-      if (userRes.success) {
-        const user = userRes.signleUser;
-        setUserName(`${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email);
+      if (!userNameProp) {
+        const userRes = await signleUsersApi(id);
+        if (userRes.success) {
+          const user = userRes.signleUser;
+          setUserName(`${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email);
+        }
       }
 
       if (accountRes.success) {
@@ -124,7 +129,7 @@ const UserFiatBankAccount = ({ fiatKey }) => {
     } finally {
       setLoading(false);
     }
-  }, [apiConfig, fiat?.coinName, id]);
+  }, [apiConfig, fiat?.coinName, id, userNameProp]);
 
   useEffect(() => {
     loadData();
@@ -199,36 +204,27 @@ const UserFiatBankAccount = ({ fiatKey }) => {
     return null;
   }
 
-  return (
-    <div className="admin">
-      <div className="bg-muted-100 pb-20 dark:bg-muted-900">
-        <SideBar state={Active} toggle={toggleBar} />
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="User Management" />
+  const displayName = userNameProp || userName;
 
-            <div className="min-h-screen overflow-hidden pt-2">
-              <div className="grid gap-8 sm:grid-cols-12">
-                <UserSideBar userid={id} />
-
-                <div className={`col-span-12 sm:col-span-8 ${styles.euroAccountPage}`}>
-                  <div className="space-y-6">
-                    <div className={styles.heroCard}>
-                      <h1 className={styles.heroTitle} style={{ color: "white" }}>
-                        {fiat.adminTitle}
-                      </h1>
-                      <p className={styles.heroSubtitle}>
-                        Manage the linked {fiat.coinName.toLowerCase()} bank account for {userName || "this user"}. Filled fields will appear on the user&apos;s dashboard.
-                      </p>
-                    </div>
-
-                    <div className={styles.panel}>
-                      {loading ? (
-                        <div className={styles.loadingWrap}>
-                          <Spinner animation="border" variant="primary" />
+  const card = (
+                    <div className={embedded ? box.card : styles.panel} id={`bank-${fiat.coinSymbol}`}>
+                      {embedded && (
+                        <div className={box.head}>
+                          <img src={fiat.icon} alt="" className={box.icon} />
+                          <div>
+                            <h2 className={box.title}>{fiat.label} · {fiat.coinName}</h2>
+                            <p className={box.sub}>Shown on the member dashboard when filled.</p>
+                          </div>
+                          <span className={`${box.badge} ${!loading && hasSavedAccount ? box.badgeOn : box.badgeOff}`}>
+                            {loading ? "…" : hasSavedAccount ? "Linked" : "Not set"}
+                          </span>
                         </div>
+                      )}
+                      {loading ? (
+                        <AdminSkeleton variant="form" rows={5} />
                       ) : isEditing || !hasSavedAccount ? (
                         <>
+                          {!embedded && (
                           <div className={styles.panelHeader}>
                             <div>
                               <h2 className={styles.panelTitle}>
@@ -239,6 +235,7 @@ const UserFiatBankAccount = ({ fiatKey }) => {
                               </p>
                             </div>
                           </div>
+                          )}
 
                           <div className={styles.formGrid}>
                             {EURO_ACCOUNT_FIELDS.map(({ key, label }) => (
@@ -246,12 +243,12 @@ const UserFiatBankAccount = ({ fiatKey }) => {
                                 key={key}
                                 className={`${styles.formField} ${key === "bankAddress" ? styles.formFieldFull : ""}`}
                               >
-                                <label className={styles.formLabel} htmlFor={key}>
+                                <label className={styles.formLabel} htmlFor={fieldId(key)}>
                                   {label}
                                 </label>
                                 {key === "bankAddress" ? (
                                   <textarea
-                                    id={key}
+                                    id={fieldId(key)}
                                     className={styles.formTextarea}
                                     value={form[key]}
                                     onChange={handleChange(key)}
@@ -259,7 +256,7 @@ const UserFiatBankAccount = ({ fiatKey }) => {
                                   />
                                 ) : (
                                   <input
-                                    id={key}
+                                    id={fieldId(key)}
                                     className={styles.formInput}
                                     value={form[key]}
                                     onChange={handleChange(key)}
@@ -302,12 +299,14 @@ const UserFiatBankAccount = ({ fiatKey }) => {
                       ) : (
                         <>
                           <div className={styles.panelHeader}>
+                            {!embedded && (
                             <div>
                               <h2 className={styles.panelTitle}>Linked {fiat.coinName} Bank Account</h2>
                               <p className={styles.panelSubtitle}>
                                 These fields are visible to the user in their dashboard.
                               </p>
                             </div>
+                            )}
                             <div className={styles.actionsRow}>
                               <button type="button" className={`${styles.btnSecondary} euro-account-btn`} onClick={startEdit}>
                                 Edit
@@ -343,6 +342,31 @@ const UserFiatBankAccount = ({ fiatKey }) => {
                         </>
                       )}
                     </div>
+  );
+
+  if (embedded) {
+    return card;
+  }
+
+  return (
+    <AdminShell><div className="admin">
+      <div className="bg-muted-100 pb-20 dark:bg-muted-900">
+        <SideBar state={Active} toggle={toggleBar} />
+        <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+          <div className="mx-auto w-full max-w-7xl">
+            <AdminHeader toggle={toggleBar} pageName="User Management" />
+            <div className="min-h-screen overflow-hidden pt-2">
+              <div className={su.frame}>
+                <UserSideBar userid={id} />
+                <div className={`${su.main} ${styles.euroAccountPage}`}>
+                  <div className="space-y-6">
+                    <div className={styles.heroCard}>
+                      <h1 className={styles.heroTitle}>{fiat.adminTitle}</h1>
+                      <p className={styles.heroSubtitle}>
+                        Manage the linked {fiat.coinName.toLowerCase()} bank account for {displayName || "this user"}. Filled fields will appear on the user&apos;s dashboard.
+                      </p>
+                    </div>
+                    {card}
                   </div>
                 </div>
               </div>
@@ -351,6 +375,7 @@ const UserFiatBankAccount = ({ fiatKey }) => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

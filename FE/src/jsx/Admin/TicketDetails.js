@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import profile from "../../assets/images/7309681.jpg";
 import adminDp from "../../assets/admin.jpg";
 import { format, isWithinInterval, subDays, differenceInDays } from 'date-fns';
@@ -15,6 +17,7 @@ import { hasSubAdminAccessToUser } from './assets/subAdminAssignment';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './TicketDetails.css';
+import styles from './TicketDetails.module.css';
 import {
   TicketAttachmentInput,
   TicketMessageAttachments,
@@ -53,6 +56,13 @@ import {
   History as HistoryIcon,
   Description as TemplateIcon
 } from '@mui/icons-material';
+
+const TicketRichText = ({ html, className }) => {
+    if (messageContainsHtml(html)) {
+        return <div className={className} dangerouslySetInnerHTML={{ __html: html || "" }} />;
+    }
+    return <p className={className}>{html}</p>;
+};
 
 const AllTicket = () => {
     const messagesEndRef = useRef(null);
@@ -411,29 +421,17 @@ const AllTicket = () => {
     }, [messages]);
 
     return (
-        <div className="admin dark-new-ui">
-            <div className="bg-gray-900 min-h-screen">
+        <AdminShell><div className={`admin ${styles.page}`}>
+            <div className="bg-muted-100 dark:bg-muted-900 min-h-screen">
                 <SideBar state={Active} toggle={toggleBar} />
                 
-                <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+                <div className="relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
                     <div className="mx-auto w-full max-w-7xl">
                         <AdminHeader toggle={toggleBar} pageName="Ticket Details" />
 
                         {isLoading ? (
                             <Box sx={{ width: '100%', p: 4 }}>
-                                <LinearProgress
-                                    sx={{
-                                        height: 8,
-                                        borderRadius: 4,
-                                        backgroundColor: 'grey.800',
-                                        '& .MuiLinearProgress-bar': {
-                                            backgroundColor: 'primary.main'
-                                        }
-                                    }}
-                                />
-                                <Typography variant="h6" align="center" sx={{ mt: 2, color: 'grey.300' }}>
-                                    Loading ticket details...
-                                </Typography>
+                                <AdminSkeleton variant="ticket" rows={4} />
                             </Box>
                         ) : (
                             <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
@@ -449,7 +447,7 @@ const AllTicket = () => {
                                     >
                                         <ArrowBackIcon />
                                     </IconButton>
-                                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, flex: 1 }}>
+                                    <Typography variant="h4" className={styles.heading} sx={{ fontWeight: 700, flex: 1 }}>
                                         {Ticket.title}
                                     </Typography>
                                     <InlineTicketStatusCell
@@ -466,15 +464,14 @@ const AllTicket = () => {
                                     <Grid item xs={12} md={8}>
                                         <Paper
                                             elevation={0}
+                                            className={styles.panel}
                                             sx={{
-                                                background: 'rgba(255, 255, 255, 0.02)',
-                                                border: '1px solid rgba(255, 255, 255, 0.08)',
                                                 borderRadius: 3,
                                                 p: 3,
                                                 mb: 3
                                             }}
                                         >
-                                            <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, mb: 3 }}>
+                                            <Typography variant="h6" className={styles.heading} sx={{ fontWeight: 600, mb: 3 }}>
                                                 Messages
                                             </Typography>
 
@@ -484,13 +481,8 @@ const AllTicket = () => {
                                                     <Card
                                                         key={message._id || index}
                                                         elevation={0}
+                                                        className={styles.msgCard}
                                                         sx={{
-                                                            background: message.sender === 'admin' 
-                                                                ? 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%)'
-                                                                : 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
-                                                            border: message.sender === 'admin'
-                                                                ? '1px solid rgba(66, 165, 245, 0.2)'
-                                                                : '1px solid rgba(255, 255, 255, 0.1)',
                                                             borderRadius: 2,
                                                             position: 'relative'
                                                         }}
@@ -512,8 +504,8 @@ const AllTicket = () => {
                                                                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                                                                         <Typography 
                                                                             variant="subtitle1" 
+                                                                            className={styles.msgName}
                                                                             sx={{ 
-                                                                                color: 'white', 
                                                                                 fontWeight: 600,
                                                                                 textTransform: 'capitalize',
                                                                                 cursor: message.sender === 'user' ? 'pointer' : 'default'
@@ -595,29 +587,14 @@ const AllTicket = () => {
                                                                     ) : (
                                                                         <>
                                                                             {messageContainsHtml(message.description) ? (
-                                                                                <Box
-                                                                                    className="ticket-message-html"
-                                                                                    sx={{
-                                                                                        color: 'rgba(255, 255, 255, 0.9)',
-                                                                                        mb: 2,
-                                                                                        lineHeight: 1.6,
-                                                                                        '& p': { margin: '0 0 8px' },
-                                                                                        '& ul, & ol': { pl: 2.5, mb: 1 },
-                                                                                    }}
-                                                                                    dangerouslySetInnerHTML={{ __html: message.description }}
+                                                                                <TicketRichText
+                                                                                    html={message.description}
+                                                                                    className={`${styles.msgHtml} ticket-message-html`}
                                                                                 />
                                                                             ) : String(message.description || "").trim() && String(message.description).trim() !== "(Attachment)" ? (
-                                                                                <Typography 
-                                                                                    variant="body1" 
-                                                                                    sx={{ 
-                                                                                        color: 'rgba(255, 255, 255, 0.9)', 
-                                                                                        whiteSpace: 'pre-wrap',
-                                                                                        mb: 2,
-                                                                                        lineHeight: 1.6
-                                                                                    }}
-                                                                                >
+                                                                                <p className={styles.msgPlain}>
                                                                                     {message.description}
-                                                                                </Typography>
+                                                                                </p>
                                                                             ) : null}
                                                                             <TicketMessageAttachments
                                                                                 attachments={message.attachments}
@@ -627,7 +604,7 @@ const AllTicket = () => {
                                                                             />
                                                                         </>
                                                                     )}
-                                                                    <Typography variant="caption" sx={{ color: 'grey.400' }}>
+                                                                    <Typography variant="caption" className={styles.msgMeta}>
                                                                         {formatDate(message.createdAt)}
                                                                         {message.editedAt ? " (edited)" : ""}
                                                                     </Typography>
@@ -644,16 +621,14 @@ const AllTicket = () => {
                                                                             {openHistoryIds[message._id] && (
                                                                                 <Stack spacing={1.25} sx={{ mt: 1.25 }}>
                                                                                     {[...message.editHistory].reverse().map((entry, historyIndex) => (
-                                                                                        <Box key={historyIndex} className="ticket-edit-history-item">
-                                                                                            <Typography variant="caption" sx={{ color: 'grey.400', display: 'block', mb: 0.5 }}>
+                                                                                        <Box key={historyIndex} className={`ticket-edit-history-item ${styles.historyItem}`}>
+                                                                                            <Typography variant="caption" className={styles.msgMeta} sx={{ display: 'block', mb: 0.5 }}>
                                                                                                 {formatDateNew(entry.editedAt)} · {entry.editedBy === "admin" ? "Support" : "User"}
                                                                                             </Typography>
-                                                                                            <Typography
-                                                                                                variant="body2"
-                                                                                                sx={{ color: 'rgba(255, 255, 255, 0.78)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
-                                                                                            >
-                                                                                                {entry.previousDescription}
-                                                                                            </Typography>
+                                                                                            <TicketRichText
+                                                                                                html={entry.previousDescription}
+                                                                                                className={`${styles.historyHtml} ticket-edit-history-html`}
+                                                                                            />
                                                                                         </Box>
                                                                                     ))}
                                                                                 </Stack>
@@ -697,7 +672,7 @@ const AllTicket = () => {
                                             {/* Send Message Section */}
                                             <Divider sx={{ my: 3, borderColor: 'rgba(255, 255, 255, 0.08)' }} />
                                             
-                                            <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, mb: 2 }}>
+                                            <Typography variant="h6" className={styles.heading} sx={{ fontWeight: 600, mb: 2 }}>
                                                 Send a Message
                                             </Typography>
 
@@ -748,23 +723,8 @@ const AllTicket = () => {
                                                         onChange={(e) => setStatus(e.target.value)}
                                                         displayEmpty
                                                         sx={{
-                                                            color: 'grey.100',
-                                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                                             borderRadius: 2,
                                                             height: '40px',
-                                                            '& .MuiOutlinedInput-notchedOutline': {
-                                                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                                            },
-                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                                                borderColor: 'rgba(255, 255, 255, 0.2)',
-                                                            },
-                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                                borderColor: 'primary.main',
-                                                                borderWidth: '2px'
-                                                            },
-                                                            '& .MuiSvgIcon-root': {
-                                                                color: 'grey.400',
-                                                            }
                                                         }}
                                                     >
                                                         <MenuItem value="open">Open</MenuItem>
@@ -817,9 +777,8 @@ const AllTicket = () => {
                                     <Grid item xs={12} md={4}>
                                         <Paper
                                             elevation={0}
+                                            className={styles.panel}
                                             sx={{
-                                                background: 'rgba(255, 255, 255, 0.02)',
-                                                border: '1px solid rgba(255, 255, 255, 0.08)',
                                                 borderRadius: 3,
                                                 p: 3,
                                                 position: 'sticky !important',
@@ -830,17 +789,17 @@ const AllTicket = () => {
                                                 zIndex: '10 !important'
                                             }}
                                         >
-                                            <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, mb: 3 }}>
+                                            <Typography variant="h6" className={styles.heading} sx={{ fontWeight: 600, mb: 3 }}>
                                                 Ticket Information
                                             </Typography>
 
                                             <Stack spacing={2.5}>
                                                 {/* Ticket ID */}
                                                 <Box>
-                                                    <Typography variant="caption" sx={{ color: 'grey.400', textTransform: 'uppercase', fontWeight: 600 }}>
+                                                    <Typography variant="caption" className={styles.infoLabel}>
                                                         Ticket ID
                                                     </Typography>
-                                                    <Typography variant="body1" sx={{ color: 'primary.light', fontWeight: 600, mt: 0.5 }}>
+                                                    <Typography variant="body1" className={styles.infoValue} sx={{ fontWeight: 600, mt: 0.5 }}>
                                                         {Ticket.ticketId}
                                                     </Typography>
                                                 </Box>
@@ -876,10 +835,10 @@ const AllTicket = () => {
                                                                 <PersonIcon />
                                                             </Avatar>
                                                             <Box>
-                                                                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                                                                <Typography variant="body2" className={styles.msgName} sx={{ fontWeight: 600 }}>
                                                                     {TicketUser.firstName} {TicketUser.lastName}
                                                                 </Typography>
-                                                                <Typography variant="caption" sx={{ color: 'grey.400' }}>
+                                                                <Typography variant="caption" className={styles.msgMeta}>
                                                                     {TicketUser.email}
                                                                 </Typography>
                                                             </Box>
@@ -891,20 +850,20 @@ const AllTicket = () => {
 
                                                 {/* Created Date */}
                                                 <Box>
-                                                    <Typography variant="caption" sx={{ color: 'grey.400', textTransform: 'uppercase', fontWeight: 600 }}>
+                                                    <Typography variant="caption" className={styles.infoLabel}>
                                                         Created
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ color: 'white', mt: 0.5 }}>
+                                                    <Typography variant="body2" className={styles.infoValue} sx={{ mt: 0.5 }}>
                                                         {formatDateNew(Ticket.createdAt)}
                                                     </Typography>
                                                 </Box>
 
                                                 {/* Last Activity */}
                                                 <Box>
-                                                    <Typography variant="caption" sx={{ color: 'grey.400', textTransform: 'uppercase', fontWeight: 600 }}>
+                                                    <Typography variant="caption" className={styles.infoLabel}>
                                                         Last Activity
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ color: 'white', mt: 0.5 }}>
+                                                    <Typography variant="body2" className={styles.infoValue} sx={{ mt: 0.5 }}>
                                                         {formatDateNew(Ticket.updatedAt)}
                                                     </Typography>
                                                 </Box>
@@ -913,7 +872,7 @@ const AllTicket = () => {
 
                                                 {/* Status */}
                                                 <Box>
-                                                    <Typography variant="caption" sx={{ color: 'grey.400', textTransform: 'uppercase', fontWeight: 600, mb: 1, display: 'block' }}>
+                                                    <Typography variant="caption" className={styles.infoLabel} sx={{ mb: 1, display: 'block' }}>
                                                         Current Status
                                                     </Typography>
                                                     <InlineTicketStatusCell
@@ -928,10 +887,10 @@ const AllTicket = () => {
 
                                                 {/* Messages Count */}
                                                 <Box>
-                                                    <Typography variant="caption" sx={{ color: 'grey.400', textTransform: 'uppercase', fontWeight: 600 }}>
+                                                    <Typography variant="caption" className={styles.infoLabel}>
                                                         Total Messages
                                                     </Typography>
-                                                    <Typography variant="h4" sx={{ color: 'primary.light', fontWeight: 700, mt: 0.5 }}>
+                                                    <Typography variant="h4" className={styles.heading} sx={{ fontWeight: 700, mt: 0.5 }}>
                                                         {messages.length}
                                                     </Typography>
                                                 </Box>
@@ -955,6 +914,7 @@ const AllTicket = () => {
                 onApplyTemplate={(content) => setNewMessage(content)}
             />
         </div>
+    </AdminShell>
     );
 }
 

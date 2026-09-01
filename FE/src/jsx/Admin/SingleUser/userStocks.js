@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
+import skel from "../theme/AdminSkeleton.module.css";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
-import { Table, Form, Spinner } from 'react-bootstrap';
+import { Table, Form } from 'react-bootstrap';
 import {
     createUserStocksApi,
     getCoinsApi,
@@ -19,6 +22,7 @@ import {
 import axios from "axios";
 import './userStocks.css'
 import AdminHeader from "../adminHeader";
+import su from "./SingleUserLayout.module.css";
 const CustomStocksModal = ({ show, onClose, stocks, onEdit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -736,7 +740,7 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
     return (
         <>
 
-            <div className="admin">
+            <AdminShell><div className="admin">
                 <div>
                     <div className="bg-muted-100 dark:bg-muted-900 pb-20">
                         <SideBar state={Active} toggle={toggleBar} />
@@ -764,19 +768,14 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
                                 />
                                 <seokit />
                                 <div className="min-h-screen overflow-hidden">
-                                    <div className="grid gap-8 sm:grid-cols-12">
+                                    <div className={su.frame}>
                                         <UserSideBar userid={id} />
-                                        <div className="col-span-12 sm:col-span-8">
-                                            <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
-                                                <div className="flex items-center justify-between p-4">
+                                        <div className={su.main}>
+                                            <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md`}>
+                                                <div className={su.panelHead}>
                                                     <div>
-                                                        <p
-                                                            className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                                                            tag="h2"
-                                                        >
-                                                            {" "}
-                                                            Add New Stock
-                                                        </p>
+                                                        <p className={su.kicker}>Stocks</p>
+                                                        <h2 className={su.title}>Add New Stock</h2>
                                                     </div>
                                                 </div>
 
@@ -842,11 +841,9 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
                                                                     />
                                                                 </td>
                                                                 <td>
-                                                                    {apiLoading ? <div className="loader-container">
-                                                                        <Spinner animation="border" role="status">
-                                                                            <span className="visually-hidden">Loading...</span>
-                                                                        </Spinner>
-                                                                    </div> :
+                                                                    {apiLoading ? (
+                                                                        <span className={`${skel.bone} ${skel.formField}`} aria-hidden="true" />
+                                                                    ) : (
                                                                         <Form.Control
                                                                             type="number"
                                                                             placeholder="Enter amount"
@@ -855,7 +852,7 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
                                                                             readOnly={true}
                                                                             onChange={handleChange}
                                                                         />
-                                                                    }
+                                                                    )}
 
                                                                 </td>
                                                             </tr>
@@ -894,7 +891,7 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
                                                     </div>
                                                 </div>
                                                 {isLoading && (
-                                                    <div className="  p-5">Loading Stocks...</div>
+                                                    <AdminSkeleton variant="list" rows={5} />
                                                 )}
                                                 {!isLoading && (
                                                     <div className="pt-6 asm">
@@ -917,11 +914,7 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
                                                                             <td>{transaction.stockAmount || 'N/A'}</td>
                                                                             <td>
                                                                                 {spValue ? (
-                                                                                    <div className="loader-container">
-                                                                                        <Spinner animation="border" role="status">
-                                                                                            <span className="visually-hidden">Loading...</span>
-                                                                                        </Spinner>
-                                                                                    </div>
+                                                                                    <span className={`${skel.bone} ${skel.lineMed}`} aria-hidden="true" />
                                                                                 ) : (
                                                                                     (() => {
                                                                                         const liveValue = liveStockValues[transaction.stockSymbol];
@@ -990,6 +983,7 @@ const [selectedCustomStock, setSelectedCustomStock] = useState(null);
 />
                 {/* Modal 1 */}
             </div>
+    </AdminShell>
         </>
     );
 };

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import { useParams } from "react-router-dom";
@@ -16,6 +18,8 @@ import {
 import { toast } from "react-toastify";
 import AdminHeader from "../adminHeader";
 import "./style.css";
+import ui from "../AdminLoanUI.module.css";
+import su from "./SingleUserLayout.module.css";
 
 const STATUS_ACTIONS = [
   { value: "submitted", label: "Submitted", activeClass: "loan-status-btn-active loan-status-btn-active--submitted" },
@@ -154,12 +158,12 @@ const collectLoanDocuments = (application) => {
 };
 
 const StatusBadge = ({ status }) => {
-  const styles = {
-    draft: "bg-muted-100 text-muted-700 dark:bg-muted-800 dark:text-muted-300",
-    submitted: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
-    under_review: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
-    approved: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
-    rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200",
+  const toneMap = {
+    draft: `${ui.pill} ${ui.pillDraft}`,
+    submitted: `${ui.pill} ${ui.pillSubmitted}`,
+    under_review: `${ui.pill} ${ui.pillReview}`,
+    approved: `${ui.pill} ${ui.pillApproved}`,
+    rejected: `${ui.pill} ${ui.pillRejected}`,
   };
   const labels = {
     draft: "Draft",
@@ -169,7 +173,7 @@ const StatusBadge = ({ status }) => {
     rejected: "Rejected",
   };
   return (
-    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${styles[status] || styles.draft}`}>
+    <span className={toneMap[status] || toneMap.draft}>
       {labels[status] || status}
     </span>
   );
@@ -382,20 +386,20 @@ const UserLoanApplication = () => {
     return (
       <div
         key={sectionKey}
-        className="overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900"
+        className={ui.panel}
       >
-        <div className="border-b border-muted-200 px-5 py-4 dark:border-muted-700">
-          <h3 className="font-heading text-base font-semibold text-muted-800 dark:text-muted-100">
+        <div className={ui.sectionHead}>
+          <h3 className={ui.sectionTitle}>
             {SECTION_LABELS[sectionKey]}
           </h3>
         </div>
-        <dl className="grid gap-4 p-5 sm:grid-cols-2">
+        <dl className={`grid gap-4 sm:grid-cols-2 ${ui.sectionBody}`}>
           {entries.map(([key, value]) => (
             <div key={key}>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-500 dark:text-muted-400">
+              <dt className={ui.label}>
                 {FIELD_LABELS[key] || key}
               </dt>
-              <dd className="mt-1 text-sm text-muted-800 dark:text-muted-100">{formatValue(key, value)}</dd>
+              <dd className={ui.value}>{formatValue(key, value)}</dd>
             </div>
           ))}
         </dl>
@@ -404,7 +408,7 @@ const UserLoanApplication = () => {
   };
 
   return (
-    <div className="admin">
+    <AdminShell><div className={`admin ${ui.page}`}>
       <div className="bg-muted-100 pb-20 dark:bg-muted-900">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -412,26 +416,26 @@ const UserLoanApplication = () => {
             <AdminHeader toggle={toggleBar} pageName="User Management" />
 
             <div className="min-h-screen overflow-hidden pt-2">
-              <div className="grid gap-8 sm:grid-cols-12">
+              <div className={su.frame}>
                 <UserSideBar userid={id} />
 
-                <div className="col-span-12 sm:col-span-8">
+                <div className={su.main}>
                   <div className="space-y-6">
-                    <div className="overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900">
-                      <div className="border-b border-muted-200 px-6 py-5 dark:border-muted-700">
+                    <div className={ui.panel}>
+                      <div className={ui.sectionHead}>
                         <div className="flex flex-col gap-4">
                           <div>
-                            <h1 className="font-heading text-xl font-semibold text-muted-900 dark:text-muted-50">
+                            <h1 className={ui.title}>
                               Loan Application
                             </h1>
-                            <p className="mt-1 text-sm text-muted-500 dark:text-muted-400">
+                            <p className={ui.subtitle}>
                               Review loan request{userName ? ` for ${userName}` : ""}.
                             </p>
                             {application && (
                               <div className="mt-3 flex flex-wrap items-center gap-2">
                                 <StatusBadge status={application.status} />
                                 {application.submittedAt && (
-                                  <span className="text-xs text-muted-500 dark:text-muted-400">
+                                  <span className={ui.subtitle}>
                                     Submitted {new Date(application.submittedAt).toLocaleDateString()}
                                   </span>
                                 )}
@@ -441,17 +445,17 @@ const UserLoanApplication = () => {
 
                           {canChangeStatus && (
                             <div className="space-y-3 border-t border-muted-200 pt-4 dark:border-muted-700">
-                              <label className="block text-sm font-medium text-muted-700 dark:text-muted-300">
+                              <label className={ui.label}>
                                 Admin notes (optional)
                               </label>
                               <textarea
-                                className="w-full rounded-lg border border-muted-200 bg-white px-3 py-2 text-sm text-muted-800 dark:border-muted-700 dark:bg-muted-800 dark:text-muted-100"
+                                className={ui.notes}
                                 rows={3}
                                 value={adminNotes}
                                 onChange={(e) => setAdminNotes(e.target.value)}
                                 placeholder="Internal notes about this application..."
                               />
-                              <p className="text-xs text-muted-500 dark:text-muted-400">
+                              <p className={ui.subtitle}>
                                 Current status: <strong>{application.status.replace("_", " ")}</strong>
                                 — you can change it at any time.
                               </p>
@@ -505,15 +509,15 @@ const UserLoanApplication = () => {
                       </div>
 
                       {loading && (
-                        <div className="px-6 py-12 text-center text-sm text-muted-500">Loading...</div>
+                        <AdminSkeleton variant="form" rows={5} />
                       )}
 
                       {!loading && !application && (
                         <div className="px-6 py-12 text-center">
-                          <h2 className="text-lg font-semibold text-muted-800 dark:text-muted-100">
+                          <h2 className={ui.title}>
                             No loan application
                           </h2>
-                          <p className="mt-2 text-sm text-muted-500 dark:text-muted-400">
+                          <p className={ui.subtitle}>
                             This user has not submitted a loan application yet.
                           </p>
                         </div>
@@ -527,12 +531,12 @@ const UserLoanApplication = () => {
                     </div>
 
                     {!loading && application && application.status !== "draft" && loanDocuments.length > 0 && (
-                      <div className="overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900">
-                        <div className="border-b border-muted-200 px-5 py-4 dark:border-muted-700">
-                          <h3 className="font-heading text-base font-semibold text-muted-800 dark:text-muted-100">
+                      <div className={ui.panel}>
+                        <div className={ui.sectionHead}>
+                          <h3 className={ui.sectionTitle}>
                             Supporting Documents
                           </h3>
-                          <p className="mt-0.5 text-sm text-muted-500 dark:text-muted-400">
+                          <p className={ui.subtitle}>
                             Click a preview or use View &amp; Download to save the file.
                           </p>
                         </div>
@@ -548,9 +552,9 @@ const UserLoanApplication = () => {
                       <div className="space-y-4">
                         {Object.keys(SECTION_LABELS).map(renderSection)}
                         {application.adminNotes && (
-                          <div className="rounded-xl border border-muted-200 bg-muted-50 px-5 py-4 dark:border-muted-700 dark:bg-muted-800/50">
-                            <p className="text-xs font-medium uppercase text-muted-500">Admin notes</p>
-                            <p className="mt-1 text-sm text-muted-800 dark:text-muted-100">{application.adminNotes}</p>
+                          <div className={ui.panel}>
+                            <p className={ui.label}>Admin notes</p>
+                            <p className={ui.value}>{application.adminNotes}</p>
                           </div>
                         )}
                       </div>
@@ -563,6 +567,7 @@ const UserLoanApplication = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

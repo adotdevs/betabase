@@ -77,6 +77,37 @@
   line-height: 1.4 !important;
 }
 
+:global(html[data-admin-ui="on"]) .attachBtn {
+  background: var(--admin-accent-soft) !important;
+  border: 1px solid var(--admin-accent) !important;
+  color: var(--admin-accent) !important;
+}
+
+:global(html[data-admin-ui="on"]) .attachBtn:hover:not(:disabled) {
+  background: var(--admin-accent) !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-admin-ui="on"]) .attachIcon {
+  color: inherit !important;
+}
+
+:global(html[data-admin-ui="on"]) .hint {
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .pendingCard,
+:global(html[data-admin-ui="on"]) .messageCard {
+  background: var(--admin-surface-2) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"]) .pendingName,
+:global(html[data-admin-ui="on"]) .messageCaption,
+:global(html[data-admin-ui="on"]) .editAttachmentsLabel {
+  color: var(--admin-text-secondary) !important;
+}
+
 .hiddenInput {
   display: none;
 }

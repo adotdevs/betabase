@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import Log from "../../assets/images/img/log.jpg";
 import {
@@ -460,7 +462,7 @@ const AdminManagement = () => {
                     }
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
                     <Box sx={{ 
                       display: 'flex', 
                       alignItems: 'center', 
@@ -531,7 +533,7 @@ const AdminManagement = () => {
   );
 
   return (
-    <div className="admin dark-theme dark-new-ui">
+    <AdminShell><div className="admin dark-theme dark-new-ui">
       <div className="bg-gray-900 min-h-screen">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -539,20 +541,8 @@ const AdminManagement = () => {
             <AdminHeader toggle={toggleBar} pageName="Admin Management" />
 
             {isLoading ? (
-              <Box sx={{ width: '100%', p: 4, textAlign: 'center' }}>
-                <LinearProgress 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    backgroundColor: 'grey.800',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: 'primary.main'
-                    }
-                  }} 
-                />
-                <Typography variant="h6" sx={{ mt: 2, color: 'grey.300' }}>
-                  Loading Admins...
-                </Typography>
+              <Box sx={{ width: '100%', p: 4 }}>
+                <AdminSkeleton variant="cards" rows={3} />
               </Box>
             ) : (
               <Box sx={{ p: 3 }}>
@@ -662,6 +652,7 @@ const AdminManagement = () => {
         </Box>
       </Modal>
     </div>
+    </AdminShell>
   );
 };
 

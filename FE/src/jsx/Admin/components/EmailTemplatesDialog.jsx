@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { Add, Close, Delete, Edit, Save } from "@mui/icons-material";
 import { toast } from "react-toastify";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import {
     getTicketEmailTemplatesApi,
     createTicketEmailTemplateApi,
@@ -37,6 +38,7 @@ import {
     buildEmailTemplateContext,
     isEmptyRichText,
 } from "../../../utils/emailTemplateUtils";
+import ui from "./EmailTemplatesDialog.module.css";
 
 const VARIABLE_GROUPS = [
     {
@@ -266,15 +268,12 @@ const EmailTemplatesDialog = ({
                     return (
                         <Box
                             key={template._id}
+                            className={ui.row}
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 1,
-                                p: 1.5,
-                                border: "2px solid",
-                                borderColor: isEditing ? "primary.main" : "divider",
-                                borderRadius: 1,
-                                bgcolor: isEditing ? "action.selected" : "transparent",
+                                borderColor: isEditing ? "primary.main" : undefined,
                             }}
                         >
                             <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -329,7 +328,7 @@ const EmailTemplatesDialog = ({
     const primaryTemplates = templatesByType[primaryType];
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth className={ui.dialog}>
             <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 {mode === "ticket" ? "Ticket Templates" : "Lead Email Templates"}
                 <IconButton onClick={onClose} size="small">
@@ -344,7 +343,7 @@ const EmailTemplatesDialog = ({
                 </Typography>
 
                 {loading ? (
-                    <Typography variant="body2">Loading...</Typography>
+                    <AdminSkeleton variant="list" rows={4} />
                 ) : (
                     <>
                         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
@@ -412,14 +411,14 @@ const EmailTemplatesDialog = ({
                             />
                         )}
 
-                        <Box sx={{ mb: 1.5, p: 1.5, borderRadius: 1, bgcolor: "action.hover", border: "1px solid", borderColor: "divider" }}>
-                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                        <Box className={ui.varBox} sx={{ mb: 1.5 }}>
+                            <Typography variant="caption" className={ui.help} display="block" sx={{ mb: 1 }}>
                                 Click a variable to insert it. Lead templates use the title as the email subject.
                             </Typography>
                             <Stack spacing={1.25}>
                                 {VARIABLE_GROUPS.map((group) => (
                                     <Box key={group.title}>
-                                        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+                                        <Typography variant="caption" className={ui.groupTitle} sx={{ display: "block", mb: 0.5 }}>
                                             {group.title}
                                         </Typography>
                                         <Stack direction="row" flexWrap="wrap" gap={0.75}>
@@ -429,6 +428,7 @@ const EmailTemplatesDialog = ({
                                                     label={key}
                                                     size="small"
                                                     clickable
+                                                    className={ui.chip}
                                                     onClick={() => insertVariable(key)}
                                                     title={getVariableLabel(key)}
                                                     sx={{ fontFamily: "monospace", fontSize: "0.7rem", height: 24 }}
@@ -448,8 +448,8 @@ const EmailTemplatesDialog = ({
                                 size="small"
                                 fullWidth
                             />
-                            <Box sx={{ "& .ql-editor": { minHeight: 120 } }}>
-                                <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+                            <Box className={ui.quill} sx={{ "& .ql-editor": { minHeight: 120 } }}>
+                                <Typography variant="caption" className={ui.help} sx={{ mb: 0.5, display: "block" }}>
                                     Message
                                 </Typography>
                                 <ReactQuill

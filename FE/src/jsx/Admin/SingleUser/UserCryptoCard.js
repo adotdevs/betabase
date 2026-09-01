@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
@@ -10,6 +12,7 @@ import UsdtLogo from "../../../assets/images/usdt.png";
 import euroStyles from "./UserEuroAccount.module.css";
 import styles from "./UserCryptoCard.module.css";
 import "./style.css";
+import su from "./SingleUserLayout.module.css";
 
 const EMPTY_FORM = {
   cardNumber: "",
@@ -270,7 +273,7 @@ const UserCryptoCard = () => {
   );
 
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div className="bg-muted-100 pb-20 dark:bg-muted-900">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -278,10 +281,10 @@ const UserCryptoCard = () => {
             <AdminHeader toggle={toggleBar} pageName="User Management" />
 
             <div className="min-h-screen overflow-hidden pt-2">
-              <div className="grid gap-8 sm:grid-cols-12">
+              <div className={su.frame}>
                 <UserSideBar userid={id} />
 
-                <div className={`col-span-12 sm:col-span-8 ${euroStyles.euroAccountPage} ${styles.cryptoPage}`}>
+                <div className={`${su.main} ${euroStyles.euroAccountPage} ${styles.cryptoPage}`}>
                   <div className="space-y-6">
                     <div className={styles.heroCard}>
                       <div className={styles.heroTop}>
@@ -319,9 +322,7 @@ const UserCryptoCard = () => {
 
                     <div className={euroStyles.panel}>
                       {loading ? (
-                        <div className={euroStyles.loadingWrap}>
-                          <Spinner animation="border" variant="primary" />
-                        </div>
+                        <AdminSkeleton variant="form" rows={5} />
                       ) : showForm ? (
                         <>
                           <div className={euroStyles.panelHeader}>
@@ -537,6 +538,7 @@ const UserCryptoCard = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

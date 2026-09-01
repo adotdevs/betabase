@@ -5,7 +5,7 @@ import Log from "../../../assets/newlogo/logo-blue.png";
 import { useAuthUser, useSignOut } from "react-auth-kit";
 import { logoutApi, addUserByEmailApi, signleUsersApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
-import './Sidebar.css'
+import styles from './Sidebar.module.css';
 import 'react-responsive-modal/styles.css';
 import { Modal } from 'react-responsive-modal';
 const SideBar = (props) => {
@@ -140,19 +140,18 @@ const SideBar = (props) => {
   return (
     <>
 
+      {props.state ? (
+        <button type="button" className={styles.scrim} aria-label="Close navigation" onClick={props.toggle} />
+      ) : null}
       <div
         id="sidebar"
-        className={
-          props.state
-            ? "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full translate-x-0 lg:translate-x-0"
-            : "dark:bg-muted-800 border-muted-200 dark:border-muted-700 fixed left-0 top-0 z-[60] flex h-full flex-col border-r bg-white transition-all duration-300 w-[280px] -translate-x-full lg:translate-x-0"
-        }
+        className={`${styles.sidebar}${props.state ? ` ${styles.open}` : ""}`}
       >
-        <div className="flex sna">
+        <div className={styles.mobileClose}>
           <button
             type="button"
             onClick={props.toggle}
-            className="nui-mask nui-mask-blob hover:bg-muted-200 dark:hover:bg-muted-800 text-muted-700 dark:text-muted-400 flex h-10 w-10 cursor-pointer items-center justify-center transition-colors duration-300 lg:hidden"
+            className={styles.closeBtn}
           >
             <svg
               data-v-cd102a71
@@ -176,14 +175,14 @@ const SideBar = (props) => {
             </svg>
           </button>
         </div>
-        <div className="flex h-16 w-full items-center justify-between px-6">
-          <div className="flex h-16 w-16 items-center ">
+        <div className={styles.brand}>
+          <div>
             <NavLink
               to="/"
               className="router-link-active router-link-exact-active flex items-center justify-center"
               aria-current="page"
             >
-              <img style={{ width: "100px" }} src={logo_300x57_1} />
+              <img className={styles.logo} src={logo_300x57_1} alt="Betabase" />
               {/* <svg
               width="224"
               height="24"
@@ -229,12 +228,12 @@ const SideBar = (props) => {
             </NavLink>
           </div>
         </div>
-        <div className="slimscroll relative w-full grow overflow-y-auto py-6 px-6">
-          <ul id="sidebar-menu" className="space-y-2">
+        <div className={styles.nav}>
+          <ul id="sidebar-menu" className={styles.menu}>
             <li>
               <NavLink
                 to="/admin/dashboard"
-                className=" nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                className={styles.navItem}
                 aria-current="page"
               >
                 <svg
@@ -264,7 +263,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/dashboard/crm"
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -285,7 +284,7 @@ const SideBar = (props) => {
               <> <li>
                 <NavLink
                   to="/superadmin/admins"
-                  className=" nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                   aria-current="page"
                 >
                   <svg
@@ -314,12 +313,12 @@ const SideBar = (props) => {
               </>}
 
             <li>
-              <div className="border-muted-200 dark:border-muted-700 my-3 h-px w-full border-t" />
+              <div className={styles.divider} />
             </li>
             <li>
               <NavLink
                 to="/admin/users"
-                className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                className={styles.navItem}
               >
                 <svg
                   data-v-cd102a71
@@ -346,21 +345,13 @@ const SideBar = (props) => {
             {authUser().user.role === "superadmin" && <li>
               <NavLink
                 to="/admin/user/links"
-                className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                className={styles.navItem}
               >
-                <svg width="1rem" height="1rem" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                  <title>Link</title>
-                  <g id="Page-1" stroke="none" strokeWidth={1} fill="none" fillRule="evenodd">
-                    <g id="Link">
-                      <rect id="Rectangle" fillRule="nonzero" x={0} y={0} width={24} height={24}>
-                      </rect>
-                      <path d="M14,16 L17,16 C19.2091,16 21,14.2091 21,12 L21,12 C21,9.79086 19.2091,8 17,8 L14,8" id="Path" stroke="#0C0310" strokeWidth={2} strokeLinecap="round">
-                      </path>
-                      <path d="M10,16 L7,16 C4.79086,16 3,14.2091 3,12 L3,12 C3,9.79086 4.79086,8 7,8 L10,8" id="Path" stroke="#0C0310" strokeWidth={2} strokeLinecap="round">
-                      </path>
-                      <line x1="7.5" y1={12} x2="16.5" y2={12} id="Path" stroke="#0C0310" strokeWidth={2} strokeLinecap="round">
-                      </line>
-                    </g>
+                <svg width="1rem" height="1rem" viewBox="0 0 24 24" aria-hidden="true">
+                  <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                    <path d="M14 16h3a4 4 0 0 0 0-8h-3" />
+                    <path d="M10 16H7a4 4 0 0 1 0-8h3" />
+                    <path d="M7.5 12h9" />
                   </g>
                 </svg>
 
@@ -374,7 +365,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/subadmin"
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     data-v-cd102a71
@@ -405,7 +396,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/add-new-member"
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     data-v-cd102a71="true"
@@ -439,7 +430,7 @@ const SideBar = (props) => {
             {authUser().user.role === "subadmin" ? (
               <li>
                 <button onClick={onOpenModal}
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     data-v-cd102a71="true"
@@ -474,7 +465,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/transactions/pending"
-                  className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     data-v-cd102a71
@@ -512,7 +503,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/loan-applications"
-                  className="router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -535,7 +526,7 @@ const SideBar = (props) => {
             {/* <li>
             <NavLink
               to="/admin/tickets"
-              className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+              className={styles.navItem}
             >
               <svg
                 data-v-cd102a71
@@ -562,7 +553,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/profile"
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     data-v-cd102a71="true"
@@ -595,7 +586,7 @@ const SideBar = (props) => {
               <li>
                 <NavLink
                   to="/admin/referrals"
-                  className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                  className={styles.navItem}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -616,7 +607,7 @@ const SideBar = (props) => {
             <li>
               <NavLink
                 to="/admin/support"
-                className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                className={styles.navItem}
               >
                 <i class="fa-solid fa-headset"></i>
 
@@ -628,7 +619,7 @@ const SideBar = (props) => {
             {authUser().user.role==="superadmin"&&<li>
               <NavLink
                 to="/admin/logs"
-                className=" router-link-active nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4"
+                className={styles.navItem}
               >
                 <i class="fa-solid fa-info"></i>
 
@@ -639,7 +630,7 @@ const SideBar = (props) => {
             </li>}
 
             <li onClick={() => isLoginOrLogout()}>
-              <p className=" router-link-active cursor-pointer nui-focus text-muted-500 dark:text-muted-400/80 hover:bg-muted-100 dark:hover:bg-muted-700/60 hover:text-muted-600 dark:hover:text-muted-200 flex cursor-pointer items-center gap-4 rounded-lg py-3 transition-colors duration-300 px-4">
+              <p className={styles.navItem}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -662,24 +653,18 @@ const SideBar = (props) => {
             {/**/}
           </ul>
         </div>
-        <div className="flex h-16 w-full items-center gap-4 transition-all duration-150 px-6">
+        <div className={styles.account}>
           <div className="group inline-flex items-center justify-center text-right">
             <div data-headlessui-state className="relative h-10 w-10 text-left">
               <button
                 onClick={togglePop}
-                className="group-hover:ring-primary-500 dark:ring-offset-muted-800 inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4"
+                className={styles.avatarBtn}
                 id="headlessui-menu-button-34"
                 aria-haspopup="menu"
                 aria-expanded="false"
                 type="button"
               >
-                <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
-                  <img
-                    src={Log}
-                    className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                    alt=""
-                  />
-                </div>
+                <img src={Log} alt="" />
               </button>
               {noPop && (
                 <div
@@ -688,35 +673,18 @@ const SideBar = (props) => {
                   role="menu"
                   tabIndex={0}
                   data-headlessui-state="open"
-                  className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 absolute mt-2 w-60 origin-bottom-right rounded-md border bg-white text-left shadow-lg focus:outline-none bottom-0 -end-64"
+                  className={styles.pop}
                 >
-                  <div
-                    className="bg-muted-50 dark:bg-muted-700/40 p-6"
-                    role="none"
-                  >
+                  <div className={styles.popHead} role="none">
                     <div className="flex items-center" role="none">
-                      <div
-                        className="relative inline-flex h-14 w-14 items-center justify-center rounded-full"
-                        role="none"
-                      >
-                        <img
-                          src={Log}
-                          className="max-w-full rounded-full object-cover shadow-sm dark:border-transparent"
-                          alt=""
-                          role="none"
-                        />
+                      <div className={styles.avatarBtn} role="none">
+                        <img src={Log} alt="" role="none" />
                       </div>
                       <div className="ms-3" role="none">
-                        <h6
-                          className="font-heading text-muted-800 text-sm font-medium dark:text-white"
-                          role="none"
-                        >
+                        <h6 className={styles.accountName} role="none">
                           {Admin.firstName}
                         </h6>
-                        <p
-                          className="text-muted-400 font-sans text-xs"
-                          role="none"
-                        >
+                        <p className={styles.accountEmail} role="none">
                           {Admin.email}
                         </p>
                       </div>
@@ -732,34 +700,33 @@ const SideBar = (props) => {
                       <a
                         onClick={() => isLoginOrLogout()}
                         href="javascript:void(0)"
-                        className="group flex w-full items-center rounded-md p-3 text-sm transition-colors duration-300 text-muted-400"
+                        className={styles.popAction}
                       >
-                        <div className="ms-3">
-                          <h6 className="font-heading text-muted-800 text-xs font-medium leading-none dark:text-white">
-                            Logout
-                          </h6>
-                        </div>
+                        Logout
                       </a>
                     </div>
                   </div>
                 </div>
               )}
-              {/**/}
             </div>
           </div>
-          <span className="text-muted-500 dark:text-muted-400/80 whitespace-nowrap font-sans text-sm block">
-            My Account
-          </span>
+          <div className={styles.accountMeta}>
+            <span className={styles.accountName}>{Admin.firstName || "My Account"}</span>
+            <span className={styles.accountEmail}>{Admin.email || ""}</span>
+          </div>
         </div>
       </div >
       <Modal classNames="this-modal" open={open} onClose={onCloseModal} center>
-        <h2>Add user</h2>
-        <div className="emaol-">
-          <label htmlFor="">Enter Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+        <div className={styles.modalBox}>
+          <h2>Add user</h2>
+          <div className={styles.field}>
+            <label htmlFor="">Enter Email</label>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+          </div>
+          <div className={styles.modalActions}>
+            <button disabled={isLoading} onClick={addUser}>Add</button>
+          </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <button disabled={isLoading} onClick={addUser} className="btn btn-dark bansa">Add</button></div>
       </Modal>  </>
   );
 };

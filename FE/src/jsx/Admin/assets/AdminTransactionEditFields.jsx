@@ -4,10 +4,10 @@ import {
   parseSwapNote,
   patchSwapNoteField,
 } from "./adminTransactionEdit";
+import styles from "./AdminTransactions.module.css";
 
-const fieldClass =
-  "border border-gray-700 py-1 px-3 w-full rounded text-sm text-gray-100 bg-gray-900";
-const labelClass = "text-sm font-medium text-gray-400";
+const fieldClass = styles.field;
+const labelClass = styles.label;
 
 const datetimeValue = (value) => {
   if (!value) return "";
@@ -93,7 +93,7 @@ const AdminTransactionEditFields = ({ transaction, onChange }) => {
         </dd>
       </div>
       <div className="sm:col-span-2">
-        <label className="mt-1 inline-flex items-center gap-2 text-sm text-gray-100">
+        <label className={`mt-1 inline-flex items-center gap-2 text-sm ${styles.check}`}>
           <input
             type="checkbox"
             checked={Boolean(transaction.isHidden)}

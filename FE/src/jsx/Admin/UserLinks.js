@@ -1,35 +1,37 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 
 import {
   getLinksApi,
   updateLinksApi,
 } from "../../Api/Service";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useAuthUser } from "react-auth-kit";
 
 import "react-responsive-modal/styles.css";
 import AdminHeader from "./adminHeader";
 import { toast } from "react-toastify";
-const UserLinks = () => {
+import styles from "./UserLinks.module.css";
 
+const UserLinks = () => {
   let authUser = useAuthUser();
   let Navigate = useNavigate();
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingNew, setLoadingNew] = useState(false);
 
-  // Fetch links on mount
   useEffect(() => {
     fetchLinks();
   }, []);
 
   const fetchLinks = async () => {
     try {
-      const data = await getLinksApi();setLinks(data.links);
-      setLoadingNew(false)
-
+      const data = await getLinksApi();
+      setLinks(data.links);
+      setLoadingNew(false);
     } catch (error) {
       console.error("Error fetching links:", error);
     } finally {
@@ -39,15 +41,14 @@ const UserLinks = () => {
 
   const toggleLink = async (id, currentStatus) => {
     try {
-      let enabled = !currentStatus
-      const linkData = await updateLinksApi(id, enabled)
-      // const linkData= await patch(`/api/links/${id}`, { enabled: !currentStatus }); // 👈 backend update
+      let enabled = !currentStatus;
+      const linkData = await updateLinksApi(id, enabled);
       setLoadingNew(true);
       if (linkData.success) {
-        toast.success("link status updated")
-        fetchLinks()
+        toast.success("link status updated");
+        fetchLinks();
       } else {
-        setLoadingNew(false)
+        setLoadingNew(false);
       }
     } catch (error) {
       toast.error("Error updating link status");
@@ -77,55 +78,75 @@ const UserLinks = () => {
   };
 
   return (
-    <div className="admin">
-      <div>
-        <div className="bg-muted-100 dark:bg-muted-900 pb-20">
-          <SideBar state={Active} toggle={toggleBar} />
-          <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="mx-auto w-full max-w-7xl">
-              <AdminHeader toggle={toggleBar} pageName=" Users Management" />
-              <div className="p-6 bg-gray-100 min-h-screen">
-                <h1 className="text-2xl font-bold mb-4">Manage Links</h1>
+    <AdminShell>
+      <div className={`admin ${styles.page}`}>
+        <div>
+          <div className="bg-muted-100 dark:bg-muted-900 pb-20">
+            <SideBar state={Active} toggle={toggleBar} />
+            <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+              <div className="mx-auto w-full max-w-7xl">
+                <AdminHeader toggle={toggleBar} pageName="User Links Management" />
+                <section className={styles.panel}>
+                  <div className={styles.head}>
+                    <div>
+                      <h1 className={styles.title}>Manage Links</h1>
+                      <p className={styles.subtitle}>
+                        Turn customer app routes on or off
+                      </p>
+                    </div>
+                    {!loading ? (
+                      <span className={styles.count}>{links.length} links</span>
+                    ) : null}
+                  </div>
 
-                {!loading && <table className="w-full border-collapse bg-white shadow rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-gray-200 text-left">
-                      <th className="p-3">Name</th>
-                      <th className="p-3">Path</th>
-                      <th className="p-3">Enabled</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {links.map((link) => (
-                      <tr key={link._id} className="border-b">
-                        <td className="p-3">{link.name}</td>
-                        <td className="p-3">{link.path}</td>
-                        <td className="p-3">
-                          <label className="inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={link.enabled}
-                              onChange={() => toggleLink(link._id, link.enabled)}
-                              className="sr-only"
-                            />
-                            <button style={{ opacity: loadingNew ? '0.8' : "1" }} onClick={() => toggleLink(link._id, link.enabled)} disabled={loadingNew}><div
-                              className={`toggleit ${link.enabled ? "active" : ""}`}
-
-                            ></div></button>
-
-                          </label>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>}
+                  {loading ? (
+                    <AdminSkeleton variant="table" rows={6} />
+                  ) : links.length === 0 ? (
+                    <p className={styles.empty}>No links to display</p>
+                  ) : (
+                    <div className={styles.tableWrap}>
+                      <table className={styles.table}>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Path</th>
+                            <th>Enabled</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {links.map((link) => (
+                            <tr key={link._id}>
+                              <td className={styles.name}>{link.name}</td>
+                              <td className={styles.path}>{link.path}</td>
+                              <td>
+                                <div className={styles.switchWrap}>
+                                  <button
+                                    type="button"
+                                    className={`${styles.switch}${link.enabled ? ` ${styles.switchOn}` : ""}`}
+                                    style={{ opacity: loadingNew ? "0.8" : "1" }}
+                                    onClick={() => toggleLink(link._id, link.enabled)}
+                                    disabled={loadingNew}
+                                    aria-pressed={link.enabled}
+                                    aria-label={`${link.enabled ? "Disable" : "Enable"} ${link.name}`}
+                                  />
+                                  <span className={styles.switchLabel}>
+                                    {link.enabled ? "On" : "Off"}
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </section>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-    </div>
+    </AdminShell>
   );
 };
 

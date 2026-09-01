@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -10,6 +11,7 @@ import { useAuthUser } from "react-auth-kit";
 import ReactQuill from "react-quill";
 import './style.css'
 import AdminHeader from "../adminHeader";
+import su from "./SingleUserLayout.module.css";
 const General = () => {
   //
 
@@ -238,6 +240,7 @@ const General = () => {
     patchCoins()
   }, []);
   return (
+    <AdminShell>
     <>
       <div className="">
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
@@ -269,24 +272,18 @@ const General = () => {
               <seokit />
               <div className="admin">
                 <div className="min-h-screen overflow-hidden">
-                  <div className="grid gap-8 sm:grid-cols-12">
+                  <div className={su.frame}>
                     {userData.role === "admin" || userData.role === "subadmin" ? "" : <UserSideBar userid={id} />}
 
-                    <div className="col-span-12 sm:col-span-8">
+                    <div className={su.main}>
                       <form method="POST" action className="w-full ">
-                        <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md">
-                          <div className="flex items-center justify-between p-4">
+                        <div className={su.panel}>
+                          <div className={su.panelHead}>
                             <div>
-                              <p
-                                className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                                tag="h2"
-                              >
-                                {" "}
-                                Settings{" "}
-                              </p>
-                              <p className="font-sans text-xs font-normal leading-normal leading-normal text-muted-400">
-                                {fieldsReadOnly ? "View assigned client personal details" : "Edit user settings"}
-                              </p>
+                              <p className={su.kicker}>Settings</p>
+                              <h2 className={su.title}>
+                                {fieldsReadOnly ? "View assigned client personal details" : "Edit member profile"}
+                              </h2>
                             </div>
                             <div className="flex items-center gap-2">
                               {isSubAdminViewer && canViewClientDetails && canEditClientProfile && !isEditMode && (
@@ -304,7 +301,7 @@ const General = () => {
                                 onClick={updateSignleUser}
                                 data-v-71bb21a6
                                 type="submit"
-                                className="is-button rounded bg-primary-500 dark:bg-primary-500 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-400 text-white hover:enabled:shadow-lg hover:enabled:shadow-primary-500/50 dark:hover:enabled:shadow-primary-800/20 focus-visible:outline-primary-400/70 focus-within:outline-primary-400/70 focus-visible:bg-primary-500 active:enabled:bg-primary-500 dark:focus-visible:outline-primary-400 dark:focus-within:outline-primary-400 dark:focus-visible:bg-primary-500 dark:active:enabled:bg-primary-500 w-24"
+                                className={`is-button rounded bg-primary-500 dark:bg-primary-500 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-400 text-white hover:enabled:shadow-lg hover:enabled:shadow-primary-500/50 dark:hover:enabled:shadow-primary-800/20 focus-visible:outline-primary-400/70 focus-within:outline-primary-400/70 focus-visible:bg-primary-500 active:enabled:bg-primary-500 dark:focus-visible:outline-primary-400 dark:focus-within:outline-primary-400 dark:focus-visible:bg-primary-500 dark:active:enabled:bg-primary-500 w-24 ${su.saveBtn}`}
                               >
                                 {isDisable ? (
                                   <div>
@@ -320,7 +317,8 @@ const General = () => {
                           <div className="p-4">
 
                             {userData.role === "admin" || userData.role === "subadmin" ? "" :
-                              <div className="col-span-12">
+                              <div className={su.box}>
+                                <h3 className={su.boxTitle}>Trading</h3>
                                 <div className="relative">
                                   {/**/}
                                   <label style={{ display: 'flex ', alignItems: 'center' }}>Ai Trading % </label>
@@ -346,17 +344,12 @@ const General = () => {
                               </div>
                             }
 
-                            <div className=" space-y-12 py-8">
+                            <div className={su.box}>
                               {/**/}
                               {/**/}
                               <fieldset className="relative">
                                 <div className="mb-6">
-                                  <p
-                                    className="font-heading text-base font-medium leading-none"
-                                    tag="h3"
-                                  >
-                                    User Information
-                                  </p>
+                                  <h3 className={su.boxTitle}>Identity</h3>
                                   <p className="font-sans text-xs font-normal leading-normal leading-normal text-muted-400">
                                     Basic user information
                                   </p>
@@ -777,20 +770,17 @@ const General = () => {
                                   </div>
                                   {userData.role === "admin" || userData.role === "subadmin" ? "" :
 
-                                    <div className="col-span-12">
+                                    <div className={`col-span-12 ${su.box}`} style={{ marginLeft: 0, marginRight: 0 }}>
                                       <div className="relative">
                                         <div className="group/nui-input relative">
                                           {/* Label */}
-                                          <div className="text-sm text-gray-500 py-1 font-medium">
-                                            User Currency:
-                                          </div>
+                                          <h3 className={su.boxTitle}>User currency</h3>
 
                                           {/* Radio Options */}
-                                          <div className="flex items-center space-x-4 mt-2">
+                                          <div className={su.currencyRow}>
                                             <label
                                               htmlFor="eur"
-                                              className={`flex items-center space-x-2 cursor-pointer p-2 rounded-md ${currency === "EUR" ? "bg-blue-100" : "hover:bg-gray-100"
-                                                }`}
+                                              className={`${su.currencyChip} ${currency === "EUR" ? su.currencyChipOn : ""}`}
                                             >
                                               <input
                                                 type="radio"
@@ -807,8 +797,7 @@ const General = () => {
 
                                             <label
                                               htmlFor="usd"
-                                              className={`flex items-center space-x-2 cursor-pointer p-2 rounded-md ${currency === "USD" ? "bg-blue-100" : "hover:bg-gray-100"
-                                                }`}
+                                              className={`${su.currencyChip} ${currency === "USD" ? su.currencyChipOn : ""}`}
                                             >
                                               <input
                                                 type="radio"
@@ -827,7 +816,7 @@ const General = () => {
                                       </div>
                                       {/* Display Selected Value */}
                                       {currency && (
-                                        <div className="mt-4 text-sm text-gray-600">
+                                        <div className={su.currencyHint}>
                                           Selected Currency: <span className="font-semibold">{currency}</span>
                                         </div>
                                       )}
@@ -943,7 +932,7 @@ const General = () => {
                     newDescription === "<h6><br></h6>" ? (
                     ""
                   ) : (
-                    <div className="dark">
+                    <div className={su.notePreview}>
                       <h3 className="mb-2 font-bold inveret">
                         The note will show at the top of his dashboard like that:
                       </h3>
@@ -1073,6 +1062,7 @@ const General = () => {
         </div >
       </div >
     </>
+    </AdminShell>
   );
 };
 

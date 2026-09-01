@@ -1,0 +1,31 @@
+.note {
+  display: none;
+}
+
+:global([data-admin-ui="true"] .user-360),
+:global([data-admin-ui="true"] .general-card),
+:global([data-admin-ui="true"] .user-docs),
+:global([data-admin-ui="true"] .loan-status-panel) {
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  color: var(--admin-text-primary);
+}
+
+:global([data-admin-ui="true"] .skeleton),
+:global([data-admin-ui="true"] .skeleton-card),
+:global([data-admin-ui="true"] .animate-pulse > div) {
+  background: var(--admin-surface-3) !important;
+  border-radius: 8px;
+}
+
+:global([data-admin-ui="true"] .user-sidebar-link),
+:global([data-admin-ui="true"] .nui-list-item) {
+  color: var(--admin-text-secondary);
+}
+
+@media (max-width: 767px) {
+  :global([data-admin-ui="true"] .max-w-\[240px\]) {
+    max-width: none !important;
+  }
+}

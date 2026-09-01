@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
@@ -11,6 +13,7 @@ import {
   upsertUserEuroBankAccountApi,
 } from "../../../Api/Service";
 import { toast } from "react-toastify";
+import su from "./SingleUserLayout.module.css";
 import { EURO_ACCOUNT_FIELDS, hasEuroBankAccountData } from "../../components/EuroAccountUserCard";
 import styles from "./UserEuroAccount.module.css";
 import "./style.css";
@@ -149,7 +152,7 @@ const UserEuroAccount = () => {
   const hasSavedAccount = hasEuroBankAccountData(account);
 
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div className="bg-muted-100 pb-20 dark:bg-muted-900">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -157,13 +160,13 @@ const UserEuroAccount = () => {
             <AdminHeader toggle={toggleBar} pageName="User Management" />
 
             <div className="min-h-screen overflow-hidden pt-2">
-              <div className="grid gap-8 sm:grid-cols-12">
+              <div className={su.frame}>
                 <UserSideBar userid={id} />
 
-                <div className={`col-span-12 sm:col-span-8 ${styles.euroAccountPage}`}>
+                <div className={`${su.main} ${styles.euroAccountPage}`}>
                   <div className="space-y-6">
                     <div className={styles.heroCard}>
-                      <h1 className={styles.heroTitle} style={{ color: "white" }}>Euro Account</h1>
+                      <h1 className={styles.heroTitle}>Euro Account</h1>
                       <p className={styles.heroSubtitle}>
                         Manage the linked euro bank account for {userName || "this user"}. Filled fields will appear on the user&apos;s dashboard.
                       </p>
@@ -171,9 +174,7 @@ const UserEuroAccount = () => {
 
                     <div className={styles.panel}>
                       {loading ? (
-                        <div className={styles.loadingWrap}>
-                          <Spinner animation="border" variant="primary" />
-                        </div>
+                        <AdminSkeleton variant="form" rows={5} />
                       ) : isEditing || !hasSavedAccount ? (
                         <>
                           <div className={styles.panelHeader}>
@@ -298,6 +299,7 @@ const UserEuroAccount = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

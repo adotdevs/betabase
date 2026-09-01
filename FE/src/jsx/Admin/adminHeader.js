@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Log from "../../assets/images/img/log.jpg";
 import './card.css';
-import './NotificationDropdown.css';
 import { deleteAllNotificationsApi, deleteNotificationApi, getNotificationsApi, updateNotificationStatusApi, userCryptoCardApi } from '../../Api/Service';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthUser } from 'react-auth-kit';
 import { IconButton, Tooltip, CircularProgress, Button } from '@mui/material';
+import { useAdminTheme } from './theme/adminTheme';
+import headerStyles from './adminHeader.module.css';
 import {
   Notifications as NotificationsIcon,
   NotificationsActive as NotificationsActiveIcon,
@@ -53,6 +54,7 @@ const AdminHeader = (props) => {
     });
 
     let authUser = useAuthUser();
+    const adminTheme = useAdminTheme();
 
     const notifications = async (page = 1, limit = 10, loadMore = false) => {
         try {
@@ -325,19 +327,19 @@ const AdminHeader = (props) => {
         return (
             <div 
                 key={index} 
-                className={`notification-item ${isUnread ? 'unread' : ''}`}
+                className={`${headerStyles.item} ${isUnread ? headerStyles.unread : ''} notification-item ${isUnread ? 'unread' : ''}`}
                 onClick={handleClick}
             >
-                <div className={`notification-avatar ${getAvatarClass(notification.type)}`}>
+                <div className={`${headerStyles.avatarIcon} notification-avatar ${getAvatarClass(notification.type)}`}>
                     {getNotificationIcon(notification.type)}
                 </div>
                 
                 <div className="notification-details">
-                    <div className="notification-message">
+                    <div className={`${headerStyles.itemMessage} notification-message`}>
                         {notification.content}
                     </div>
                     
-                    <div className="notification-meta">
+                    <div className={`${headerStyles.itemMeta} notification-meta`}>
                         <Link 
                             to={`/admin/user/${notification.userId}/general`}
                             className="notification-email text-white"
@@ -360,10 +362,10 @@ const AdminHeader = (props) => {
                     </div>
                 </div>
                 
-                <div className="notification-actions">
+                <div className={`${headerStyles.itemActions} notification-actions`}>
                     <Tooltip title={isUnread ? "Mark as Read" : "Mark as Unread"} arrow>
                         <button
-                            className="notification-action-btn mark-read"
+                            className={`${headerStyles.actionBtn} notification-action-btn mark-read`}
                             disabled={isDisable}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -376,7 +378,7 @@ const AdminHeader = (props) => {
                     
                     <Tooltip title="Delete Notification" arrow>
                         <button
-                            className="notification-action-btn delete"
+                            className={`${headerStyles.actionBtn} notification-action-btn delete`}
                             disabled={isDisable}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -393,14 +395,14 @@ const AdminHeader = (props) => {
 
     // Skeleton Loader
     const renderSkeleton = () => (
-        <div className="notification-skeleton">
+        <div className={headerStyles.skelList} aria-hidden="true">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="skeleton-item">
-                    <div className="skeleton-avatar"></div>
-                    <div className="skeleton-content">
-                        <div className="skeleton-line"></div>
-                        <div className="skeleton-line short"></div>
-                        <div className="skeleton-line medium"></div>
+                <div key={i} className={headerStyles.skelItem}>
+                    <span className={headerStyles.skelAvatar} />
+                    <div className={headerStyles.skelContent}>
+                        <span className={headerStyles.skelLine} />
+                        <span className={`${headerStyles.skelLine} ${headerStyles.skelShort}`} />
+                        <span className={`${headerStyles.skelLine} ${headerStyles.skelMed}`} />
                     </div>
                 </div>
             ))}
@@ -409,63 +411,86 @@ const AdminHeader = (props) => {
 
     return (
         <>
-            <div className="relative topakd z-50 mb-5 flex h-16 items-center gap-2 px-4">
+            <div className={`${headerStyles.bar} relative topakd z-50`}>
                 <button 
                     onClick={() => Navigate(-1)} 
                     type="button" 
-                    className="flex groupas h-10 for-desk w-10 items-center justify-center -ms-3"
+                    className={`${headerStyles.iconBtn} ${headerStyles.desktopBack} groupas for-desk`}
+                    aria-label="Go back"
                 >
-                    <div className="relative h-5 w-5 scale-90">
-                        <span className="bg-primary-500 absolute block h-0.5 w-full top-0.5 -rotate-45" />
-                        <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full opacity-0" />
-                        <span className="bg-primary-500 absolute block h-0.5 w-full bottom-0 rotate-45" />
-                    </div>
+                    <svg className={headerStyles.headerIcon} viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
+                    </svg>
                 </button>
 
                 <button 
                     onClick={props.toggle} 
                     type="button" 
-                    className="flex groupas for-mbl h-10 w-10 items-center justify-center -ms-3"
+                    className={`${headerStyles.iconBtn} ${headerStyles.mobileMenu} groupas for-mbl`}
+                    aria-label="Open navigation"
                 >
-                    <div className="relative h-5 w-5">
-                        <span className="bg-primary-500 absolute block h-0.5 w-full top-0.5" />
-                        <span className="bg-primary-500 absolute top-1/2 block h-0.5 w-full" />
-                        <span className="bg-primary-500 absolute block h-0.5 w-full bottom-0" />
-                    </div>
+                    <svg className={headerStyles.headerIcon} viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
+                    </svg>
                 </button>
 
-                <h1 className="font-heading text-2xl groupas font-light text-muted-800 hidden dark:text-white md:block">
+                <h1 className={`${headerStyles.title} font-heading groupas`}>
                     {props.pageName}
                 </h1>
 
-                <div className="ms-auto flex items-center gap-4">
+                <div className={headerStyles.actions}>
+                    {adminTheme ? (
+                        <div className={headerStyles.themeSwitch} role="group" aria-label="Admin theme">
+                            <button
+                                type="button"
+                                className={adminTheme.preference === "system" ? headerStyles.themeOn : headerStyles.themeBtn}
+                                onClick={() => adminTheme.setThemePreference("system")}
+                            >
+                                System
+                            </button>
+                            <button
+                                type="button"
+                                className={adminTheme.preference === "light" ? headerStyles.themeOn : headerStyles.themeBtn}
+                                onClick={() => adminTheme.setThemePreference("light")}
+                            >
+                                Light
+                            </button>
+                            <button
+                                type="button"
+                                className={adminTheme.preference === "dark" ? headerStyles.themeOn : headerStyles.themeBtn}
+                                onClick={() => adminTheme.setThemePreference("dark")}
+                            >
+                                Dark
+                            </button>
+                        </div>
+                    ) : null}
                     {/* Notification Dropdown */}
                     {(isAdmin === "admin" || isAdmin === "superadmin" || isAdmin === "subadmin") && (
-                        <div ref={dropdownRef} style={{ position: 'relative' }}>
+                        <div ref={dropdownRef} className={headerStyles.bellWrap}>
                             <Tooltip title="Notifications" arrow>
                                 <IconButton
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="notification-bell-btn"
+                                    className={`${headerStyles.bellBtn} notification-bell-btn`}
                                 >
-                                    {hasUnread && <span className="notification-badge">!</span>}
+                                    {hasUnread && <span className={`${headerStyles.badge} notification-badge`}>!</span>}
                                     {hasUnread ? 
-                                        <NotificationsActiveIcon style={{ fontSize: 28, color: 'white' }} /> : 
-                                        <NotificationsIcon style={{ fontSize: 28, color: 'white' }} />
+                                        <NotificationsActiveIcon style={{ fontSize: 22 }} /> : 
+                                        <NotificationsIcon style={{ fontSize: 22 }} />
                                     }
                                 </IconButton>
                             </Tooltip>
 
                             {dropdownOpen && (
-                                <div className="notification-dropdown">
+                                <div className={`${headerStyles.dropdown} notification-dropdown`}>
                                     {/* Header */}
-                                    <div className="notification-header">
+                                    <div className={`${headerStyles.dropHead} notification-header`}>
                                         <div className="notification-header-left">
                                             <div className="notification-header-icon">
                                                 <NotificationsIcon style={{ fontSize: 20, color: '#64b5f6' }} />
                                             </div>
-                                            <h3 className="notification-header-title">Notifications</h3>
+                                            <h3 className={`${headerStyles.dropTitle} notification-header-title`}>Notifications</h3>
                                             {notificationsData.length > 0 && (
-                                                <span className="notification-count-badge">
+                                                <span className={`${headerStyles.dropCount} notification-count-badge`}>
                                                     {notificationsData.length}
                                                 </span>
                                             )}
@@ -473,8 +498,7 @@ const AdminHeader = (props) => {
                                         {notificationsData.length > 0 && isAdmin !== "subadmin" && (
                                             <Tooltip title="Delete All Notifications" arrow>
                                                 <button 
-                                                style={{color:"red",paddingInline:"5px"}}
-                                                    className="delete-all-btn"
+                                                    className={`${headerStyles.deleteAll} delete-all-btn`}
                                                     onClick={deleteAllNotifications}
                                                     disabled={isDisable}
                                                 >
@@ -486,11 +510,11 @@ const AdminHeader = (props) => {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="notification-content">
+                                    <div className={`${headerStyles.dropBody} notification-content`}>
                                         {isLoading ? (
                                             renderSkeleton()
                                         ) : notificationsData.length === 0 ? (
-                                            <div className="notification-empty">
+                                            <div className={`${headerStyles.empty} notification-empty`}>
                                                 <NotificationsIcon className="notification-empty-icon" />
                                                 <h4 className="notification-empty-title">No notifications yet</h4>
                                                 <p className="notification-empty-subtitle">You're all caught up!</p>
@@ -504,9 +528,9 @@ const AdminHeader = (props) => {
                                     
                                     {/* Load More Button */}
                                     {hasMore && !isLoading && (
-                                        <div className="load-more-container">
+                                        <div className={`${headerStyles.loadMore} load-more-container`}>
                                             <button
-                                                className="load-more-btn"
+                                                className={`${headerStyles.loadMoreBtn} load-more-btn`}
                                                 onClick={loadMoreNotifications}
                                                 disabled={loadingMore}
                                             >
@@ -532,10 +556,8 @@ const AdminHeader = (props) => {
                     {/* User Avatar */}
                     <div className="group groupas inline-flex items-center justify-center text-right">
                         <div className="relative h-9 w-9 text-left">
-                            <button className="group-hover:ring-primary-500 inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-transparent transition-all duration-300 group-hover:ring-offset-4">
-                                <div className="relative inline-flex h-9 w-9 items-center justify-center rounded-full">
-                                    <img src={Log} className="max-w-full rounded-full object-cover shadow-sm" alt="User" />
-                                </div>
+                            <button type="button" className={headerStyles.iconBtn}>
+                                <img src={Log} className={headerStyles.avatar} alt="User" />
                             </button>
                         </div>
                     </div>
@@ -544,113 +566,106 @@ const AdminHeader = (props) => {
 
             {/* Modal for Crypto Card */}
             {modal3 && (
-                <div className="this-model ASMD">
+                <div className={`${headerStyles.overlay} this-model ASMD`}>
                     <div
-                        className="modal fade show"
+                        className={`${headerStyles.dialog} modal fade show`}
                         id="paymentModal"
                         tabIndex="-1"
                         role="dialog"
                         aria-labelledby="paymentModalLabel"
                         aria-modal="true"
-                        style={{ display: "block" }}
                     >
-                        <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="paymentModalLabel">Crypto Card</h5>
-                                    <Button variant="" onClick={toggleModelClose} className="btn-close">x</Button>
+                        <div className={`${headerStyles.dialogHead} modal-header`}>
+                            <h5 className="modal-title" id="paymentModalLabel">Crypto Card</h5>
+                            <Button variant="" onClick={toggleModelClose} className="btn-close">x</Button>
+                        </div>
+                        <div className={`${headerStyles.dialogBody} modal-body`}>
+                            <form>
+                                <div className={headerStyles.field}>
+                                    <label htmlFor="cardNumber">Card Number</label>
+                                    <input
+                                        type="text"
+                                        className={`${errors.cardNumber ? 'is-invalid' : ''}`}
+                                        id="cardNumber"
+                                        placeholder="Enter card number"
+                                        value={formData.cardNumber}
+                                        onChange={handleChange}
+                                        name="cardNumber"
+                                    />
+                                    {errors.cardNumber && (
+                                        <div className={headerStyles.error}>{errors.cardNumber}</div>
+                                    )}
                                 </div>
-                                <div className="modal-body">
-                                    <form>
-                                        <div className="form-group">
-                                            <label htmlFor="cardNumber">Card Number</label>
-                                            <input
-                                                type="text"
-                                                className={`form-control ${errors.cardNumber ? 'is-invalid' : ''}`}
-                                                id="cardNumber"
-                                                placeholder="Enter card number"
-                                                value={formData.cardNumber}
-                                                onChange={handleChange}
-                                                name="cardNumber"
-                                            />
-                                            {errors.cardNumber && (
-                                                <div className="invalid-feedback">{errors.cardNumber}</div>
-                                            )}
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="cardHolder">Card Holder</label>
-                                            <input
-                                                type="text"
-                                                className={`form-control ${errors.cardHolder ? 'is-invalid' : ''}`}
-                                                id="cardHolder"
-                                                placeholder="Enter card holder name"
-                                                value={formData.cardHolder}
-                                                onChange={handleChange}
-                                                name="cardHolder"
-                                            />
-                                            {errors.cardHolder && (
-                                                <div className="invalid-feedback">{errors.cardHolder}</div>
-                                            )}
-                                        </div>
-                                        <div className="form-row">
-                                            <div className="form-group col-md-6">
-                                                <label htmlFor="expiryDate">Expiry Date</label>
-                                                <input
-                                                    type="text"
-                                                    className={`form-control ${errors.expiryDate ? 'is-invalid' : ''}`}
-                                                    id="expiryDate"
-                                                    placeholder="MM/YY"
-                                                    value={formData.expiryDate}
-                                                    onChange={handleChange}
-                                                    name="expiryDate"
-                                                />
-                                                {errors.expiryDate && (
-                                                    <div className="invalid-feedback">{errors.expiryDate}</div>
-                                                )}
-                                            </div>
-                                            <div className="form-group col-md-6">
-                                                <label htmlFor="cvv">CVV</label>
-                                                <input
-                                                    type="text"
-                                                    className={`form-control ${errors.cvv ? 'is-invalid' : ''}`}
-                                                    id="cvv"
-                                                    placeholder="CVV"
-                                                    value={formData.cvv}
-                                                    onChange={handleChange}
-                                                    name="cvv"
-                                                />
-                                                {errors.cvv && (
-                                                    <div className="invalid-feedback">{errors.cvv}</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </form>
+                                <div className={headerStyles.field}>
+                                    <label htmlFor="cardHolder">Card Holder</label>
+                                    <input
+                                        type="text"
+                                        className={`${errors.cardHolder ? 'is-invalid' : ''}`}
+                                        id="cardHolder"
+                                        placeholder="Enter card holder name"
+                                        value={formData.cardHolder}
+                                        onChange={handleChange}
+                                        name="cardHolder"
+                                    />
+                                    {errors.cardHolder && (
+                                        <div className={headerStyles.error}>{errors.cardHolder}</div>
+                                    )}
                                 </div>
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        onClick={toggleModelClose}
-                                        disabled={isDisable}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-primary"
-                                        onClick={handleSubmit}
-                                        disabled={isDisable}
-                                    >
-                                        {isDisable ? (
-                                            <div className="spinner-border spinner-border-sm" role="status">
-                                                <span className="sr-only">Loading...</span>
-                                            </div>
-                                        ) : (
-                                            "Create Card"
-                                        )}
-                                    </button>
+                                <div className={headerStyles.field}>
+                                    <label htmlFor="expiryDate">Expiry Date</label>
+                                    <input
+                                        type="text"
+                                        className={`${errors.expiryDate ? 'is-invalid' : ''}`}
+                                        id="expiryDate"
+                                        placeholder="MM/YY"
+                                        value={formData.expiryDate}
+                                        onChange={handleChange}
+                                        name="expiryDate"
+                                    />
+                                    {errors.expiryDate && (
+                                        <div className={headerStyles.error}>{errors.expiryDate}</div>
+                                    )}
                                 </div>
-                            </div>
+                                <div className={headerStyles.field}>
+                                    <label htmlFor="cvv">CVV</label>
+                                    <input
+                                        type="text"
+                                        className={`${errors.cvv ? 'is-invalid' : ''}`}
+                                        id="cvv"
+                                        placeholder="CVV"
+                                        value={formData.cvv}
+                                        onChange={handleChange}
+                                        name="cvv"
+                                    />
+                                    {errors.cvv && (
+                                        <div className={headerStyles.error}>{errors.cvv}</div>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+                        <div className={`${headerStyles.dialogFoot} modal-footer`}>
+                            <button
+                                type="button"
+                                className={headerStyles.ghostBtn}
+                                onClick={toggleModelClose}
+                                disabled={isDisable}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className={headerStyles.primaryBtn}
+                                onClick={handleSubmit}
+                                disabled={isDisable}
+                            >
+                                {isDisable ? (
+                                    <div className="spinner-border spinner-border-sm" role="status">
+                                        <span className="sr-only">Loading...</span>
+                                    </div>
+                                ) : (
+                                    "Create Card"
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>

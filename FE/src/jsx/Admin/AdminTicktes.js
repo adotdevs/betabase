@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import Log from "../../assets/images/img/log.jpg";
 import { useAuthUser } from "react-auth-kit";
@@ -23,7 +24,7 @@ const AdminTickets = () => {
     }
   }, []);
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div>
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
@@ -5790,6 +5791,7 @@ const AdminTickets = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

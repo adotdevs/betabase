@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -19,6 +21,7 @@ import AdminCoinWalletRow from "./AdminCoinWalletRow";
 import { toast } from "react-toastify";
 import axios from "axios";
 import AdminHeader from "../adminHeader";
+import su from "./SingleUserLayout.module.css";
 const UserAssets = () => {
   const [modal1, setModal1] = useState(false);
 
@@ -575,7 +578,7 @@ const UserAssets = () => {
   };
 
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div>
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
@@ -604,23 +607,20 @@ const UserAssets = () => {
               />
               <seokit />
               <div className="min-h-screen overflow-hidden">
-                <div className="grid gap-8 sm:grid-cols-12">
+                <div className={su.frame}>
                   <UserSideBar userid={id} />
-                  <div className="col-span-12 sm:col-span-8">
-                    <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md">
-                      <div className="flex items-center justify-between p-4">
+                  <div className={su.main}>
+                    <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md`}>
+                      <div className={su.panelHead}>
                         <div>
-                          <p
-                            className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                            tag="h2"
-                          >
-                            {" "}
+                          <p className={su.kicker}>Wallet</p>
+                          <h2 className={su.title}>
                             Manage Assets — Wallet &amp; Top Up
-                          </p>
+                          </h2>
                         </div>
                       </div>
                       {isLoading ? (
-                        <div className="  p-5">Loading Assets...</div>
+                        <AdminSkeleton variant="list" rows={6} />
                       ) : (
                         <div className="pt-6">
                           <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
@@ -1085,7 +1085,7 @@ const UserAssets = () => {
                   <div className="pt-6">
                     <div class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-3 css-v57kt1">
                       {isLoading ? (
-                        <div>Loading...</div>
+                        <AdminSkeleton variant="panel" rows={3} />
                       ) : userData && userData.payments ? (
                         userData.payments.length !== 0 ? (
                           userData.payments.map((item, key) => {
@@ -3112,6 +3112,7 @@ const UserAssets = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
  

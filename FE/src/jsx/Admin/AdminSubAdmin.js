@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import useSWR from 'swr'
 import Log from "../../assets/images/img/log.jpg";
@@ -312,7 +314,7 @@ const AdminSubAdmin = () => {
   };
 
   return (
-    <div className="admin dark-theme dark-new-ui">
+    <AdminShell><div className="admin dark-theme dark-new-ui">
       <div className="bg-gray-900 min-h-screen">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -320,20 +322,8 @@ const AdminSubAdmin = () => {
             <AdminHeader toggle={toggleBar} pageName="Sub Admin Management" />
 
             {isLoading ? (
-              <Box sx={{ width: '100%', p: 4, textAlign: 'center' }}>
-                <LinearProgress
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: 'grey.800',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: 'primary.main'
-                    }
-                  }}
-                />
-                <Typography variant="h6" sx={{ mt: 2, color: 'grey.300' }}>
-                  Loading Sub Admins...
-                </Typography>
+              <Box sx={{ width: '100%', p: 4 }}>
+                <AdminSkeleton variant="cards" rows={3} />
               </Box>
             ) : (
               <Box sx={{ p: 3 }}>
@@ -733,6 +723,7 @@ const AdminSubAdmin = () => {
         </Box>
       </Modal>
     </div>
+    </AdminShell>
   );
 };
 

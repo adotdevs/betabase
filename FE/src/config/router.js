@@ -30,7 +30,7 @@ import Supportpg from "../jsx/pages/user/Support";
 import Kyc from "../jsx/pages/user/Kyc";
 import ApplyLoan from "../jsx/pages/user/ApplyLoan";
 import UserLoanApplication from "../jsx/Admin/SingleUser/UserLoanApplication";
-import UserFiatBankAccount from "../jsx/Admin/SingleUser/UserFiatBankAccount";
+import UserBankAccounts from "../jsx/Admin/SingleUser/UserBankAccounts";
 import UserCryptoCard from "../jsx/Admin/SingleUser/UserCryptoCard";
 import AdminLoanApplications from "../jsx/Admin/AdminLoanApplications";
 import EmailVerify from "../jsx/pages/EmailVerify";
@@ -1029,11 +1029,21 @@ export default function Router() {
             }
           />
           <Route
+            path="/admin/users/:id/bank-accounts"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <UserBankAccounts />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/admin/users/:id/euro-account"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserFiatBankAccount fiatKey="euro" />
+                  <UserBankAccounts />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1043,7 +1053,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserFiatBankAccount fiatKey="dollar" />
+                  <UserBankAccounts />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1053,7 +1063,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserFiatBankAccount fiatKey="swiss franc" />
+                  <UserBankAccounts />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1063,7 +1073,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserFiatBankAccount fiatKey="danish krone" />
+                  <UserBankAccounts />
                 </RequireWalletAccess>
               </RequireAuth>
             }

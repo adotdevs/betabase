@@ -1,0 +1,332 @@
+.page {
+  min-height: 100vh;
+  background: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.bg-muted-100),
+.page :global(.bg-muted-900),
+.page :global(.bg-gray-900) {
+  background: var(--admin-bg) !important;
+}
+
+.page :global(.bg-white) {
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.panel {
+  margin-top: 8px;
+  overflow: hidden !important;
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.head {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  background: var(--admin-surface-1) !important;
+}
+
+.title,
+.panel :global(h1),
+.panel :global(h2),
+.panel :global(h3) {
+  margin: 0 !important;
+  color: var(--admin-text-primary) !important;
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.sectionTitle {
+  margin: 0 !important;
+  color: var(--admin-text-primary) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.subtitle {
+  margin: 6px 0 0 !important;
+  color: var(--admin-text-secondary) !important;
+  font-size: 13px !important;
+}
+
+.panel :global(.text-muted-500),
+.panel :global(.text-muted-400),
+.panel :global(.text-muted-700),
+.panel :global(.text-muted-800),
+.panel :global(.text-muted-300),
+.panel :global(.text-muted-100),
+.panel :global(.text-muted-50),
+.panel :global(.text-muted-900) {
+  color: var(--admin-text-secondary) !important;
+}
+
+.panel :global(.text-muted-800),
+.panel :global(.text-muted-100),
+.panel :global(.text-muted-50),
+.panel :global(.text-muted-900) {
+  color: var(--admin-text-primary) !important;
+}
+
+.empty {
+  margin: 0 !important;
+  padding: 48px 20px !important;
+  text-align: center;
+  color: var(--admin-text-secondary) !important;
+  font-size: 14px !important;
+}
+
+.filter,
+.page select.filter {
+  min-width: 180px !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: 10px !important;
+  background: var(--admin-surface-2) !important;
+  background-color: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.filter option {
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100% !important;
+  min-width: 920px;
+  border-collapse: collapse !important;
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.table th,
+.page :global(thead th) {
+  padding: 12px 16px !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--admin-text-secondary) !important;
+  background: var(--admin-surface-2) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+.table td,
+.page :global(tbody td) {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  font-size: 14px !important;
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  vertical-align: middle !important;
+  background: transparent !important;
+}
+
+.table tbody tr:hover,
+.page :global(tbody tr:hover) {
+  background: var(--admin-surface-2) !important;
+}
+
+.cellMuted {
+  color: var(--admin-text-secondary) !important;
+  -webkit-text-fill-color: var(--admin-text-secondary) !important;
+}
+
+.purpose {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  width: 200px;
+  text-align: right !important;
+}
+
+.actionRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex !important;
+  align-items: center;
+  border-radius: 999px !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+.pillSubmitted {
+  background: var(--admin-info-soft) !important;
+  color: var(--admin-info) !important;
+}
+
+.pillReview {
+  background: var(--admin-warning-soft) !important;
+  color: var(--admin-warning) !important;
+}
+
+.pillApproved {
+  background: var(--admin-success-soft) !important;
+  color: var(--admin-success) !important;
+}
+
+.pillRejected {
+  background: var(--admin-danger-soft) !important;
+  color: var(--admin-danger) !important;
+}
+
+.pillDraft {
+  background: var(--admin-surface-3) !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+.reviewBtn,
+.page a.reviewBtn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--admin-accent) !important;
+  border-radius: 8px !important;
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-accent) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  text-decoration: none !important;
+}
+
+.deleteBtn,
+.page button.deleteBtn,
+.pagerBtn,
+.page button.pagerBtn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: var(--admin-danger) !important;
+  background-color: var(--admin-danger) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.pagerBtn,
+.page button.pagerBtn {
+  min-width: 96px !important;
+  min-height: 38px !important;
+  background: var(--admin-surface-2) !important;
+  background-color: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+}
+
+.deleteBtn:disabled,
+.pagerBtn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 22px !important;
+  border-top: 1px solid var(--admin-border) !important;
+  background: var(--admin-surface-1) !important;
+}
+
+.pagerMeta {
+  color: var(--admin-text-secondary) !important;
+  font-size: 13px !important;
+}
+
+.label {
+  margin: 0 0 6px !important;
+  color: var(--admin-text-secondary) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.value {
+  margin: 0 !important;
+  color: var(--admin-text-primary) !important;
+  font-size: 14px !important;
+}
+
+.notes {
+  width: 100% !important;
+  min-height: 84px !important;
+  padding: 10px 12px !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: 10px !important;
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+}
+
+.sectionHead {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  background: var(--admin-surface-1) !important;
+}
+
+.sectionBody {
+  padding: 20px !important;
+  background: var(--admin-surface-1) !important;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .head,
+  .sectionHead,
+  .sectionBody {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}

@@ -1,0 +1,206 @@
+.page {
+  min-height: 100vh;
+  background: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.bg-gray-900),
+.page :global(.bg-muted-100),
+.page :global(.bg-muted-900) {
+  background: var(--admin-bg) !important;
+}
+
+.heading {
+  margin: 0 !important;
+  color: var(--admin-text-primary) !important;
+  font-weight: 700 !important;
+}
+
+.panel,
+.page :global(.MuiPaper-root) {
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+}
+
+.msgCard,
+.page :global(.MuiCard-root) {
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+}
+
+.msgName,
+.msgMeta {
+  color: var(--admin-text-primary) !important;
+}
+
+.msgMeta {
+  color: var(--admin-text-secondary) !important;
+}
+
+.msgHtml,
+.historyHtml,
+.page :global(.ticket-message-html),
+.page :global(.ticket-edit-history-item) .historyHtml {
+  color: var(--admin-text-primary) !important;
+  line-height: 1.6 !important;
+  word-break: break-word;
+}
+
+.msgHtml :global(p),
+.msgHtml :global(div),
+.msgHtml :global(span),
+.msgHtml :global(li),
+.msgHtml :global(td),
+.msgHtml :global(th),
+.msgHtml :global(font),
+.msgHtml :global(strong),
+.msgHtml :global(em),
+.msgHtml :global(b),
+.msgHtml :global(i),
+.msgHtml :global(h1),
+.msgHtml :global(h2),
+.msgHtml :global(h3),
+.msgHtml :global(h4),
+.historyHtml :global(p),
+.historyHtml :global(div),
+.historyHtml :global(span),
+.historyHtml :global(li),
+.historyHtml :global(font),
+.page :global(.ticket-message-html) :global(*),
+.page :global(.ticket-edit-history-html) :global(*) {
+  color: var(--admin-text-primary) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.msgHtml :global(a),
+.historyHtml :global(a),
+.page :global(.ticket-message-html a) {
+  color: var(--admin-accent) !important;
+  text-decoration: underline !important;
+}
+
+.msgHtml :global(p),
+.historyHtml :global(p),
+.page :global(.ticket-message-html p) {
+  margin: 0 0 8px !important;
+}
+
+.msgHtml :global(ul),
+.msgHtml :global(ol),
+.historyHtml :global(ul),
+.historyHtml :global(ol) {
+  padding-left: 1.25rem !important;
+  margin: 0 0 8px !important;
+}
+
+.msgPlain {
+  margin: 0 0 16px !important;
+  color: var(--admin-text-primary) !important;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.historyItem,
+.page :global(.ticket-edit-history-item) {
+  padding: 12px 14px !important;
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 10px !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-msg-action-btn) {
+  min-height: 34px !important;
+  padding: 6px 14px !important;
+}
+
+.page :global(.ticket-msg-action-btn--edit) {
+  background: var(--admin-accent-soft) !important;
+  border: 1px solid var(--admin-accent) !important;
+  color: var(--admin-accent) !important;
+}
+
+.page :global(.ticket-msg-action-btn--delete) {
+  background: var(--admin-danger-soft) !important;
+  border: 1px solid var(--admin-danger) !important;
+  color: var(--admin-danger) !important;
+}
+
+.page :global(.ticket-msg-action-btn--save) {
+  background: var(--admin-success-soft) !important;
+  border: 1px solid var(--admin-success) !important;
+  color: var(--admin-success) !important;
+}
+
+.page :global(.ticket-msg-action-btn--cancel) {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-toolbar),
+.page :global(.ticket-compose-quill) :global(.ql-container) {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-toolbar) {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-container) {
+  border-radius: 0 0 10px 10px !important;
+  min-height: 120px;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-editor),
+.page :global(.ticket-compose-quill) :global(.ql-editor *) {
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  background: transparent !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-editor.ql-blank::before) {
+  color: var(--admin-text-muted) !important;
+  -webkit-text-fill-color: var(--admin-text-muted) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-snow .ql-stroke) {
+  stroke: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-snow .ql-fill) {
+  fill: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-toolbar button),
+.page :global(.ticket-compose-quill) :global(.ql-toolbar .ql-picker-label) {
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.ticket-compose-quill) :global(.ql-toolbar button svg),
+.page :global(.ticket-compose-quill) :global(.ql-toolbar .ql-picker-label svg) {
+  stroke: var(--admin-text-primary) !important;
+}
+
+.muted {
+  color: var(--admin-text-secondary) !important;
+}
+
+.infoLabel {
+  color: var(--admin-text-secondary) !important;
+  text-transform: uppercase;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+}
+
+.infoValue {
+  color: var(--admin-text-primary) !important;
+}

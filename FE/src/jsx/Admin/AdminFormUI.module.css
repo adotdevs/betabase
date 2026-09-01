@@ -1,0 +1,250 @@
+.page {
+  min-height: 100vh;
+  background: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.page :global(.bg-muted-100),
+.page :global(.bg-muted-900),
+.page :global(.bg-gray-900) {
+  background: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.panel {
+  margin-top: 8px;
+  max-width: 720px;
+  padding: 0 !important;
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  overflow: hidden;
+}
+
+.head {
+  padding: 20px 22px 16px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  background: var(--admin-surface-1) !important;
+}
+
+.kicker {
+  margin: 0 0 6px !important;
+  color: var(--admin-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.title {
+  margin: 0 !important;
+  color: var(--admin-text-primary) !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.subtitle {
+  margin: 6px 0 0 !important;
+  color: var(--admin-text-secondary) !important;
+  font-size: 13px !important;
+}
+
+.body {
+  padding: 22px !important;
+}
+
+.sectionTitle {
+  margin: 0 0 4px !important;
+  color: var(--admin-text-primary) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.sectionCopy {
+  margin: 0 0 18px !important;
+  color: var(--admin-text-muted) !important;
+  font-size: 13px !important;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.field {
+  position: relative;
+  min-width: 0;
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 44px;
+  color: var(--admin-text-muted) !important;
+  pointer-events: none;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+  color: inherit !important;
+}
+
+.icon svg [stroke] {
+  stroke: currentColor !important;
+}
+
+.field:focus-within .icon {
+  color: var(--admin-accent) !important;
+}
+
+.input,
+.panel :global(input),
+.panel :global(input.nui-focus),
+.panel :global(input.peer) {
+  width: 100% !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  margin: 0 !important;
+  padding: 10px 12px 10px 42px !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: 10px !important;
+  background: var(--admin-surface-2) !important;
+  background-color: var(--admin-surface-2) !important;
+  background-image: none !important;
+  color: var(--admin-text-primary) !important;
+  caret-color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.panel :global(input:-webkit-autofill) {
+  -webkit-box-shadow: 0 0 0 1000px var(--admin-surface-2) inset !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  caret-color: var(--admin-text-primary) !important;
+  border-color: var(--admin-border-strong) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
+.input::placeholder,
+.panel :global(input::placeholder) {
+  color: var(--admin-text-muted) !important;
+  -webkit-text-fill-color: var(--admin-text-muted) !important;
+  opacity: 1 !important;
+}
+
+.input:focus,
+.panel :global(input:focus) {
+  border-color: var(--admin-accent) !important;
+  box-shadow: var(--admin-focus) !important;
+}
+
+.select {
+  width: 100%;
+}
+
+.select :global(.MuiInputLabel-root),
+.select :global(.MuiInputLabel-root.Mui-focused) {
+  color: var(--admin-text-muted) !important;
+}
+
+.select :global(.MuiOutlinedInput-root) {
+  min-height: 44px !important;
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+  border-radius: 10px !important;
+}
+
+.select :global(.MuiOutlinedInput-input) {
+  color: var(--admin-text-primary) !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+.select :global(.MuiOutlinedInput-notchedOutline) {
+  border-color: var(--admin-border-strong) !important;
+}
+
+.select :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--admin-accent) !important;
+}
+
+.select :global(.MuiSelect-icon) {
+  color: var(--admin-text-secondary) !important;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px 22px !important;
+}
+
+.submit,
+.page .panel button.submit,
+.page .panel button[type="submit"].submit {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 128px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 10px 20px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: var(--admin-accent) !important;
+  background-color: var(--admin-accent) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.submit:hover:not(:disabled),
+.page .panel button.submit:hover:not(:disabled) {
+  background: var(--admin-accent-hover) !important;
+  background-color: var(--admin-accent-hover) !important;
+}
+
+.submit:disabled,
+.page .panel button.submit:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.submit span,
+.page .panel button.submit span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

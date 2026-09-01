@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
+import skel from "../theme/AdminSkeleton.module.css";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
-import { Table, Form, Spinner } from 'react-bootstrap';
+import { Table, Form } from 'react-bootstrap';
 import {
     createUserStocksApi,
     getCoinsApi,
@@ -20,6 +23,7 @@ import {
 } from "../../../Api/Service";
 import axios from "axios";
 import './userStocks.css'
+import su from "./SingleUserLayout.module.css";
 import AdminHeader from "../adminHeader";
 
 const EditTokenModal = ({ show, onClose, token, onDelete, onUpdate }) => {
@@ -559,7 +563,7 @@ const UserTokens = () => {
     return (
         <>
 
-            <div className="admin">
+            <AdminShell><div className="admin">
                 <div>
                     <div className="bg-muted-100 dark:bg-muted-900 pb-20">
                         <SideBar state={Active} toggle={toggleBar} />
@@ -587,19 +591,14 @@ const UserTokens = () => {
                                 />
                                 <seokit />
                                 <div className="min-h-screen overflow-hidden">
-                                    <div className="grid gap-8 sm:grid-cols-12">
+                                    <div className={su.frame}>
                                         <UserSideBar userid={id} />
-                                        <div className="col-span-12 sm:col-span-8 ">
-                                            <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md">
-                                                <div className="flex items-center justify-between p-4">
+                                        <div className={su.main}>
+                                            <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white duration-300 rounded-md`}>
+                                                <div className={su.panelHead}>
                                                     <div>
-                                                        <p
-                                                            className="font-heading text-sm font-medium leading-normal leading-normal uppercase tracking-wider"
-                                                            tag="h2"
-                                                        >
-                                                            {" "}
-                                                            Add New Token
-                                                        </p>
+                                                        <p className={su.kicker}>Tokens</p>
+                                                        <h2 className={su.title}>Add New Token</h2>
                                                     </div>
                                                 </div>
 
@@ -667,11 +666,9 @@ const UserTokens = () => {
                                                                     />
                                                                 </td>
                                                                 <td>
-                                                                    {apiLoading ? <div className="loader-container">
-                                                                        <Spinner animation="border" role="status">
-                                                                            <span className="visually-hidden">Loading...</span>
-                                                                        </Spinner>
-                                                                    </div> :
+                                                                    {apiLoading ? (
+                                                                        <span className={`${skel.bone} ${skel.formField}`} aria-hidden="true" />
+                                                                    ) : (
                                                                         <Form.Control
                                                                             type="number"
                                                                             placeholder="Enter amount"
@@ -680,7 +677,7 @@ const UserTokens = () => {
                                                                             readOnly={true}
                                                                             onChange={handleChange}
                                                                         />
-                                                                    }
+                                                                    )}
 
                                                                 </td>
                                                             </tr>
@@ -719,7 +716,7 @@ const UserTokens = () => {
                                                     </div>
                                                 </div>
                                                 {isLoading && (
-                                                    <div className="  p-5">Loading Tokens...</div>
+                                                    <AdminSkeleton variant="list" rows={5} />
                                                 )}
                                                 {!isLoading && (
                                                     <div className="pt-6 asm">
@@ -810,6 +807,7 @@ const UserTokens = () => {
                 />
                 {/* Modal 1 */}
             </div>
+    </AdminShell>
         </>
     );
 };

@@ -22,6 +22,10 @@ import { FileCard, FullScreen, ImagePreview } from "@files-ui/react";
 import { toast } from "react-toastify";
 import AdminHeader from "./adminHeader";
 import { Switch } from "@mui/material";
+import AdminShell from "./theme/AdminShell";
+import ui from "./theme/AdminUI.module.css";
+import dash from "./Dashboard.module.css";
+import AdminSkeleton from "./theme/AdminSkeleton";
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
   let Navigate = useNavigate();
@@ -353,14 +357,24 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="admin dark-new-ui">
+    <AdminShell open={Active} onClose={toggleBar}>
       <div>
-        <div className="bg-gray-900 min-h-screen pb-20">
+        <div className="min-h-screen pb-20">
           <SideBar state={Active} toggle={toggleBar} />
-          <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="mx-auto w-full max-w-7xl">
+          <div className={ui.main}>
+            <div className={ui.content}>
 
               <AdminHeader toggle={toggleBar} pageName={pagename} />
+              <div className={dash.stats}>
+                <div className={dash.statCard}>
+                  <p className={dash.statLabel}>Users</p>
+                  <p className={dash.statValue}>{isLoading ? <span className={dash.statBone} /> : (Users?.length || 0)}</p>
+                </div>
+                <div className={dash.statCard}>
+                  <p className={dash.statLabel}>Completed transactions</p>
+                  <p className={dash.statValue}>{completed ?? 0}</p>
+                </div>
+              </div>
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -380,22 +394,15 @@ const Dashboard = () => {
                   zIndex: 999999,
                 }}
               ></div>
-              {authUser().user.role === "superadmin" && <div className="permissions-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+              {authUser().user.role === "superadmin" && <div className={`${dash.grid} permissions-grid`}>
                 {/* Withdrawal 2FA */}
                 {getLoading ? (
-                  // 🔹 Skeleton card while data is loading
-                  <div className="permission-card skeleton-card">
-                    <div className="skeleton-header">
-                      <div className="skeleton skeleton-title"></div>
-                      <div className="skeleton skeleton-switch"></div>
-                    </div>
-                    <div className="skeleton skeleton-text"></div>
-                  </div>
+                  <AdminSkeleton variant="switchCard" />
                 ) : (
                   // 🔹 Actual card when loaded
-                  <div className="permission-card bg-white dark:bg-muted-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-muted-700">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium   text-white">
+                  <div className={`${dash.card} permission-card`}>
+                    <div className={dash.cardHead}>
+                      <h3 className={dash.cardTitle}>
                         Withdrawal 2FA
                       </h3>
                       <Switch
@@ -421,19 +428,12 @@ const Dashboard = () => {
 
                 {/* Email Verification on Registration */}
                 {getLoading ? (
-                  // 🔹 Skeleton card while data is loading
-                  <div className="permission-card skeleton-card">
-                    <div className="skeleton-header">
-                      <div className="skeleton skeleton-title"></div>
-                      <div className="skeleton skeleton-switch"></div>
-                    </div>
-                    <div className="skeleton skeleton-text"></div>
-                  </div>
+                  <AdminSkeleton variant="switchCard" />
                 ) : (
                   // 🔹 Actual card when loaded
-                  <div className="permission-card bg-white dark:bg-muted-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-muted-700">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-white">
+                  <div className={`${dash.card} permission-card`}>
+                    <div className={dash.cardHead}>
+                      <h3 className={dash.cardTitle}>
                         Email Verification on Registration
                       </h3>
                       <Switch
@@ -458,17 +458,11 @@ const Dashboard = () => {
 
                 {/* Wallet Platform Access */}
                 {getLoading ? (
-                  <div className="permission-card skeleton-card">
-                    <div className="skeleton-header">
-                      <div className="skeleton skeleton-title"></div>
-                      <div className="skeleton skeleton-switch"></div>
-                    </div>
-                    <div className="skeleton skeleton-text"></div>
-                  </div>
+                  <AdminSkeleton variant="switchCard" />
                 ) : (
-                  <div className="permission-card bg-white dark:bg-muted-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-muted-700">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-white">
+                  <div className={`${dash.card} permission-card`}>
+                    <div className={dash.cardHead}>
+                      <h3 className={dash.cardTitle}>
                         Wallet Platform Access
                       </h3>
                       <Switch
@@ -774,7 +768,7 @@ const Dashboard = () => {
           </h2>
         </div>
       </Modal>
-    </div>
+    </AdminShell>
 
   );
 };

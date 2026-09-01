@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import AdminHeader from "../adminHeader";
 import { useAuthUser } from "react-auth-kit";
@@ -10,6 +12,8 @@ import { toast } from "react-toastify";
 import { getStakingSettingsApi, updateStakingSettingsApi, getCoinsApi, patchCoinsApi } from "../../../Api/Service";
 import './styleNew.css'
 import UserSideBar from "./UserSideBar";
+import su from "./SingleUserLayout.module.css";
+import st from "./UserStaking.module.css";
 
 const StakingSettings = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -176,44 +180,42 @@ const patchCoins = async () => {
 
     if (isLoading) {
         return (
-            <div className="admin">
+            <AdminShell><div className="admin">
                 <div className="bg-muted-100 dark:bg-muted-900 pb-20">
                     <SideBar state={Active} toggle={toggleBar} />
                     <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
                         <AdminHeader toggle={toggleBar} pageName="Staking Settings" />
-                        <div className="flex justify-center items-center h-64">
-                            <div className="text-center">Loading staking settings...</div>
+                        <div className={su.frame}>
+                          <UserSideBar userid={id} />
+                          <div className={su.main}>
+                            <AdminSkeleton variant="cards" rows={6} />
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
+            </AdminShell>
         );
     }
 
     return (
-    <div className="admin admin-new comp">
-  <div className="layout-container">
-    {/* Main Admin Sidebar */}
+    <AdminShell>
+    <div className="admin">
+      <div className="bg-muted-100 dark:bg-muted-900 pb-20">
     <SideBar state={Active} toggle={toggleBar} />
-
-    {/* Main Content */}
-    <div className="layout-content">
+        <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+          <div className="mx-auto w-full max-w-7xl">
       <AdminHeader toggle={toggleBar} pageName="Staking Settings" />
 
-      <div className="inner-layout">
-        {/* Inner User Sidebar */}
-        <aside className="user-sidebar">
+            <div className={su.frame}>
           <UserSideBar userid={id} />
-        </aside>
 
-        {/* Main Panel */}
-        <div className="main-panel">
-             <div className="quick-actions">
-            <h4>Quick Actions</h4>
-            <div className="actions">
+              <div className={su.main}>
+             <div className={st.actions}>
+            <h4 className={st.actionsTitle}>Quick Actions</h4>
               <button
                 onClick={() => setStakingSettings((prev) => ({ ...prev, disabledCoins: [] }))}
-                className="btn btn-success"
+                className={`${st.btn} ${st.btnSuccess}`}
               >
                 Enable All Coins
               </button>
@@ -224,70 +226,64 @@ const patchCoins = async () => {
                     disabledCoins: Object.keys(coinData),
                   }))
                 }
-                className="btn btn-danger"
+                className={`${st.btn} ${st.btnDanger}`}
               >
                 Disable All Coins
               </button>
               <button
                 onClick={() =>
                   setStakingSettings((prev) => ({ ...prev, customRates: {} }))}
-                className="btn btn-info"
+                className={`${st.btn} ${st.btnInfo}`}
               >
                 Reset All Rates
               </button>
-            </div>
           </div>
-          <div className="panel-header">
+          <div className={st.head}>
              <div>
-              <p className="panel-title">Staking Configuration</p>
-              <p className="panel-subtitle">
+              <p className={st.title}>Staking Configuration</p>
+              <p className={st.subtitle}>
                 Manage staking settings for user: <span>{id}</span>
               </p>
             </div>
              <button
               onClick={saveSettings}
               disabled={isSaving}
-              className="btn btn-primary"
+              className={`${st.btn} ${st.btnPrimary}`}
             >
               {isSaving ? "Saving..." : "Save Settings"}
             </button>
-           
-           
           </div>
 
-          {/* Coins Grid */}
-          <div className="coins-grid">
+          <div className={st.grid}>
             {Object.entries(coinData).map(([coinKey, coin]) => (
-              <div key={coinKey} className="coin-card">
-                <div className="coin-header">
-                  <div className="coin-info">
-                    <img src={coin.icon} alt={coin.name} className="coin-icon" />
+              <div key={coinKey} className={st.card}>
+                <div className={st.cardHead}>
+                  <div className={st.coinInfo}>
+                    <img src={coin.icon} alt={coin.name} className={st.coinIcon} />
                     <div>
-                      <h3>{coin.name}</h3>
-                      <p>{coin.symbol.toUpperCase()}</p>
+                      <h3 className={st.coinName}>{coin.name}</h3>
+                      <p className={st.coinSymbol}>{coin.symbol.toUpperCase()}</p>
                     </div>
                   </div>
 
-                  {/* Toggle */}
-                  <label className="toggle">
+                  <label className={st.toggle}>
                     <input
                       type="checkbox"
                       checked={!stakingSettings.disabledCoins.includes(coinKey)}
                       onChange={() => toggleCoinStatus(coinKey)}
                     />
-                    <span className="slider"></span>
+                    <span className={st.slider}></span>
                   </label>
                 </div>
 
-                {/* Rates */}
                 {!stakingSettings.disabledCoins.includes(coinKey) && (
-                  <div className="coin-rates">
+                  <div className={st.rates}>
                     {[
                       { label: "30 Days", key: "thirtyDays" },
                       { label: "60 Days", key: "sixtyDays" },
                       { label: "90 Days", key: "ninetyDays" },
                     ].map(({ label, key }) => (
-                      <div key={key} className="rate-input">
+                      <div key={key} className={st.rate}>
                         <label>{label}</label>
                         <input
                           type="number"
@@ -303,7 +299,7 @@ const patchCoins = async () => {
                     ))}
                     <button
                       onClick={() => resetCoinRates(coinKey)}
-                      className="btn btn-reset"
+                      className={`${st.btn} ${st.btnReset}`}
                     >
                       Reset to Default
                     </button>
@@ -312,14 +308,13 @@ const patchCoins = async () => {
               </div>
             ))}
           </div>
-
-          {/* Quick Actions */}
-         
         </div>
       </div>
     </div>
   </div>
 </div>
+</div>
+    </AdminShell>
 
     );
 };

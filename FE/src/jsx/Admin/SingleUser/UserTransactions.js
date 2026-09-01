@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import AdminShell from "../theme/AdminShell";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -26,7 +27,8 @@ import TxFilterPills from "../assets/TxFilterPills";
 import AdminTransactionEditFields from "../assets/AdminTransactionEditFields";
 import AdminTransactionList from "../assets/AdminTransactionList";
 import { buildAdminPriceMap } from "../assets/adminTxDisplay";
-import "../assets/AdminTransactions.css";
+import styles from "../assets/AdminTransactions.module.css";
+import su from "./SingleUserLayout.module.css";
 import { matchesTransactionFilter } from "../assets/transactionFilterUtils";
 import {
   buildAdminTransactionUpdateBody,
@@ -429,11 +431,11 @@ const UserTransactions = () => {
     }, []);
   // Copy
   return (
-    <div className="admin dark-new-ui admin-tx-root">
+    <AdminShell><div className={`admin ${styles.page}`}>
       <div>
-        <div className="bg-gray-900 min-h-screen pb-20">
+        <div className="bg-muted-100 dark:bg-muted-900 min-h-screen pb-20">
           <SideBar state={Active} toggle={toggleBar} />
-          <div className="admin-tx admin-tx-page bg-gray-900 relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+          <div className="admin-tx admin-tx-page relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             <div className="admin-tx-shell mx-auto w-full max-w-7xl">
 
               <AdminHeader toggle={toggleBar} pageName="User Management" />
@@ -457,11 +459,11 @@ const UserTransactions = () => {
                 }}
               />
               <seokit />
-              <div className="admin-tx-user-grid grid gap-8 sm:grid-cols-12">
+              <div className={`admin-tx-user-grid ${su.frame}`}>
                   <UserSideBar userid={id} />
-                  <div className="col-span-12 sm:col-span-8 admin-tx-user-col">
+                  <div className={`admin-tx-user-col ${su.main}`}>
                     <div className="admin-tx-sticky">
-                      <div className="admin-tx-toolbar">
+                      <div className={`admin-tx-toolbar ${styles.toolbar}`}>
                         <TxFilterPills
                           title="Manage Transactions"
                           filter={filter}
@@ -1656,6 +1658,7 @@ const UserTransactions = () => {
 
       {/* Modal 1 */}
     </div>
+    </AdminShell>
   );
 };
 

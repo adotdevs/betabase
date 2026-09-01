@@ -1,0 +1,14 @@
+.panel {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 10px !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+.panel :global(.MuiTypography-root) {
+  color: var(--admin-text-secondary) !important;
+}
+
+.panel :global(.MuiTypography-root strong) {
+  color: var(--admin-text-primary) !important;
+}

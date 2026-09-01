@@ -1,0 +1,132 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 8px 0 22px;
+}
+
+.statCard {
+  padding: 18px 18px 16px;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-sm);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.statCard:hover {
+  border-color: var(--admin-border-strong);
+  box-shadow: var(--admin-shadow-md);
+}
+
+.statLabel {
+  margin: 0 0 8px;
+  color: var(--admin-text-muted);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statValue {
+  margin: 0;
+  color: var(--admin-text-primary);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  min-height: 1.7rem;
+}
+
+.statBone {
+  display: block;
+  width: 72px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--admin-surface-3) 0%,
+    var(--admin-surface-2) 45%,
+    var(--admin-surface-3) 90%
+  );
+  background-size: 200% 100%;
+  animation: dashShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes dashShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statBone {
+    animation: none;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.card {
+  padding: 18px;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.cardCopy {
+  margin: 0;
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notes {
+  margin-top: 28px;
+}
+
+.saveBtn {
+  min-width: 96px;
+  min-height: 38px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--admin-accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.saveBtn:disabled {
+  opacity: 0.55;
+}
+
+.preview {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--admin-surface-2);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

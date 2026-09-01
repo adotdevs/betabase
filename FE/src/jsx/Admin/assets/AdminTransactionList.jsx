@@ -15,11 +15,24 @@ import {
   trxNameToSymbol,
 } from "../../pages/report/assets/swapTransactionUtils";
 import { formatAdminFiatAmount } from "./adminTxDisplay";
-import "./AdminTransactions.css";
+import AdminSkeleton from "../theme/AdminSkeleton";
+import styles from "./AdminTransactions.module.css";
+
+const toneClass = {
+  completed: styles.chipSuccess,
+  pending: styles.chipWarning,
+  rejected: styles.chipDanger,
+};
+
+const fiatToneClass = {
+  completed: styles.fiatSuccess,
+  pending: styles.fiatWarning,
+  rejected: styles.fiatDanger,
+};
 
 const CoinIcon = ({ meta }) => (
   <span
-    className="admin-tx-coin"
+    className={styles.coin}
     style={{ "--coin-accent": meta?.accent || "#5b8def" }}
   >
     {meta?.logo ? (
@@ -57,45 +70,45 @@ const AdminTransactionRow = ({
   const ownerUserId = transaction.ownerUserId || userDetail?._id || "";
 
   return (
-    <div className="admin-tx-row">
+    <div className={styles.row}>
       <CoinIcon meta={coinMeta} />
-      <div className="admin-tx-row-meta">
-        <p className="admin-tx-row-title">{headline}</p>
+      <div className={styles.meta}>
+        <p className={styles.rowTitle}>{headline}</p>
         {ownerEmail ? (
           ownerUserId ? (
             <Link
               to={`/admin/user/${ownerUserId}/general`}
-              className="admin-tx-user-link"
+              className={styles.userLink}
               onClick={(e) => e.stopPropagation()}
             >
               {ownerEmail}
             </Link>
           ) : (
-            <span className="admin-tx-user-link is-static">{ownerEmail}</span>
+            <span className={styles.userLink}>{ownerEmail}</span>
           )
         ) : null}
-        <p className="admin-tx-row-sub">
+        <p className={styles.rowSub}>
           {formatTransactionDate(transaction.createdAt)}
-          <span className={`admin-tx-chip is-${statusTone}`}>
+          <span className={`${styles.chip} ${toneClass[statusTone] || ""}`}>
             {formatStatusLabel(transaction.status)}
           </span>
           {transaction.isHidden ? (
-            <span className="admin-tx-chip is-hidden">Hidden</span>
+            <span className={`${styles.chip} ${styles.chipHidden}`}>Hidden</span>
           ) : null}
         </p>
       </div>
-      <div className="admin-tx-row-amounts">
-        <span className="admin-tx-crypto">
+      <div className={styles.amounts}>
+        <span className={styles.crypto}>
           {isOut ? "−" : "+"}
           {formatSmartAmount(transaction.amount)} {symbol}
         </span>
-        <span className={`admin-tx-fiat is-${statusTone}`}>
+        <span className={`${styles.fiat} ${fiatToneClass[statusTone] || ""}`}>
           {formatAdminFiatAmount(transaction, prices, userDetail)}
         </span>
       </div>
       <button
         type="button"
-        className="admin-tx-icon-btn"
+        className={styles.iconBtn}
         onClick={() => onOpen(transaction)}
         aria-label="Edit transaction"
       >
@@ -127,25 +140,20 @@ const AdminTransactionList = ({
   loading,
 }) => {
   if (loading) {
-    return (
-      <div className="admin-tx-list-card admin-tx-empty">
-        <h4>Loading transactions</h4>
-        <p>Fetching the latest activity…</p>
-      </div>
-    );
+    return <AdminSkeleton variant="list" rows={6} />;
   }
 
   if (!items?.length) {
     return (
-      <div className="admin-tx-list-card admin-tx-empty">
-        <h4>No transactions found</h4>
-        <p>Try changing the filter or search.</p>
+      <div className={`${styles.listCard} ${styles.empty}`}>
+        <h4 className={styles.emptyTitle}>No transactions found</h4>
+        <p className={styles.emptyCopy}>Try changing the filter or search.</p>
       </div>
     );
   }
 
   return (
-    <section className="admin-tx-list-card">
+    <section className={styles.listCard}>
       {items.map((transaction, index) => (
         <AdminTransactionRow
           key={transaction._id || `${transaction.txId || "tx"}-${index}`}

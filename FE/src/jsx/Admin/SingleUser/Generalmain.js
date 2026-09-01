@@ -2,9 +2,8 @@ import React from 'react';
 import General from './General'
 const Generalmain = () => {
     return (
-        <div className='admin'>
+        <div>
             <General />
-
         </div>
     );
 }

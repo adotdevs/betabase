@@ -1,6 +1,6 @@
 import React from "react";
 import { ADMIN_TRANSACTION_FILTERS } from "./transactionFilterUtils";
-import "./AdminTransactions.css";
+import styles from "./AdminTransactions.module.css";
 
 const TxFilterPills = ({
   filter,
@@ -10,23 +10,23 @@ const TxFilterPills = ({
   title,
 }) => (
   <div>
-    <div className="admin-tx-topbar">
+    <div className={styles.topbar}>
       <div>
-        {title ? <p className="admin-tx-panel-title">{title}</p> : null}
-        {subtitle ? <p className="admin-tx-kicker">{subtitle}</p> : null}
+        {title ? <p className={styles.title}>{title}</p> : null}
+        {subtitle ? <p className={styles.kicker}>{subtitle}</p> : null}
       </div>
       {typeof count === "number" ? (
-        <span className="admin-tx-count">
+        <span className={styles.count}>
           {count} record{count === 1 ? "" : "s"}
         </span>
       ) : null}
     </div>
-    <div className="admin-tx-filters">
+    <div className={styles.filters}>
       {ADMIN_TRANSACTION_FILTERS.map((item) => (
         <button
           key={item.id}
           type="button"
-          className={`admin-tx-filter-btn${filter === item.id ? " is-active" : ""}`}
+          className={`${styles.filterBtn}${filter === item.id ? ` ${styles.filterActive}` : ""}`}
           onClick={() => onChange(item.id)}
         >
           {item.label}

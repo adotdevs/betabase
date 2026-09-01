@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
+import skel from "../theme/AdminSkeleton.module.css";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,6 +18,7 @@ import {
   isCloudinaryPdfUrl,
 } from "../../../utils/cloudinaryKyc";
 import { toast } from "react-toastify";
+import su from "./SingleUserLayout.module.css";
 import AdminHeader from "../adminHeader";
 
 const ShieldIcon = () => (
@@ -146,7 +150,7 @@ const UserVerifications = () => {
     const hasPreviewError = previewErrors[docType];
 
     return (
-      <div className="flex h-full flex-col overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900">
+      <div className={`${su.panel} flex h-full flex-col overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900`}>
         <div className="border-b border-muted-200 px-5 py-4 dark:border-muted-700">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -241,7 +245,7 @@ const UserVerifications = () => {
   const userName = [UserData.firstName, UserData.lastName].filter(Boolean).join(" ");
 
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div className="bg-muted-100 pb-20 dark:bg-muted-900">
         <SideBar state={Active} toggle={toggleBar} />
         <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
@@ -249,14 +253,14 @@ const UserVerifications = () => {
             <AdminHeader toggle={toggleBar} pageName="User Management" />
 
             <div className="min-h-screen overflow-hidden pt-2">
-              <div className="grid gap-8 sm:grid-cols-12">
+              <div className={su.frame}>
                 <UserSideBar userid={id} />
 
-                <div className="col-span-12 sm:col-span-8">
+                <div className={su.main}>
                   <div className="space-y-6">
                     {/* Header card */}
-                    <div className="overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900">
-                      <div className="border-b border-muted-200 px-6 py-5 dark:border-muted-700">
+                    <div className={`${su.panel} overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900`}>
+                      <div className={`${su.panelHead} border-b border-muted-200 px-6 py-5 dark:border-muted-700`}>
                         <div className="flex flex-col gap-4">
                           <div className="flex items-start gap-4">
                             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 text-primary-500">
@@ -273,8 +277,8 @@ const UserVerifications = () => {
                               <div className="mt-3 flex flex-wrap items-center gap-2">
                                 {isPageLoading ? (
                                   <>
-                                    <span className="nui-placeload animate-nui-placeload h-6 w-28 rounded-full" />
-                                    <span className="nui-placeload animate-nui-placeload h-6 w-36 rounded-full" />
+                                    <span className={`${skel.bone} ${skel.chip}`} />
+                                    <span className={`${skel.bone} ${skel.chip}`} />
                                   </>
                                 ) : (
                                   <>
@@ -298,7 +302,7 @@ const UserVerifications = () => {
 
                           <div className="flex w-full items-center justify-end border-t border-muted-200 pt-4 dark:border-muted-700">
                             {isPageLoading ? (
-                              <span className="nui-placeload animate-nui-placeload h-10 w-[140px] rounded-md" />
+                              <span className={`${skel.bone} ${skel.search}`} />
                             ) : !kycApproved ? (
                               <button
                                 onClick={() => updateKyc(true)}
@@ -347,22 +351,7 @@ const UserVerifications = () => {
                     </div>
 
                     {isPageLoading && (
-                      <div className="grid gap-6 md:grid-cols-2">
-                        {[0, 1].map((slot) => (
-                          <div
-                            key={slot}
-                            className="overflow-hidden rounded-xl border border-muted-200 bg-white p-5 shadow-sm dark:border-muted-700 dark:bg-muted-900"
-                          >
-                            <div className="nui-placeload animate-nui-placeload mb-4 h-5 w-40 rounded" />
-                            <div className="nui-placeload animate-nui-placeload mb-3 h-4 w-56 rounded" />
-                            <div className="nui-placeload animate-nui-placeload h-48 w-full rounded-lg" />
-                            <div className="mt-4 flex gap-2">
-                              <div className="nui-placeload animate-nui-placeload h-10 w-28 rounded-md" />
-                              <div className="nui-placeload animate-nui-placeload h-10 w-32 rounded-md" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <AdminSkeleton variant="docs" rows={2} />
                     )}
 
                     {!isPageLoading && hasAnyDocs && (
@@ -411,6 +400,7 @@ const UserVerifications = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

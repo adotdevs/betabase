@@ -214,8 +214,26 @@ const CreateTicket = () => {
           <h2 className={styles.sideTitle}>Customer</h2>
 
           {userLoading ? (
-            <div className={styles.loadingWrap}>
-              <span className={styles.loadingSpinner} aria-label="Loading customer" />
+            <div className={styles.skelWrap} aria-hidden="true">
+              <div className={styles.skelUser}>
+                <span className={`${styles.skelBone} ${styles.skelAvatar}`} />
+                <div className={styles.skelMeta}>
+                  <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelWide}`} />
+                  <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelMid}`} />
+                </div>
+              </div>
+              <hr className={styles.divider} />
+              <div className={styles.metaBlock}>
+                <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelMid}`} />
+                <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelFull}`} />
+              </div>
+              <hr className={styles.divider} />
+              <div className={styles.metaBlock}>
+                <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelMid}`} />
+                <span className={`${styles.skelBone} ${styles.skelLine} ${styles.skelFull}`} />
+              </div>
+              <hr className={styles.divider} />
+              <span className={`${styles.skelBone} ${styles.skelNote}`} />
             </div>
           ) : (
             <>

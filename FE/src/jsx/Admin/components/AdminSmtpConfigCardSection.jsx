@@ -3,6 +3,7 @@ import { Box, Button, Divider, Typography } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import { useAuthUser } from "react-auth-kit";
 import AdminSmtpConfigDialog from "./AdminSmtpConfigDialog";
+import styles from "./AdminSmtpConfigCardSection.module.css";
 
 const isSmtpConfigured = (user) =>
   !!(user?.smtpConfig?.enabled && user?.smtpConfig?.host && user?.smtpConfig?.user);
@@ -41,6 +42,7 @@ const AdminSmtpConfigCardSection = ({ user, onUpdated, accentColor = "primary.ma
         </Box>
 
         <Box
+          className={styles.panel}
           sx={{
             p: 2,
             borderRadius: 1,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AdminShell from "./theme/AdminShell";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import { uploadFilesApi } from "../../Api/Service";
 import { Dropzone, FileMosaic } from "@files-ui/react";
@@ -88,7 +89,7 @@ const FileUpload = () => {
     }
   }, [files]);
   return (
-    <div className="admin">
+    <AdminShell><div className="admin">
       <div>
         <div className="bg-muted-100 dark:bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
@@ -195,6 +196,7 @@ const FileUpload = () => {
         </div>
       </div>
     </div>
+    </AdminShell>
   );
 };
 

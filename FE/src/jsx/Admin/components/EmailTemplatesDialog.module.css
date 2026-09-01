@@ -1,0 +1,88 @@
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiDialog-paper),
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiDialogTitle-root),
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiDialogContent-root),
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiDialogActions-root) {
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiTypography-root) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .help,
+:global(html[data-admin-ui="on"]) .groupTitle {
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .chip,
+:global(html[data-admin-ui="on"]) .dialog :global(.MuiChip-root) {
+  background: var(--admin-surface-3) !important;
+  color: var(--admin-text-primary) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+}
+
+:global(html[data-admin-ui="on"]) .chip :global(.MuiChip-label) {
+  color: var(--admin-text-primary) !important;
+  font-weight: 650 !important;
+}
+
+:global(html[data-admin-ui="on"]) .varBox {
+  padding: 12px !important;
+  border-radius: 10px !important;
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"]) .row {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+:global(html[data-admin-ui="on"]) .quill {
+  border: 1px solid var(--admin-border-strong);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--admin-surface-2) !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-toolbar),
+:global(html[data-admin-ui="on"]) .quill :global(.ql-container) {
+  background: var(--admin-surface-2) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-editor),
+:global(html[data-admin-ui="on"]) .quill :global(.ql-editor *) {
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+  background: transparent !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-editor.ql-blank::before) {
+  color: var(--admin-text-muted) !important;
+  -webkit-text-fill-color: var(--admin-text-muted) !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-snow .ql-stroke) {
+  stroke: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-snow .ql-fill) {
+  fill: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"]) .quill :global(.ql-toolbar button),
+:global(html[data-admin-ui="on"]) .quill :global(.ql-toolbar .ql-picker-label) {
+  color: var(--admin-text-primary) !important;
+}

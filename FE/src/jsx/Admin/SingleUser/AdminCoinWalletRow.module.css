@@ -1,0 +1,32 @@
+.row {
+  margin: 0 14px 12px;
+  padding: 16px 14px;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  background: var(--admin-surface-2) !important;
+  box-shadow: none;
+}
+
+.meta {
+  width: min(280px, 100%);
+  flex-grow: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .row {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .meta {
+    width: 100%;
+    max-width: none;
+  }
+}

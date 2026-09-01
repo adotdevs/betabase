@@ -1,0 +1,166 @@
+.note {
+  display: none;
+}
+
+:global([data-admin-ui="true"] .hui-chip--verified) {
+  background: var(--admin-success-soft) !important;
+  color: var(--admin-success) !important;
+  border-color: var(--admin-success) !important;
+}
+
+:global([data-admin-ui="true"] .hui-chip--submitted) {
+  background: var(--admin-warning-soft) !important;
+  color: var(--admin-warning) !important;
+  border-color: var(--admin-warning) !important;
+}
+
+:global([data-admin-ui="true"] .hui-chip--partial) {
+  background: var(--admin-info-soft) !important;
+  color: var(--admin-info) !important;
+  border-color: var(--admin-info) !important;
+}
+
+:global([data-admin-ui="true"] .hui-chip--unverified) {
+  background: var(--admin-danger-soft) !important;
+  color: var(--admin-danger) !important;
+  border-color: var(--admin-danger) !important;
+}
+
+:global([data-admin-ui="true"] .hui-assign),
+:global([data-admin-ui="true"] .hui-picker) {
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+  border-radius: 14px !important;
+}
+
+:global([data-admin-ui="true"] .hui-assign-chip),
+:global([data-admin-ui="true"] .hui-picker-chip) {
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+:global([data-admin-ui="true"] .hui-picker-empty),
+:global([data-admin-ui="true"] .hui-picker-empty-list) {
+  color: var(--admin-text-muted) !important;
+}
+
+.card {
+  overflow: hidden;
+}
+
+.shareBox {
+  border-radius: 12px;
+}
+
+.contactBtn,
+.outlineBtn {
+  min-height: 40px;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card {
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-border) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiDivider-root) {
+  background-color: var(--admin-border) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-h6) {
+  background: none !important;
+  color: var(--admin-accent) !important;
+  -webkit-text-fill-color: var(--admin-accent) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-body2),
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-caption) {
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiCardHeader-root .MuiSvgIcon-root) {
+  color: var(--admin-text-muted) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .shareBox {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .shareBox :global(.MuiTypography-root) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .shareBox :global(.MuiTypography-caption) {
+  color: var(--admin-text-muted) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .contactBtn {
+  color: var(--admin-text-primary) !important;
+  border-color: var(--admin-border-strong) !important;
+  background: var(--admin-surface-1) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .contactBtn :global(.MuiButton-startIcon),
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .contactBtn :global(.MuiSvgIcon-root) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .outlineBtn {
+  color: var(--admin-danger) !important;
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-danger) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .outlineBtn :global(.MuiButton-startIcon),
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .outlineBtn :global(.MuiSvgIcon-root) {
+  color: var(--admin-danger) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign--empty),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign--filled),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign--shared) {
+  background: var(--admin-surface-2) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-title),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-chip-name),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-name),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-trigger),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-trigger-value),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-row) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-sub),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-label),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-email),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-empty) {
+  color: var(--admin-text-muted) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-mark) {
+  background: var(--admin-surface-3) !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-chip) {
+  background: var(--admin-success-soft) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-assign-chip-x) {
+  background: var(--admin-surface-3) !important;
+  color: var(--admin-danger) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-trigger),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] [data-admin-ui="true"] .hui-picker-list) {
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-border-strong) !important;
+}

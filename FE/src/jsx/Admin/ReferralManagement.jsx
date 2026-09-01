@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import AdminShell from "./theme/AdminShell";
+import AdminSkeleton from "./theme/AdminSkeleton";
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -255,7 +257,7 @@ const ReferralManagement = () => {
   };
 
   return (
-    <div className="admin dark-new-ui">
+    <AdminShell><div className="admin dark-new-ui">
       <div className="bg-gray-900 min-h-screen">
         <SideBar state={Active} toggle={toggleBar} />
         
@@ -434,8 +436,8 @@ const ReferralManagement = () => {
                     }}
                   >
                     {loading ? (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-                        <CircularProgress />
+                      <Box sx={{ p: 2 }}>
+                        <AdminSkeleton variant="table" rows={6} />
                       </Box>
                     ) : referrals.length === 0 ? (
                       <Box sx={{ p: 8, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -1035,6 +1037,7 @@ const ReferralManagement = () => {
         </DialogContent>
       </Dialog>
     </div>
+    </AdminShell>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import rowStyles from "./AdminCoinWalletRow.module.css";
 import {
   formatFiatBalanceForAdmin,
   getFiatCurrencyByName,
@@ -24,11 +25,10 @@ const AdminCoinWalletRow = ({
   const isFiat = isFiatCoin(coin.coinName);
 
   return (
-    <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
+    <div className={`${rowStyles.row} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300`}>
       <div className="flex w-full flex-col sm:flex-row sm:items-center">
         <div
-          style={{ width: "30%", flexGrow: "0" }}
-          className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10"
+          className={`${rowStyles.meta} relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10`}
         >
           <div className="relative inline-flex shrink-0 items-center justify-center h-10 w-10 rounded-lg bg-primary-500/20 text-primary-500 overflow-hidden">
             {isFiat && fiatMeta?.icon ? (
@@ -62,7 +62,7 @@ const AdminCoinWalletRow = ({
           <div className="relative flex min-h-8 flex-wrap sm:flex-nowrap items-center justify-end gap-2 px-6 sm:min-h-10 sm:justify-end sm:px-2 w-full sm:w-auto sm:max-w-none">
             {isFiat && userId && fiatMeta?.adminPath && (
               <Link
-                to={`/admin/users/${userId}/${fiatMeta.adminPath}`}
+                to={`/admin/users/${userId}/bank-accounts`}
                 className={`${actionBtnClass} ml-0`}
               >
                 <span>Bank account</span>

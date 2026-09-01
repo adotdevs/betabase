@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import AdminShell from "../theme/AdminShell";
+import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -95,54 +97,14 @@ const AdminPermissions = () => {
 
   return (
     <>
-      <div className="admin dark-new-ui">
+      <AdminShell><div className="admin dark-new-ui">
         <div className="bg-muted-900 pb-20">
           <SideBar state={Active} toggle={toggleBar} />
           <div className="bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
             {/* Admin Permissions Section */}
 
             {isLoading ? (
-              <div className="mx-auto mt-10 loading-pg w-full text-center max-w-xs">
-                <div className="mx-auto mt-10 max-w-xs new">
-                  <svg
-                    data-v-cd102a71
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    aria-hidden="true"
-                    role="img"
-                    className="icon h-12 w-12 text-primary-500"
-                    width="1em"
-                    height="1em"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                      opacity=".25"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M10.72,19.9a8,8,0,0,1-6.5-9.79A7.77,7.77,0,0,1,10.4,4.16a8,8,0,0,1,9.49,6.52A1.54,1.54,0,0,0,21.38,12h.13a1.37,1.37,0,0,0,1.38-1.54,11,11,0,1,0-12.7,12.39A1.54,1.54,0,0,0,12,21.34h0A1.47,1.47,0,0,0,10.72,19.9Z"
-                    >
-                      <animateTransform
-                        attributeName="transform"
-                        dur="0.75s"
-                        repeatCount="indefinite"
-                        type="rotate"
-                        values="0 12 12;360 12 12"
-                      />
-                    </path>
-                  </svg>
-                </div>
-                <div className="mx-auto max-w-sm">
-                  <h4 className="font-heading text-xl font-medium leading-normal text-white mb-1 mt-4">
-                    Loading Admin Permissions
-                  </h4>
-                  <p className="text-muted-300 font-sans text-sm">
-                    Please wait while we load the Admin Permissions.
-                  </p>
-                </div>
-              </div>
+              <AdminSkeleton variant="form" rows={6} />
             ) : (
               <div className="admin-permissions-section mb-8">
                 <p className="text-2xl font-bold text-white mb-4">
@@ -205,6 +167,7 @@ const AdminPermissions = () => {
           </div>
         </div>
       </div>
+    </AdminShell>
     </>
   );
 };

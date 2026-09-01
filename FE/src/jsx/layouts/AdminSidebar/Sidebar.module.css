@@ -1,0 +1,377 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  padding: 0;
+  background: rgba(8, 10, 14, 0.48);
+  cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .scrim {
+    display: none;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: var(--admin-sidebar-width, 260px);
+  height: 100%;
+  background: var(--admin-surface-1, #13171e) !important;
+  border-right: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  box-shadow: var(--admin-shadow-sm);
+  transform: translateX(-100%);
+  transition: transform 180ms ease;
+}
+
+.open {
+  transform: translateX(0);
+}
+
+.mobileClose {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 52px;
+  padding: 0 12px;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--admin-surface-2);
+  color: var(--admin-text-secondary);
+  cursor: pointer;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  height: 68px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.logo {
+  width: 108px;
+  height: auto;
+}
+
+.nav {
+  position: relative;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 12px 8px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.groupLabel {
+  margin: 14px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+}
+
+.divider {
+  height: 1px;
+  margin: 10px 10px;
+  background: var(--admin-border);
+  border: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--admin-text-primary);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.navItem span {
+  color: inherit;
+  opacity: 1;
+}
+
+.navItem:hover,
+.navItem:focus-visible {
+  background: var(--admin-accent-soft);
+  color: var(--admin-text-primary);
+  outline: none;
+}
+
+.navItem:global(.active) {
+  background: var(--admin-accent-soft);
+  color: var(--admin-text-primary);
+  font-weight: 650;
+  box-shadow: inset 3px 0 0 var(--admin-accent);
+}
+
+.navItem > svg,
+.navItem > i {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  flex-shrink: 0;
+  display: inline-block !important;
+  color: inherit !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+.navItem > svg {
+  fill: currentColor;
+  overflow: visible;
+}
+
+.navItem svg [fill="none"],
+.navItem svg g[fill="none"],
+.navItem svg g[fill="none"] path,
+.navItem svg rect {
+  fill: none !important;
+}
+
+.navItem svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+.navItem svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.avatarBtn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--admin-surface-2);
+  cursor: pointer;
+}
+
+.avatarBtn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.accountMeta {
+  min-width: 0;
+}
+
+.accountName {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--admin-text-primary);
+}
+
+.accountEmail {
+  display: block;
+  overflow: hidden;
+  color: var(--admin-text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pop {
+  position: absolute;
+  right: -12px;
+  bottom: 76px;
+  z-index: 20;
+  width: 220px;
+  overflow: hidden;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: var(--admin-shadow-lg);
+}
+
+.popHead {
+  padding: 14px;
+  background: var(--admin-surface-2);
+}
+
+.popAction {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--admin-danger);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.modalBox h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.field input {
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.modalActions {
+  text-align: center;
+}
+
+.modalActions button {
+  min-width: 120px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--admin-accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.modalActions button:disabled {
+  opacity: 0.55;
+}
+
+:global([data-admin-ui="true"] #sidebar),
+:global([data-admin-ui="true"] .dark-new-ui #sidebar),
+:global([data-admin-ui="true"] .dark-theme #sidebar) {
+  background: var(--admin-surface-1) !important;
+  border-right: 1px solid var(--admin-border) !important;
+}
+
+:global([data-admin-ui="true"] #sidebar svg),
+:global([data-admin-ui="true"] #sidebar svg path),
+:global([data-admin-ui="true"] .dark-new-ui #sidebar svg path) {
+  color: inherit;
+}
+
+:global([data-admin-ui="true"] .dark-new-ui #sidebar a:hover svg path),
+:global([data-admin-ui="true"] .dark-new-ui #sidebar a:hover span) {
+  color: inherit !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="dark"] #sidebar) .navItem,
+:global(html[data-admin-ui="on"][data-admin-theme="dark"] .dark-new-ui #sidebar) .navItem {
+  color: #e2e8f0 !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="dark"] #sidebar) .navItem:hover,
+:global(html[data-admin-ui="on"][data-admin-theme="dark"] #sidebar) .navItem:global(.active) {
+  color: #ffffff !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem span,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem i,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .dark-new-ui #sidebar) .navItem,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .dark-new-ui #sidebar) .navItem span,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .dark-new-ui #sidebar .text-sm) {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem:hover,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem:focus-visible,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem:global(.active),
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem:hover span,
+:global(html[data-admin-ui="on"][data-admin-theme="light"] #sidebar) .navItem:global(.active) span {
+  color: #0f172a !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .dark-new-ui #sidebar svg path:not([fill="none"])) {
+  color: #111827 !important;
+  fill: currentColor !important;
+}
+
+:global(html[data-admin-ui="on"] #sidebar) .navItem > svg {
+  fill: currentColor;
+}
+
+:global([data-admin-ui="true"] .dark-new-ui #sidebar) .navItem > svg path {
+  fill: currentColor;
+}
+
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg [fill="none"],
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg g[fill="none"],
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg g[fill="none"] path,
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg rect {
+  fill: none !important;
+}
+
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg [fill]:not([fill="none"]) {
+  fill: currentColor !important;
+}
+
+:global(html[data-admin-ui="on"] #sidebar) .navItem svg [stroke]:not([stroke="none"]) {
+  stroke: currentColor !important;
+}
+
+:global(html[data-admin-ui="on"] #sidebar) .navItem > i {
+  color: inherit !important;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+
+  .mobileClose {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .open + .backdrop,
+  .backdrop {
+    display: block;
+  }
+}

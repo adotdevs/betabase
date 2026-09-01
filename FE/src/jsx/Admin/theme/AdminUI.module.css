@@ -1,0 +1,551 @@
+.backdrop {
+  display: none;
+}
+
+.main {
+  min-height: 100vh;
+  width: 100%;
+  padding: 0 16px 48px;
+  overflow-x: hidden;
+}
+
+.content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.pageCard {
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--admin-text-primary);
+}
+
+@media (min-width: 1024px) {
+  .main {
+    width: calc(100% - var(--admin-sidebar-width));
+    margin-left: var(--admin-sidebar-width);
+    padding: 0 32px 64px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    border: 0;
+    padding: 0;
+    background: var(--admin-overlay, rgba(8, 10, 14, 0.48));
+    cursor: pointer;
+  }
+}
+
+:global(html[data-admin-ui="on"]) {
+  overflow-x: hidden;
+}
+
+:global([data-admin-ui="true"]) {
+  font-size: var(--admin-body, 0.9rem);
+}
+
+:global([data-admin-ui="true"] .bg-gray-900),
+:global([data-admin-ui="true"] .bg-muted-900),
+:global([data-admin-ui="true"] .bg-muted-100),
+:global([data-admin-ui="true"] .dark-new-ui),
+:global([data-admin-ui="true"] .dark-theme),
+:global([data-admin-ui="true"] .admin) {
+  background: transparent !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] [class*="lg:ms-[280px]"]),
+:global([data-admin-ui="true"] [class*="lg:max-w-[calc(100%_-_280px)]"]) {
+  max-width: none !important;
+}
+
+@media (min-width: 1024px) {
+  :global([data-admin-ui="true"] [class*="lg:ms-[280px]"]),
+  :global([data-admin-ui="true"] .admin-tx-page) {
+    width: calc(100% - var(--admin-sidebar-width)) !important;
+    margin-left: var(--admin-sidebar-width) !important;
+  }
+}
+
+:global([data-admin-ui="true"] h1),
+:global([data-admin-ui="true"] h2),
+:global([data-admin-ui="true"] h3),
+:global([data-admin-ui="true"] .note-head),
+:global([data-admin-ui="true"] .font-heading) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .text-white),
+:global([data-admin-ui="true"] .text-muted-800),
+:global([data-admin-ui="true"] .dark\:text-white) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .text-gray-600),
+:global([data-admin-ui="true"] .text-muted-500),
+:global([data-admin-ui="true"] .text-muted-400) {
+  color: var(--admin-text-secondary) !important;
+}
+
+:global([data-admin-ui="true"] .groupas .bg-primary-500) {
+  background: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"])),
+:global([data-admin-ui="true"] select),
+:global([data-admin-ui="true"] textarea) {
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: var(--admin-radius-sm) !important;
+  box-shadow: none !important;
+  min-height: 40px;
+}
+
+:global([data-admin-ui="true"] input:focus),
+:global([data-admin-ui="true"] select:focus),
+:global([data-admin-ui="true"] textarea:focus) {
+  outline: none !important;
+  border-color: var(--admin-accent) !important;
+  box-shadow: var(--admin-focus) !important;
+}
+
+:global([data-admin-ui="true"] label) {
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+:global([data-admin-ui="true"] table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:global([data-admin-ui="true"] .table-responsive),
+:global([data-admin-ui="true"] .admin-tx-scroll),
+:global([data-admin-ui="true"] .MuiTableContainer-root) {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface-1);
+}
+
+:global([data-admin-ui="true"] thead th),
+:global([data-admin-ui="true"] .MuiTableCell-head) {
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-muted) !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 12px 14px !important;
+  white-space: nowrap;
+}
+
+:global([data-admin-ui="true"] tbody td),
+:global([data-admin-ui="true"] .MuiTableCell-body) {
+  border-bottom: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+  padding: 14px !important;
+  vertical-align: middle;
+}
+
+:global([data-admin-ui="true"] tbody tr:hover),
+:global([data-admin-ui="true"] .MuiTableRow-root:hover) {
+  background: var(--admin-surface-2) !important;
+}
+
+:global([data-admin-ui="true"] .permission-card),
+:global([data-admin-ui="true"] .dark-bgs),
+:global([data-admin-ui="true"] .card),
+:global([data-admin-ui="true"] .nui-card) {
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: var(--admin-radius-lg) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .ql-toolbar),
+:global([data-admin-ui="true"] .ql-container) {
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .ql-editor) {
+  min-height: 140px;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .ql-editor.ql-blank::before),
+:global(html[data-admin-ui="on"] .ql-editor.ql-blank::before) {
+  color: var(--admin-text-muted) !important;
+  -webkit-text-fill-color: var(--admin-text-muted) !important;
+  font-style: italic !important;
+  opacity: 1 !important;
+}
+
+:global([data-admin-ui="true"] input::placeholder),
+:global([data-admin-ui="true"] textarea::placeholder) {
+  color: var(--admin-text-muted) !important;
+  -webkit-text-fill-color: var(--admin-text-muted) !important;
+  opacity: 1 !important;
+}
+
+:global([data-admin-ui="true"] .MuiSwitch-track) {
+  background-color: var(--admin-surface-3) !important;
+  opacity: 1 !important;
+}
+
+:global([data-admin-ui="true"] .MuiSwitch-thumb) {
+  background-color: #fff !important;
+  box-shadow: var(--admin-shadow-sm);
+}
+
+:global([data-admin-ui="true"] .MuiSwitch-switchBase.Mui-checked) {
+  color: #fff !important;
+}
+
+:global([data-admin-ui="true"] .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track) {
+  background-color: var(--admin-accent) !important;
+  opacity: 1 !important;
+}
+
+:global([data-admin-ui="true"] .ql-snow .ql-stroke) {
+  stroke: var(--admin-text-secondary) !important;
+}
+
+:global([data-admin-ui="true"] .ql-snow .ql-fill) {
+  fill: var(--admin-text-secondary) !important;
+}
+
+:global([data-admin-ui="true"] .is-button),
+:global([data-admin-ui="true"] button.btn-primary),
+:global([data-admin-ui="true"] .hui-assign-btn),
+:global([data-admin-ui="true"] .btn-primary) {
+  background: var(--admin-accent) !important;
+  border: 1px solid var(--admin-accent) !important;
+  color: #fff !important;
+  border-radius: var(--admin-radius-sm) !important;
+  min-height: 38px;
+  padding: 0 14px;
+  font-weight: 650;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+:global([data-admin-ui="true"] .btn-secondary),
+:global([data-admin-ui="true"] .btn-outline),
+:global([data-admin-ui="true"] .btn-ghost) {
+  background: transparent !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+  border-radius: var(--admin-radius-sm) !important;
+  min-height: 38px;
+}
+
+:global([data-admin-ui="true"] .btn-danger),
+:global([data-admin-ui="true"] button.btn-danger) {
+  background: var(--admin-danger-soft) !important;
+  border: 1px solid var(--admin-danger) !important;
+  color: var(--admin-danger) !important;
+}
+
+:global([data-admin-ui="true"] button:focus-visible),
+:global([data-admin-ui="true"] a:focus-visible),
+:global([data-admin-ui="true"] input:focus-visible),
+:global([data-admin-ui="true"] select:focus-visible) {
+  outline: none;
+  box-shadow: var(--admin-focus);
+}
+
+:global([data-admin-ui="true"] .admin-tx-list-card),
+:global([data-admin-ui="true"] .admin-tx-toolbar),
+:global([data-admin-ui="true"] .admin-tx-row),
+:global([data-admin-ui="true"] .admin-tx-modal),
+:global([data-admin-ui="true"] .hui-picker),
+:global([data-admin-ui="true"] .hui-assign) {
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .admin-tx-row:hover) {
+  background: var(--admin-surface-2) !important;
+}
+
+:global([data-admin-ui="true"] .badge),
+:global([data-admin-ui="true"] .status),
+:global([data-admin-ui="true"] .status-badge),
+:global([data-admin-ui="true"] .MuiChip-root) {
+  border-radius: 999px !important;
+  font-weight: 650 !important;
+}
+
+:global([data-admin-ui="true"] .badge-success),
+:global([data-admin-ui="true"] .status-success),
+:global([data-admin-ui="true"] .status-approved),
+:global([data-admin-ui="true"] .status-active),
+:global([data-admin-ui="true"] .status-completed),
+:global([data-admin-ui="true"] .status-verified) {
+  background: var(--admin-success-soft) !important;
+  color: var(--admin-success) !important;
+}
+
+:global([data-admin-ui="true"] .badge-warning),
+:global([data-admin-ui="true"] .status-pending),
+:global([data-admin-ui="true"] .status-processing),
+:global([data-admin-ui="true"] .status-review) {
+  background: var(--admin-warning-soft) !important;
+  color: var(--admin-warning) !important;
+}
+
+:global([data-admin-ui="true"] .badge-danger),
+:global([data-admin-ui="true"] .status-error),
+:global([data-admin-ui="true"] .status-rejected),
+:global([data-admin-ui="true"] .status-failed),
+:global([data-admin-ui="true"] .status-blocked) {
+  background: var(--admin-danger-soft) !important;
+  color: var(--admin-danger) !important;
+}
+
+:global([data-admin-ui="true"] .empty-state),
+:global([data-admin-ui="true"] .admin-tx-empty),
+:global([data-admin-ui="true"] .no-data) {
+  padding: 48px 20px !important;
+  text-align: center;
+  color: var(--admin-text-muted) !important;
+  background: var(--admin-surface-1) !important;
+  border: 1px dashed var(--admin-border) !important;
+  border-radius: var(--admin-radius-lg) !important;
+}
+
+:global([data-admin-ui="true"] .MuiPagination-root),
+:global([data-admin-ui="true"] .pagination) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 16px 0;
+}
+
+:global([data-admin-ui="true"] .MuiPaginationItem-root) {
+  color: var(--admin-text-primary) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global([data-admin-ui="true"] .MuiLinearProgress-root) {
+  background: var(--admin-surface-3) !important;
+  border-radius: 999px !important;
+}
+
+:global([data-admin-ui="true"] .MuiLinearProgress-bar) {
+  background: var(--admin-accent) !important;
+}
+
+:global([data-admin-ui="true"] .MuiDataGrid-root) {
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global([data-admin-ui="true"] .MuiDataGrid-columnHeaders),
+:global([data-admin-ui="true"] .MuiDataGrid-footerContainer) {
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-muted) !important;
+  border-color: var(--admin-border) !important;
+}
+
+:global([data-admin-ui="true"] .loan-status-btn) {
+  border-radius: 10px !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .ticket-msg-action-btn--edit) {
+  background: var(--admin-info-soft) !important;
+  border: 1px solid var(--admin-info) !important;
+  color: var(--admin-info) !important;
+}
+
+:global([data-admin-ui="true"] .ticket-msg-action-btn--delete) {
+  background: var(--admin-danger-soft) !important;
+  border: 1px solid var(--admin-danger) !important;
+  color: var(--admin-danger) !important;
+}
+
+:global([data-admin-ui="true"] .ticket-msg-action-btn--save) {
+  background: var(--admin-success-soft) !important;
+  border: 1px solid var(--admin-success) !important;
+  color: var(--admin-success) !important;
+}
+
+:global([data-admin-ui="true"] .ticket-msg-action-btn--cancel) {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiPaper-root) {
+  background-image: none !important;
+  background-color: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--admin-shadow-lg) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiDialog-paper),
+:global(html[data-admin-ui="on"] .MuiModal-root .MuiBox-root) {
+  max-height: 90vh !important;
+  max-width: min(720px, calc(100vw - 24px));
+}
+
+:global(html[data-admin-ui="on"] .MuiDialogTitle-root),
+:global(html[data-admin-ui="on"] .MuiDialogActions-root) {
+  background: var(--admin-surface-2) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiButton-contained) {
+  background: var(--admin-accent) !important;
+  color: #fff !important;
+  text-transform: none !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  padding: 8px 16px !important;
+  min-height: 36px !important;
+  line-height: 1.25 !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiButton-outlined),
+:global(html[data-admin-ui="on"] .MuiButton-text) {
+  text-transform: none !important;
+  border-radius: 10px !important;
+  color: var(--admin-text-primary) !important;
+  padding: 8px 16px !important;
+  min-height: 36px !important;
+  line-height: 1.25 !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiButton-sizeSmall) {
+  padding: 6px 14px !important;
+  min-height: 34px !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiButton-startIcon) {
+  margin-left: 2px !important;
+  margin-right: 8px !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiOutlinedInput-root) {
+  background: var(--admin-surface-2) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--admin-border-strong) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiInputLabel-root) {
+  color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiTypography-root) {
+  color: var(--admin-text-primary);
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .MuiTypography-root) {
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiCard-root) {
+  background: var(--admin-surface-1) !important;
+  border: 1px solid var(--admin-border) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .MuiAccordion-root) {
+  background: var(--admin-surface-2) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global([data-admin-ui="true"] .MuiAccordionSummary-root) {
+  padding-right: 12px !important;
+  padding-left: 12px !important;
+}
+
+:global([data-admin-ui="true"] .MuiAccordionSummary-content) {
+  margin-right: 8px !important;
+  flex-grow: 1 !important;
+  min-width: 0 !important;
+}
+
+:global([data-admin-ui="true"] .MuiAccordionSummary-content > .MuiBox-root) {
+  width: auto !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+:global([data-admin-ui="true"] .MuiAccordionSummary-expandIconWrapper) {
+  margin-left: auto !important;
+  flex: 0 0 28px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+:global([data-admin-ui="true"] .MuiAccordionSummary-root .MuiIconButton-root) {
+  padding: 6px !important;
+  margin: 0 !important;
+}
+
+:global(html[data-admin-ui="on"] .MuiBackdrop-root) {
+  background: var(--admin-overlay, rgba(8, 10, 14, 0.55)) !important;
+}
+
+:global(html[data-admin-ui="on"] .react-responsive-modal-modal) {
+  background: var(--admin-surface-1) !important;
+  color: var(--admin-text-primary) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--admin-shadow-lg) !important;
+  max-width: min(560px, calc(100vw - 24px)) !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+}
+
+:global(html[data-admin-ui="on"] .react-responsive-modal-overlay) {
+  background: var(--admin-overlay, rgba(8, 10, 14, 0.55)) !important;
+}
+
+@media (max-width: 767px) {
+  :global([data-admin-ui="true"] table) {
+    font-size: 13px;
+  }
+
+  :global(html[data-admin-ui="on"] .MuiDialog-paper) {
+    margin: 12px !important;
+    width: calc(100vw - 24px) !important;
+  }
+}
