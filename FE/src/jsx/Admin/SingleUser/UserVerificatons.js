@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import skel from "../theme/AdminSkeleton.module.css";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
@@ -20,6 +19,7 @@ import {
 import { toast } from "react-toastify";
 import su from "./SingleUserLayout.module.css";
 import AdminHeader from "../adminHeader";
+import MemberShell from "./hub/MemberShell";
 
 const ShieldIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
@@ -39,7 +39,7 @@ const DocumentIcon = () => (
   </svg>
 );
 
-const UserVerifications = () => {
+const UserVerifications = ({ embedded = false }) => {
   const { id } = useParams();
   const authUser = useAuthUser();
   const Navigate = useNavigate();
@@ -245,18 +245,18 @@ const UserVerifications = () => {
   const userName = [UserData.firstName, UserData.lastName].filter(Boolean).join(" ");
 
   return (
-    <AdminShell><div className="admin">
-      <div className="bg-muted-100 pb-20 dark:bg-muted-900">
-        <SideBar state={Active} toggle={toggleBar} />
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="User Management" />
+    <MemberShell embedded={embedded}><div className={embedded ? undefined : "admin"}>
+      <div className={embedded ? undefined : "bg-muted-100 pb-20 dark:bg-muted-900"}>
+        {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+        <div className={embedded ? undefined : "relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+          <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
+            {!embedded && <AdminHeader toggle={toggleBar} pageName="User Management" />}
 
-            <div className="min-h-screen overflow-hidden pt-2">
-              <div className={su.frame}>
-                <UserSideBar userid={id} />
+            <div className={embedded ? undefined : "min-h-screen overflow-hidden pt-2"}>
+              <div className={embedded ? undefined : su.frame}>
+                {!embedded && <UserSideBar userid={id} />}
 
-                <div className={su.main}>
+                <div className={embedded ? undefined : su.main}>
                   <div className="space-y-6">
                     {/* Header card */}
                     <div className={`${su.panel} overflow-hidden rounded-xl border border-muted-200 bg-white shadow-sm dark:border-muted-700 dark:bg-muted-900`}>
@@ -285,9 +285,10 @@ const UserVerifications = () => {
                                     <span
                                       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
                                         kycApproved
-                                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                                          ? "bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-200"
                                           : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
                                       }`}
+                                      style={{ color: kycApproved ? "#16a34a" : "#eab308" }}
                                     >
                                       {kycApproved ? "KYC Approved" : "KYC Pending"}
                                     </span>
@@ -400,7 +401,7 @@ const UserVerifications = () => {
         </div>
       </div>
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

@@ -95,7 +95,7 @@ const UserSideBar = (props) => {
           {permissions.showGeneral && (
             <NavLink
               aria-current="page"
-              to={`/admin/user/${props.userid}/general`}
+              to={`/admin/users/${props.userid}?tab=overview`}
               className={tabClass}
             >
               <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 256 256">
@@ -107,7 +107,7 @@ const UserSideBar = (props) => {
               <span>General</span>
             </NavLink>
           )}
-          <NavLink to={`/admin/users/${props.userid}/assets`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=assets`} className={tabClass}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 256 256">
               <g fill="currentColor">
                 <path d="M88 48v160H40a8 8 0 0 1-8-8V56a8 8 0 0 1 8-8Z" opacity=".2" />
@@ -117,7 +117,7 @@ const UserSideBar = (props) => {
             <span>Wallet</span>
           </NavLink>
           {permissions.showTransactions && (
-            <NavLink to={`/admin/users/${props.userid}/transactions`} className={tabClass}>
+            <NavLink to={`/admin/users/${props.userid}?tab=transactions`} className={tabClass}>
               <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 20 20">
                 <g fill="currentColor">
                   <path d="M9 2a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2z" />
@@ -127,29 +127,29 @@ const UserSideBar = (props) => {
               <span>Transactions</span>
             </NavLink>
           )}
-          <NavLink to={`/admin/users/${props.userid}/documents`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=compliance`} className={tabClass}>
             <i className="fa-solid fa-file"></i>
             <span>Documents</span>
           </NavLink>
-          <NavLink to={`/admin/users/${props.userid}/loan-application`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=compliance`} className={tabClass}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4 shrink-0" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor">
               <path d="M4 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4zm0 4h10v2H4z" />
             </svg>
             <span>Loan</span>
           </NavLink>
-          <NavLink to={`/admin/users/${props.userid}/crypto-card`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=assets`} className={tabClass}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4 shrink-0" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2m0 14H4V6h16zm-6-5h2v2h-2zm-4 0h2v2h-2zm-4 0h2v2H6z" />
             </svg>
             <span>Crypto Card</span>
           </NavLink>
-          <NavLink to={`/admin/users/${props.userid}/bank-accounts`} className={() => tabClass({ isActive: onBankAccounts })}>
+          <NavLink to={`/admin/users/${props.userid}?tab=assets`} className={() => tabClass({ isActive: onBankAccounts })}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4 shrink-0" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor">
               <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v14a1 1 0 0 1-1.447.894L12 17.618l-6.553 3.276A1 1 0 0 1 4 20zm3-1a1 1 0 0 0-1 1v12.382l5.553-2.776a1 1 0 0 1 .894 0L18 17.382V5a1 1 0 0 0-1-1zm4 3h6v2H11zm0 4h6v2h-6z" />
             </svg>
             <span>Bank Accounts</span>
           </NavLink>
-          <NavLink to={`/admin/users/${props.userid}/verifications`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=compliance`} className={tabClass}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 256 256">
               <g fill="currentColor">
                 <path d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96" opacity=".2" />
@@ -159,7 +159,7 @@ const UserSideBar = (props) => {
             <span>Verifications</span>
           </NavLink>
           {permissions.showTokens && (
-            <NavLink to={`/admin/users/${props.userid}/tokens`} className={tabClass}>
+            <NavLink to={`/admin/users/${props.userid}?tab=portfolio`} className={tabClass}>
               <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 256 256">
                 <g fill="currentColor">
                   <path d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96" opacity=".2" />
@@ -169,7 +169,7 @@ const UserSideBar = (props) => {
               <span>Tokens</span>
             </NavLink>
           )}
-          <NavLink to={`/admin/users/${props.userid}/staking`} className={tabClass}>
+          <NavLink to={`/admin/users/${props.userid}?tab=portfolio`} className={tabClass}>
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" className="icon h-4 w-4" width="1em" height="1em" viewBox="0 0 256 256">
               <g fill="currentColor">
                 <path d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96" opacity=".2" />

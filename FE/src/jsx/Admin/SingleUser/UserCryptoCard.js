@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
@@ -13,6 +12,7 @@ import euroStyles from "./UserEuroAccount.module.css";
 import styles from "./UserCryptoCard.module.css";
 import "./style.css";
 import su from "./SingleUserLayout.module.css";
+import MemberShell from "./hub/MemberShell";
 
 const EMPTY_FORM = {
   cardNumber: "",
@@ -71,7 +71,7 @@ const CardPreview = ({ form, cardStatus, isDimmed = false }) => (
   </div>
 );
 
-const UserCryptoCard = () => {
+const UserCryptoCard = ({ embedded = false }) => {
   const { id } = useParams();
   const [Active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -273,18 +273,18 @@ const UserCryptoCard = () => {
   );
 
   return (
-    <AdminShell><div className="admin">
-      <div className="bg-muted-100 pb-20 dark:bg-muted-900">
-        <SideBar state={Active} toggle={toggleBar} />
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="User Management" />
+    <MemberShell embedded={embedded}><div className={embedded ? undefined : "admin"}>
+      <div className={embedded ? undefined : "bg-muted-100 pb-20 dark:bg-muted-900"}>
+        {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+        <div className={embedded ? undefined : "relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+          <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
+            {!embedded && <AdminHeader toggle={toggleBar} pageName="User Management" />}
 
-            <div className="min-h-screen overflow-hidden pt-2">
-              <div className={su.frame}>
-                <UserSideBar userid={id} />
+            <div className={embedded ? undefined : "min-h-screen overflow-hidden pt-2"}>
+              <div className={embedded ? undefined : su.frame}>
+                {!embedded && <UserSideBar userid={id} />}
 
-                <div className={`${su.main} ${euroStyles.euroAccountPage} ${styles.cryptoPage}`}>
+                <div className={`${embedded ? "" : su.main} ${euroStyles.euroAccountPage} ${styles.cryptoPage}`}>
                   <div className="space-y-6">
                     <div className={styles.heroCard}>
                       <div className={styles.heroTop}>
@@ -538,7 +538,7 @@ const UserCryptoCard = () => {
         </div>
       </div>
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

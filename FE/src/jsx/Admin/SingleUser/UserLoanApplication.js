@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import { useParams } from "react-router-dom";
 import {
   deleteLoanApplicationApi,
-  getLoanApplicationByUserApi,
   getLoanDocumentApi,
   signleUsersApi,
   updateLoanApplicationStatusApi,
@@ -20,6 +18,8 @@ import AdminHeader from "../adminHeader";
 import "./style.css";
 import ui from "../AdminLoanUI.module.css";
 import su from "./SingleUserLayout.module.css";
+import MemberShell from "./hub/MemberShell";
+import { clearLoanCache, loadLoanOnce, writeLoanCache } from "./hub/hubCache";
 
 const STATUS_ACTIONS = [
   { value: "submitted", label: "Submitted", activeClass: "loan-status-btn-active loan-status-btn-active--submitted" },
@@ -284,7 +284,7 @@ const DocumentPreviewCard = ({ doc, userId, onPreviewError }) => {
   );
 };
 
-const UserLoanApplication = () => {
+const UserLoanApplication = ({ embedded = false }) => {
   const { id } = useParams();
   const [Active, setActive] = useState(false);
   const [isDisable, setisDisable] = useState(false);
@@ -297,14 +297,14 @@ const UserLoanApplication = () => {
 
   const loadData = async () => {
     try {
-      const [userRes, loanRes] = await Promise.all([
+      const [userRes, loanDoc] = await Promise.all([
         signleUsersApi(id),
-        getLoanApplicationByUserApi(id).catch(() => ({ success: false })),
+        loadLoanOnce(id),
       ]);
       if (userRes.success) setUserData(userRes.signleUser);
-      if (loanRes.success && loanRes.application) {
-        setApplication(loanRes.application);
-        setAdminNotes(loanRes.application.adminNotes || "");
+      if (loanDoc) {
+        setApplication(loanDoc);
+        setAdminNotes(loanDoc.adminNotes || "");
       }
     } catch (error) {
       toast.error(error?.msg || "Failed to load loan application");
@@ -329,6 +329,7 @@ const UserLoanApplication = () => {
       const res = await updateLoanApplicationStatusApi(application._id, { status, adminNotes });
       if (res.success) {
         toast.success(res.msg || `Application ${status}`);
+        clearLoanCache(id);
         loadData();
       } else {
         toast.error(res.msg || "Failed to update status");
@@ -352,6 +353,7 @@ const UserLoanApplication = () => {
       const res = await deleteLoanApplicationApi(application._id);
       if (res.success) {
         toast.success(res.msg || "Loan application deleted");
+        writeLoanCache(id, null);
         setApplication(null);
         setAdminNotes("");
         setisDisable(false);
@@ -408,18 +410,18 @@ const UserLoanApplication = () => {
   };
 
   return (
-    <AdminShell><div className={`admin ${ui.page}`}>
-      <div className="bg-muted-100 pb-20 dark:bg-muted-900">
-        <SideBar state={Active} toggle={toggleBar} />
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="User Management" />
+    <MemberShell embedded={embedded}><div className={embedded ? ui.page : `admin ${ui.page}`}>
+      <div className={embedded ? undefined : "bg-muted-100 pb-20 dark:bg-muted-900"}>
+        {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+        <div className={embedded ? undefined : "relative min-h-screen w-full overflow-x-hidden bg-muted-100 px-4 transition-all duration-300 dark:bg-muted-900 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+          <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
+            {!embedded && <AdminHeader toggle={toggleBar} pageName="User Management" />}
 
-            <div className="min-h-screen overflow-hidden pt-2">
-              <div className={su.frame}>
-                <UserSideBar userid={id} />
+            <div className={embedded ? undefined : "min-h-screen overflow-hidden pt-2"}>
+              <div className={embedded ? undefined : su.frame}>
+                {!embedded && <UserSideBar userid={id} />}
 
-                <div className={su.main}>
+                <div className={embedded ? undefined : su.main}>
                   <div className="space-y-6">
                     <div className={ui.panel}>
                       <div className={ui.sectionHead}>
@@ -567,7 +569,7 @@ const UserLoanApplication = () => {
         </div>
       </div>
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

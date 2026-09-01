@@ -412,7 +412,7 @@ const UserCard = React.memo(({
         title={
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1, pr: 9 }}>
             <Link
-              to={`/admin/users/${user._id}/verifications`}
+              to={`/admin/users/${user._id}?tab=compliance`}
               className={`hui-chip hui-chip--${kycStatus.key}${selectable ? " hui-chip--selectable" : ""}`}
               title={kycStatus.label}
             >
@@ -567,7 +567,7 @@ const UserCard = React.memo(({
           <Box sx={{ display: 'flex', gap: 1, width: '100%', flexWrap: 'wrap' }}>
             <Button
               component={Link}
-              to={isSubadminViewer ? `/admin/users/${user._id}/assets` : `/admin/user/${user._id}/general`}
+              to={isSubadminViewer ? `/admin/users/${user._id}?tab=assets` : `/admin/users/${user._id}`}
               variant="contained"
               startIcon={<ManageIcon />}
               size="small"
@@ -592,7 +592,7 @@ const UserCard = React.memo(({
             {isSubadminViewer && canViewClientDetails && (
               <Button
                 component={Link}
-                to={`/admin/user/${user._id}/general`}
+                to={`/admin/users/${user._id}`}
                 variant="outlined"
                 startIcon={<VisibilityIcon />}
                 size="small"
@@ -619,7 +619,7 @@ const UserCard = React.memo(({
             {isSubadminViewer && canViewClientDetails && canEditClientProfile && (
               <Button
                 component={Link}
-                to={`/admin/user/${user._id}/general?edit=1`}
+                to={`/admin/users/${user._id}?tab=overview&edit=1`}
                 variant="outlined"
                 startIcon={<EditIcon />}
                 size="small"

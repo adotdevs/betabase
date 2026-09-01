@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AdminShell from "../theme/AdminShell";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import AdminHeader from "../adminHeader";
@@ -14,8 +13,9 @@ import './styleNew.css'
 import UserSideBar from "./UserSideBar";
 import su from "./SingleUserLayout.module.css";
 import st from "./UserStaking.module.css";
+import MemberShell from "./hub/MemberShell";
 
-const StakingSettings = () => {
+const StakingSettings = ({ embedded = false }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [stakingSettings, setStakingSettings] = useState({
@@ -180,37 +180,37 @@ const patchCoins = async () => {
 
     if (isLoading) {
         return (
-            <AdminShell><div className="admin">
-                <div className="bg-muted-100 dark:bg-muted-900 pb-20">
-                    <SideBar state={Active} toggle={toggleBar} />
-                    <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-                        <AdminHeader toggle={toggleBar} pageName="Staking Settings" />
-                        <div className={su.frame}>
-                          <UserSideBar userid={id} />
-                          <div className={su.main}>
+            <MemberShell embedded={embedded}><div className={embedded ? undefined : "admin"}>
+                <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 pb-20"}>
+                    {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+                    <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+                        {!embedded && <AdminHeader toggle={toggleBar} pageName="Staking Settings" />}
+                        <div className={embedded ? undefined : su.frame}>
+                          {!embedded && <UserSideBar userid={id} />}
+                          <div className={embedded ? undefined : su.main}>
                             <AdminSkeleton variant="cards" rows={6} />
                           </div>
                         </div>
                     </div>
                 </div>
             </div>
-            </AdminShell>
+            </MemberShell>
         );
     }
 
     return (
-    <AdminShell>
-    <div className="admin">
-      <div className="bg-muted-100 dark:bg-muted-900 pb-20">
-    <SideBar state={Active} toggle={toggleBar} />
-        <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-      <AdminHeader toggle={toggleBar} pageName="Staking Settings" />
+    <MemberShell embedded={embedded}>
+    <div className={embedded ? undefined : "admin"}>
+      <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 pb-20"}>
+    {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+        <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+          <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
+      {!embedded && <AdminHeader toggle={toggleBar} pageName="Staking Settings" />}
 
-            <div className={su.frame}>
-          <UserSideBar userid={id} />
+            <div className={embedded ? undefined : su.frame}>
+          {!embedded && <UserSideBar userid={id} />}
 
-              <div className={su.main}>
+              <div className={embedded ? undefined : su.main}>
              <div className={st.actions}>
             <h4 className={st.actionsTitle}>Quick Actions</h4>
               <button
@@ -314,7 +314,7 @@ const patchCoins = async () => {
   </div>
 </div>
 </div>
-    </AdminShell>
+    </MemberShell>
 
     );
 };

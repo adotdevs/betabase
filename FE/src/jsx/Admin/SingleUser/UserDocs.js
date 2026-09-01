@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
@@ -18,7 +17,8 @@ import { toast } from "react-toastify";
 import { FileCard, FullScreen, ImagePreview } from "@files-ui/react";
 import AdminHeader from "../adminHeader";
 import su from "./SingleUserLayout.module.css";
-const UserDocs = () => {
+import MemberShell from "./hub/MemberShell";
+const UserDocs = ({ embedded = false }) => {
   const [isLoading, setisLoading] = useState(false);
   const [allFiles, setallFiles] = useState([]);
   let { id } = useParams();
@@ -179,14 +179,14 @@ const UserDocs = () => {
     // console.log(btcBalance);
   }, []);
   return (
-    <AdminShell><div className="admin">
+    <MemberShell embedded={embedded}><div className={embedded ? undefined : "admin"}>
       <div>
-        <div className="bg-muted-100 dark:bg-muted-900 pb-20">
-          <SideBar state={Active} toggle={toggleBar} />
-          <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="mx-auto w-full max-w-7xl">
+        <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 pb-20"}>
+          {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+          <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+            <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
 
-              <AdminHeader toggle={toggleBar} pageName=" User Documents" />
+              {!embedded && <AdminHeader toggle={toggleBar} pageName=" User Documents" />}
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -207,10 +207,10 @@ const UserDocs = () => {
                 }}
               />
               <seokit />
-              <div className="min-h-screen overflow-hidden">
-                <div className={su.frame}>
-                  <UserSideBar userid={id} />
-                  <div className={su.main}>
+              <div className={embedded ? undefined : "min-h-screen overflow-hidden"}>
+                <div className={embedded ? undefined : su.frame}>
+                  {!embedded && <UserSideBar userid={id} />}
+                  <div className={embedded ? undefined : su.main}>
                     <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md`}>
                       <div className={su.panelHead}>
                         <div>
@@ -342,7 +342,7 @@ const UserDocs = () => {
         <ImagePreview src={imgSrc} />
       </FullScreen>
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
+import { createPortal } from "react-dom";
 import AdminSkeleton from "../theme/AdminSkeleton";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
@@ -22,7 +22,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import AdminHeader from "../adminHeader";
 import su from "./SingleUserLayout.module.css";
-const UserAssets = () => {
+import assetUi from "./UserAssets.module.css";
+import MemberShell from "./hub/MemberShell";
+const UserAssets = ({ embedded = false }) => {
   const [modal1, setModal1] = useState(false);
 
   const [isDisable1, setisDisable1] = useState(false);
@@ -578,14 +580,14 @@ const UserAssets = () => {
   };
 
   return (
-    <AdminShell><div className="admin">
+    <MemberShell embedded={embedded}><div className={embedded ? undefined : "admin"}>
       <div>
-        <div className="bg-muted-100 dark:bg-muted-900 pb-20">
-          <SideBar state={Active} toggle={toggleBar} />
-          <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="mx-auto w-full max-w-7xl">
+        <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 pb-20"}>
+          {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+          <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+            <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
 
-              <AdminHeader toggle={toggleBar} pageName="User Management" />
+              {!embedded && <AdminHeader toggle={toggleBar} pageName="User Management" />}
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -606,9 +608,9 @@ const UserAssets = () => {
                 }}
               />
               <seokit />
-              <div className="min-h-screen overflow-hidden">
+              <div className={embedded ? undefined : "min-h-screen overflow-hidden"}>
                 <div className={su.frame}>
-                  <UserSideBar userid={id} />
+                  {!embedded && <UserSideBar userid={id} />}
                   <div className={su.main}>
                     <div className={`${su.panel} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 rounded-md`}>
                       <div className={su.panelHead}>
@@ -623,9 +625,9 @@ const UserAssets = () => {
                         <AdminSkeleton variant="list" rows={6} />
                       ) : (
                         <div className="pt-6">
-                          <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
+                          <div className={`${assetUi.walletCard} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 px-2 py-6 sm:py-4 first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0`}>
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ flex: "0 1 auto", minWidth: "160px" }} className={`${assetUi.walletMeta} relative flex items-center gap-2 px-2`}>
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block">
                                   currency
                                 </span>
@@ -660,8 +662,8 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
+                              <div className={`kkass ${assetUi.walletSide}`}>
+                                <div className={assetUi.walletBalance}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0">
                                     balance
                                   </span>
@@ -671,7 +673,7 @@ const UserAssets = () => {
                                     ).toFixed(2)} USD)`}
                                   </span>
                                 </div>
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-60">
+                                <div className={assetUi.walletActions}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0">
                                     action
                                   </span>
@@ -752,9 +754,9 @@ const UserAssets = () => {
                             </div>
                           </div>
 
-                          <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
+                          <div className={`${assetUi.walletCard} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 px-2 py-6 sm:py-4 first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0`}>
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ flex: "0 1 auto", minWidth: "160px" }} className={`${assetUi.walletMeta} relative flex items-center gap-2 px-2`}>
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
                                   currency
                                 </span>
@@ -801,8 +803,8 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
+                              <div className={`kkass ${assetUi.walletSide}`}>
+                                <div className={assetUi.walletBalance}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     balance
                                   </span>
@@ -812,7 +814,7 @@ const UserAssets = () => {
                                     ).toFixed(2)} USD)`}
                                   </span>
                                 </div>
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-60">
+                                <div className={assetUi.walletActions}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     action
                                   </span>
@@ -892,9 +894,9 @@ const UserAssets = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 relative px-2 py-6 sm:py-4 top-px first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0">
+                          <div className={`${assetUi.walletCard} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 px-2 py-6 sm:py-4 first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0`}>
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
-                              <div style={{ width: "30%", flexGrow: "0" }} className="relative mb-4 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                              <div style={{ flex: "0 1 auto", minWidth: "160px" }} className={`${assetUi.walletMeta} relative flex items-center gap-2 px-2`}>
                                 <span className="text-muted-400 absolute hidden font-sans text-xs font-medium uppercase sm:-top-10 sm:start-2 sm:block sm:hidden">
                                   currency
                                 </span>
@@ -929,8 +931,8 @@ const UserAssets = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center kkass" >
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-auto">
+                              <div className={`kkass ${assetUi.walletSide}`}>
+                                <div className={assetUi.walletBalance}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     balance
                                   </span>
@@ -940,7 +942,7 @@ const UserAssets = () => {
                                     )} (${usdtBalance.toFixed(2)} USD)`}
                                   </span>
                                 </div>
-                                <div className="relative flex h-8 items-center justify-end px-6 sm:h-10 sm:justify-center sm:px-2 w-full sm:w-60">
+                                <div className={assetUi.walletActions}>
                                   <span className="text-muted-400 absolute start-8 top-1/2 mx-auto -translate-y-1/2 text-center font-sans text-xs font-medium uppercase sm:inset-x-0 sm:-top-10 sm:translate-y-0 sm:hidden">
                                     action
                                   </span>
@@ -1020,7 +1022,7 @@ const UserAssets = () => {
                             </div>
                           </div>
 
-                          <div className="mx-4 mb-1 mt-4 rounded-lg border border-primary-500/30 bg-primary-500/5 px-4 py-3">
+                          <div className={`${assetUi.fiatBanner} rounded-lg border border-primary-500/30 bg-primary-500/5 px-4 py-3`}>
                             <h3 className="font-heading text-sm font-semibold text-muted-800 dark:text-white">
                               Fiat wallets — add / withdraw balance
                             </h3>
@@ -1048,7 +1050,7 @@ const UserAssets = () => {
                               />
                             ))}
 
-                          <div className="mx-4 mb-1 mt-4 px-1">
+                          <div className={`${assetUi.sectionLabel} px-1`}>
                             <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-muted-500 dark:text-muted-400">
                               Additional crypto
                             </h3>
@@ -1240,23 +1242,21 @@ const UserAssets = () => {
                 aria-modal="true"
                 data-headlessui-state="open"
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div hidden />
+                <div className={assetUi.overlay} onMouseDown={closeToggle}>
+                  <div>
                     <div
-                      id="headlessui-dialog-panel-21"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-md"
+                      className={assetUi.dialog}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Update Asset{" "}
+                      <div className={assetUi.head}>
+                        <h3 className={assetUi.title}>
+                          Update Asset
                         </h3>
                         <button
                           type="button"
                           onClick={closeToggle}
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
+                          className={assetUi.close}
                         >
                           <svg
                             aria-hidden="true"
@@ -1339,7 +1339,7 @@ const UserAssets = () => {
                           <div>{/**/}</div>
                         </form>
                       </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
+                      <div className={assetUi.foot}>
                         <div className="p-4 md:p-6">
                           <div className="flex gap-x-2">
                             <button
@@ -1386,23 +1386,21 @@ const UserAssets = () => {
                 aria-modal="true"
                 data-headlessui-state="open"
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div hidden />
+                <div className={assetUi.overlay} onMouseDown={closeToggle}>
+                  <div>
                     <div
-                      id="headlessui-dialog-panel-21"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-md"
+                      className={assetUi.dialog}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Update Asset{" "}
+                      <div className={assetUi.head}>
+                        <h3 className={assetUi.title}>
+                          Update Asset
                         </h3>
                         <button
                           type="button"
                           onClick={closeToggle}
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
+                          className={assetUi.close}
                         >
                           <svg
                             aria-hidden="true"
@@ -1485,7 +1483,7 @@ const UserAssets = () => {
                           <div>{/**/}</div>
                         </form>
                       </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
+                      <div className={assetUi.foot}>
                         <div className="p-4 md:p-6">
                           <div className="flex gap-x-2">
                             <button
@@ -1528,23 +1526,21 @@ const UserAssets = () => {
                 aria-modal="true"
                 data-headlessui-state="open"
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div hidden />
+                <div className={assetUi.overlay} onMouseDown={closeToggle}>
+                  <div>
                     <div
-                      id="headlessui-dialog-panel-21"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-md"
+                      className={assetUi.dialog}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Update Asset{" "}
+                      <div className={assetUi.head}>
+                        <h3 className={assetUi.title}>
+                          Update Asset
                         </h3>
                         <button
                           type="button"
                           onClick={closeToggle}
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
+                          className={assetUi.close}
                         >
                           <svg
                             aria-hidden="true"
@@ -1627,7 +1623,7 @@ const UserAssets = () => {
                           <div>{/**/}</div>
                         </form>
                       </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
+                      <div className={assetUi.foot}>
                         <div className="p-4 md:p-6">
                           <div className="flex gap-x-2">
                             <button
@@ -1670,23 +1666,21 @@ const UserAssets = () => {
                 aria-modal="true"
                 data-headlessui-state="open"
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div hidden />
+                <div className={assetUi.overlay} onMouseDown={closeToggle}>
+                  <div>
                     <div
-                      id="headlessui-dialog-panel-21"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-md"
+                      className={assetUi.dialog}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Update Asset{" "}
+                      <div className={assetUi.head}>
+                        <h3 className={assetUi.title}>
+                          Update Asset
                         </h3>
                         <button
                           type="button"
                           onClick={closeToggle}
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
+                          className={assetUi.close}
                         >
                           <svg
                             aria-hidden="true"
@@ -1769,7 +1763,7 @@ const UserAssets = () => {
                           <div>{/**/}</div>
                         </form>
                       </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
+                      <div className={assetUi.foot}>
                         <div className="p-4 md:p-6">
                           <div className="flex gap-x-2">
                             <button
@@ -1806,50 +1800,35 @@ const UserAssets = () => {
           )}
 
           {/* modal 2 */}
-          {modal2 && (
-            <div>
+          {modal2 && createPortal(
+            <div className={assetUi.overlay} onMouseDown={closeDeposit}>
               <div
-                className="relative z-[9999]"
-                id="headlessui-dialog-33"
+                className={`${assetUi.dialog} ${assetUi.dialogWide}`}
                 role="dialog"
                 aria-modal="true"
-                data-headlessui-state="open"
+                onMouseDown={(e) => e.stopPropagation()}
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
-                    <div
-                      id="headlessui-dialog-panel-36"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-2xl"
-                    >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Create new Deposit
-                        </h3>
-                        <button
-                          onClick={closeDeposit}
-                          type="button"
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            viewBox="0 0 24 24"
-                            className="h-4 w-4 fill-current"
-                          >
-                            <path
-                              fill="none"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M18 6 6 18M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="px-6 py-2">
+                <div className={assetUi.head}>
+                  <h3 className={assetUi.title}>Create new Deposit</h3>
+                  <button
+                    onClick={closeDeposit}
+                    type="button"
+                    className={assetUi.close}
+                    aria-label="Close"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" className={assetUi.closeIcon}>
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M18 6 6 18M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div className={assetUi.body}>
                         <form
                           action
                           method="POST"
@@ -2421,86 +2400,57 @@ const UserAssets = () => {
                           </div>
                           <div>{/**/}</div>
                         </form>
-                      </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
-                        <div className="p-4 md:p-6">
-                          <div className="flex gap-x-2">
-                            <button
-                              onClick={closeDeposit}
-                              data-v-71bb21a6
-                              type="button"
-                              className="is-button rounded is-button-default"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={createTransaction}
-                              data-v-71bb21a6
-                              disabled={isDisable}
-                              type="button"
-                              className="is-button rounded bg-primary-500 dark:bg-primary-500 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-400 text-white hover:enabled:shadow-lg hover:enabled:shadow-primary-500/50 dark:hover:enabled:shadow-primary-800/20 focus-visible:outline-primary-400/70 focus-within:outline-primary-400/70 focus-visible:bg-primary-500 active:enabled:bg-primary-500 dark:focus-visible:outline-primary-400 dark:focus-within:outline-primary-400 dark:focus-visible:bg-primary-500 dark:active:enabled:bg-primary-500"
-                            >
-                              {isDisable ? (
-                                <div>
-                                  <div className="nui-placeload animate-nui-placeload h-4 w-8 rounded mx-auto"></div>
-                                </div>
-                              ) : (
-                                "Create"
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                </div>
+                <div className={assetUi.foot}>
+                  <button
+                    onClick={closeDeposit}
+                    type="button"
+                    className={assetUi.btnGhost}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={createTransaction}
+                    disabled={isDisable}
+                    type="button"
+                    className={assetUi.btnPrimary}
+                  >
+                    {isDisable ? "Creating..." : "Create"}
+                  </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
-          {modal3 && (
-            <div>
+          {modal3 && createPortal(
+            <div className={assetUi.overlay} onMouseDown={closeDeposit}>
               <div
-                className="relative z-[9999]"
-                id="headlessui-dialog-33"
+                className={`${assetUi.dialog} ${assetUi.dialogWide}`}
                 role="dialog"
                 aria-modal="true"
-                data-headlessui-state="open"
+                onMouseDown={(e) => e.stopPropagation()}
               >
-                <div className="bg-muted-800/70 dark:bg-muted-900/80 fixed inset-0" />
-                <div className="fixed inset-0 overflow-x-auto">
-                  <div className="flex min-h-full items-center justify-center p-4 text-center">
-                    <div
-                      id="headlessui-dialog-panel-36"
-                      data-headlessui-state="open"
-                      className="dark:bg-muted-800 w-full bg-white text-left align-middle shadow-xl transition-all rounded-lg max-w-2xl"
-                    >
-                      <div className="flex w-full items-center justify-between px-6 py-4">
-                        <h3 className="font-heading text-muted-900 text-lg font-medium leading-6 dark:text-white">
-                          {" "}
-                          Create new Withdrawal
-                        </h3>
-                        <button
-                          onClick={closeDeposit}
-                          type="button"
-                          className="flex h-9 w-9 items-center justify-center transition-colors duration-300 disabled:opacity-30 hover:bg-muted-100 dark:hover:bg-muted-700 text-muted-700 dark:text-muted-50 rounded-full"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            viewBox="0 0 24 24"
-                            className="h-4 w-4 fill-current"
-                          >
-                            <path
-                              fill="none"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M18 6 6 18M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="px-6 py-2">
+                <div className={assetUi.head}>
+                  <h3 className={assetUi.title}>Create new Withdrawal</h3>
+                  <button
+                    onClick={closeDeposit}
+                    type="button"
+                    className={assetUi.close}
+                    aria-label="Close"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" className={assetUi.closeIcon}>
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M18 6 6 18M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div className={assetUi.body}>
                         <form
                           action
                           method="POST"
@@ -3073,46 +3023,32 @@ const UserAssets = () => {
                           </div>
                           <div>{/**/}</div>
                         </form>
-                      </div>
-                      <div className="flex w-full items-center gap-x-2 justify-end">
-                        <div className="p-4 md:p-6">
-                          <div className="flex gap-x-2">
-                            <button
-                              onClick={closeDeposit}
-                              data-v-71bb21a6
-                              type="button"
-                              className="is-button rounded is-button-default"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={createTransaction}
-                              data-v-71bb21a6
-                              disabled={isDisable}
-                              type="button"
-                              className="is-button rounded bg-primary-500 dark:bg-primary-500 hover:enabled:bg-primary-400 dark:hover:enabled:bg-primary-400 text-white hover:enabled:shadow-lg hover:enabled:shadow-primary-500/50 dark:hover:enabled:shadow-primary-800/20 focus-visible:outline-primary-400/70 focus-within:outline-primary-400/70 focus-visible:bg-primary-500 active:enabled:bg-primary-500 dark:focus-visible:outline-primary-400 dark:focus-within:outline-primary-400 dark:focus-visible:bg-primary-500 dark:active:enabled:bg-primary-500"
-                            >
-                              {isDisable ? (
-                                <div>
-                                  <div className="nui-placeload animate-nui-placeload h-4 w-8 rounded mx-auto"></div>
-                                </div>
-                              ) : (
-                                "Create"
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                </div>
+                <div className={assetUi.foot}>
+                  <button
+                    onClick={closeDeposit}
+                    type="button"
+                    className={assetUi.btnGhost}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={createTransaction}
+                    disabled={isDisable}
+                    type="button"
+                    className={assetUi.btnPrimary}
+                  >
+                    {isDisable ? "Creating..." : "Create"}
+                  </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </div>
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
  

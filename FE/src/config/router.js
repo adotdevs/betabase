@@ -29,26 +29,18 @@ import Transactions from "../jsx/pages/user/Transactions";
 import Supportpg from "../jsx/pages/user/Support";
 import Kyc from "../jsx/pages/user/Kyc";
 import ApplyLoan from "../jsx/pages/user/ApplyLoan";
-import UserLoanApplication from "../jsx/Admin/SingleUser/UserLoanApplication";
-import UserBankAccounts from "../jsx/Admin/SingleUser/UserBankAccounts";
-import UserCryptoCard from "../jsx/Admin/SingleUser/UserCryptoCard";
 import AdminLoanApplications from "../jsx/Admin/AdminLoanApplications";
 import EmailVerify from "../jsx/pages/EmailVerify";
-import UserVerifications from "../jsx/Admin/SingleUser/UserVerificatons";
 import UserStocks from "../jsx/Admin/SingleUser/userStocks";
 import AdminDashboard from "../jsx/Admin/Dashboard";
 import PendingTransactions from "../jsx/Admin/pendingTransactions";
 import AdminTickets from "../jsx/Admin/AdminTicktes";
 import AdminUsers from "../jsx/Admin/AdminUsers.js";
-import General from "../jsx/Admin/SingleUser/Generalmain.js";
-import UserAssets from "../jsx/Admin/SingleUser/UserAssets";
-import UserTransactions from "../jsx/Admin/SingleUser/UserTransactions";
 import AdminProfile from "../jsx/Admin/adminProfile";
 import TicketDetails from "../jsx/Admin/TicketDetails";
 import SupportTickets from "../jsx/Admin/SupportTickets";
 import FileUpload from "../jsx/Admin/fileUpload";
 import AddUser from "../jsx/Admin/AddUser";
-import UserDocs from "../jsx/Admin/SingleUser/UserDocs";
 // import UseApplyBodyStyles from "./hookUpdate.js";
 import CreateTicketpg from "../jsx/pages/user/createTicketpg.js";
 import AllTicket from "../jsx/pages/user/AllTicket.js";
@@ -62,12 +54,12 @@ import SubAdminUsers from "../jsx/Admin/SubAdminUsers.js";
 
 import AiTradingBot from "../jsx/pages/user/AiTradingBot.js";
 import UserLinks from "../jsx/Admin/UserLinks.js";
-import UserStaking from "../jsx/Admin/SingleUser/userStaking.js";
 import AddAdmin from "../jsx/Admin/AddAdmin.js";
 import AdminManagement from "../jsx/Admin/AdminManagement.js";
 import AdminErrorLogs from "../jsx/Admin/errorLogs.js";
 import AdminPermissions from "../jsx/Admin/SingleUser/AdminPermissions.js";
-import UserTokens from "../jsx/Admin/SingleUser/userTokens.js";
+import MemberHub from "../jsx/Admin/SingleUser/hub/MemberHub";
+import HubRedirect from "../jsx/Admin/SingleUser/hub/HubRedirect";
 import Tokens from "../jsx/pages/user/Tokens.js";
 import axiosService from "../Api/axiosService.js";
 import UserOnlineStatus from "./userOnlineStatus.js";
@@ -959,11 +951,21 @@ export default function Router() {
             }
           />
           <Route
+            path="/admin/users/:id"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <MemberHub />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/admin/user/:id/general"
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <General />
+                  <HubRedirect tab="overview" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -973,7 +975,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserDocs />
+                  <HubRedirect tab="compliance" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -983,7 +985,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserAssets />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -993,7 +995,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserTransactions />
+                  <HubRedirect tab="transactions" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1003,7 +1005,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserVerifications />
+                  <HubRedirect tab="compliance" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1013,7 +1015,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserLoanApplication />
+                  <HubRedirect tab="compliance" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1023,7 +1025,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserCryptoCard />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1033,7 +1035,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserBankAccounts />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1043,7 +1045,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserBankAccounts />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1053,7 +1055,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserBankAccounts />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1063,7 +1065,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserBankAccounts />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1073,7 +1075,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserBankAccounts />
+                  <HubRedirect tab="assets" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1103,7 +1105,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserTokens />
+                  <HubRedirect tab="portfolio" />
                 </RequireWalletAccess>
               </RequireAuth>
             }
@@ -1113,7 +1115,7 @@ export default function Router() {
             element={
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
-                  <UserStaking />
+                  <HubRedirect tab="portfolio" />
                 </RequireWalletAccess>
               </RequireAuth>
             }

@@ -50,8 +50,7 @@ const AdminProfile = () => {
       // Only fetch if we need fresh data, otherwise use authUser data
       const currentUser = authUser().user;
       
-      // For admin role, check permissions first
-      if (currentUser.role === 'admin') {
+      if (currentUser.role === "admin" || currentUser.role === "subadmin") {
         const signleUser = await signleUsersApi(currentUser._id);
         if (signleUser.success) {
           if (signleUser.signleUser.adminPermissions?.isProfileUpdate === false) {

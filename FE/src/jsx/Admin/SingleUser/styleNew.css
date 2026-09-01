@@ -1,12 +1,18 @@
 .kkass {
-    width: 70% !important;
-    justify-content: space-between !important;
+    display: flex !important;
+    width: auto !important;
+    flex: 1 1 260px !important;
+    min-width: 0 !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 10px 12px !important;
 }
 
 @media (max-width:768px) {
     .kkass {
         width: 100% !important;
-        justify-content: space-between !important;
+        justify-content: flex-end !important;
     }
 }
 

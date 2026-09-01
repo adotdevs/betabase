@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import AdminHeader from "../adminHeader";
@@ -11,8 +10,9 @@ import su from "./SingleUserLayout.module.css";
 import euroStyles from "./UserEuroAccount.module.css";
 import box from "./UserBankAccounts.module.css";
 import "./style.css";
+import MemberShell from "./hub/MemberShell";
 
-const UserBankAccounts = () => {
+const UserBankAccounts = ({ embedded = false }) => {
   const { id } = useParams();
   const [Active, setActive] = useState(false);
   const [userName, setUserName] = useState("");
@@ -37,8 +37,33 @@ const UserBankAccounts = () => {
     };
   }, [id]);
 
+  const accounts = (
+    <div className={`${embedded ? "" : su.main} ${euroStyles.euroAccountPage}`}>
+      <div className={euroStyles.heroCard}>
+        <h1 className={euroStyles.heroTitle}>Bank Accounts</h1>
+        <p className={euroStyles.heroSubtitle}>
+          Manage EUR, USD, CHF, and DKK bank details for {userName || "this user"} in one place. Only filled fields appear on the member dashboard.
+        </p>
+      </div>
+      <div className={box.grid}>
+        {FIAT_CURRENCIES.map((fiat) => (
+          <UserFiatBankAccount
+            key={fiat.key}
+            fiatKey={fiat.key}
+            embedded
+            userName={userName}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  if (embedded) {
+    return accounts;
+  }
+
   return (
-    <AdminShell>
+    <MemberShell>
       <div className="admin">
         <div className="bg-muted-100 pb-20 dark:bg-muted-900">
           <SideBar state={Active} toggle={toggleBar} />
@@ -48,31 +73,14 @@ const UserBankAccounts = () => {
               <div className="min-h-screen overflow-hidden pt-2">
                 <div className={su.frame}>
                   <UserSideBar userid={id} />
-                  <div className={`${su.main} ${euroStyles.euroAccountPage}`}>
-                    <div className={euroStyles.heroCard}>
-                      <h1 className={euroStyles.heroTitle}>Bank Accounts</h1>
-                      <p className={euroStyles.heroSubtitle}>
-                        Manage EUR, USD, CHF, and DKK bank details for {userName || "this user"} in one place. Only filled fields appear on the member dashboard.
-                      </p>
-                    </div>
-                    <div className={box.grid}>
-                      {FIAT_CURRENCIES.map((fiat) => (
-                        <UserFiatBankAccount
-                          key={fiat.key}
-                          fiatKey={fiat.key}
-                          embedded
-                          userName={userName}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                  {accounts}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

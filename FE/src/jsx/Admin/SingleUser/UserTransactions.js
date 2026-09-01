@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -29,6 +28,7 @@ import AdminTransactionList from "../assets/AdminTransactionList";
 import { buildAdminPriceMap } from "../assets/adminTxDisplay";
 import styles from "../assets/AdminTransactions.module.css";
 import su from "./SingleUserLayout.module.css";
+import MemberShell from "./hub/MemberShell";
 import { matchesTransactionFilter } from "../assets/transactionFilterUtils";
 import {
   buildAdminTransactionUpdateBody,
@@ -36,7 +36,7 @@ import {
   timestampFromDate,
   validateAdminTransactionEdit,
 } from "../assets/adminTransactionEdit";
-const UserTransactions = () => {
+const UserTransactions = ({ embedded = false }) => {
   const [modal, setModal] = useState(false);
   const [isLoading, setisLoading] = useState(true);
   const [UserTransactions, setUserTransactions] = useState([]);
@@ -431,14 +431,14 @@ const UserTransactions = () => {
     }, []);
   // Copy
   return (
-    <AdminShell><div className={`admin ${styles.page}`}>
+    <MemberShell embedded={embedded}><div className={embedded ? styles.page : `admin ${styles.page}`}>
       <div>
-        <div className="bg-muted-100 dark:bg-muted-900 min-h-screen pb-20">
-          <SideBar state={Active} toggle={toggleBar} />
-          <div className="admin-tx admin-tx-page relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="admin-tx-shell mx-auto w-full max-w-7xl">
+        <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 min-h-screen pb-20"}>
+          {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+          <div className={embedded ? "admin-tx" : "admin-tx admin-tx-page relative min-h-screen w-full px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+            <div className={embedded ? undefined : "admin-tx-shell mx-auto w-full max-w-7xl"}>
 
-              <AdminHeader toggle={toggleBar} pageName="User Management" />
+              {!embedded && <AdminHeader toggle={toggleBar} pageName="User Management" />}
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -459,9 +459,9 @@ const UserTransactions = () => {
                 }}
               />
               <seokit />
-              <div className={`admin-tx-user-grid ${su.frame}`}>
-                  <UserSideBar userid={id} />
-                  <div className={`admin-tx-user-col ${su.main}`}>
+              <div className={embedded ? "admin-tx-user-grid" : `admin-tx-user-grid ${su.frame}`}>
+                  {!embedded && <UserSideBar userid={id} />}
+                  <div className={embedded ? "admin-tx-user-col" : `admin-tx-user-col ${su.main}`}>
                     <div className="admin-tx-sticky">
                       <div className={`admin-tx-toolbar ${styles.toolbar}`}>
                         <TxFilterPills
@@ -1658,7 +1658,7 @@ const UserTransactions = () => {
 
       {/* Modal 1 */}
     </div>
-    </AdminShell>
+    </MemberShell>
   );
 };
 

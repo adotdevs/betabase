@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminShell from "../theme/AdminShell";
 import SideBar from "../../layouts/AdminSidebar/Sidebar";
 import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
@@ -12,7 +11,8 @@ import ReactQuill from "react-quill";
 import './style.css'
 import AdminHeader from "../adminHeader";
 import su from "./SingleUserLayout.module.css";
-const General = () => {
+import MemberShell from "./hub/MemberShell";
+const General = ({ embedded = false }) => {
   //
 
   let authUser = useAuthUser();
@@ -133,7 +133,7 @@ const General = () => {
 
           if (!canView) {
             toast.error("You do not have permission to view client personal details");
-            Navigate(`/admin/users/${id}/assets`);
+            Navigate(`/admin/users/${id}?tab=assets`);
             return false;
           }
 
@@ -240,16 +240,16 @@ const General = () => {
     patchCoins()
   }, []);
   return (
-    <AdminShell>
+    <MemberShell embedded={embedded}>
     <>
       <div className="">
-        <div className="bg-muted-100 dark:bg-muted-900 pb-20">
+        <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 pb-20"}>
 
-          <SideBar state={Active} toggle={toggleBar} />
-          <div className="bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-            <div className="mx-auto w-full max-w-7xl">
+          {!embedded && <SideBar state={Active} toggle={toggleBar} />}
+          <div className={embedded ? undefined : "bg-muted-100 dark:bg-muted-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]"}>
+            <div className={embedded ? undefined : "mx-auto w-full max-w-7xl"}>
 
-              <AdminHeader toggle={toggleBar} pageName="Member  Management" />
+              {!embedded && <AdminHeader toggle={toggleBar} pageName="Member  Management" />}
               <div
                 className="nuxt-loading-indicator"
                 style={{
@@ -270,10 +270,10 @@ const General = () => {
                 }}
               />
               <seokit />
-              <div className="admin">
-                <div className="min-h-screen overflow-hidden">
-                  <div className={su.frame}>
-                    {userData.role === "admin" || userData.role === "subadmin" ? "" : <UserSideBar userid={id} />}
+              <div className={embedded ? undefined : "admin"}>
+                <div className={embedded ? undefined : "min-h-screen overflow-hidden"}>
+                  <div className={embedded ? undefined : su.frame}>
+                    {!embedded && userData.role !== "admin" && userData.role !== "subadmin" ? <UserSideBar userid={id} /> : null}
 
                     <div className={su.main}>
                       <form method="POST" action className="w-full ">
@@ -1062,7 +1062,7 @@ const General = () => {
         </div >
       </div >
     </>
-    </AdminShell>
+    </MemberShell>
   );
 };
 
