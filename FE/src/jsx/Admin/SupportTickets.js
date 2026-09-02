@@ -7,6 +7,7 @@ import { adminTicketsApi, signleUsersApi, deleteTicketApi, updateTicketStatusApi
 import { toast } from 'react-toastify';
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import AdminHeader from "./adminHeader";
+import ui from "./theme/AdminUI.module.css";
 import {
   Box,
   Card,
@@ -277,13 +278,13 @@ const AllTicket = () => {
     }, []);
 
     return (
-        <AdminShell><div className="admin dark-new-ui">
-            <div className="bg-gray-900 min-h-screen">
-                <SideBar state={Active} toggle={toggleBar} />
-                
-                <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-                    <div className="mx-auto w-full max-w-7xl">
-                        <AdminHeader toggle={toggleBar} pageName="Support Tickets" />
+        <AdminShell open={Active} onClose={toggleBar}>
+            <div>
+                <div className="min-h-screen pb-20">
+                    <SideBar state={Active} toggle={toggleBar} />
+                    <div className={ui.main}>
+                        <div className={ui.content}>
+                            <AdminHeader toggle={toggleBar} pageName="Support Tickets" />
 
             {isLoading ? (
                             <Box sx={{ width: '100%', p: 4 }}>
@@ -672,7 +673,7 @@ const AllTicket = () => {
                     </DialogActions>
                 </Dialog>
             </div>
-                </div>
+        </div>
     </AdminShell>
     );
 };

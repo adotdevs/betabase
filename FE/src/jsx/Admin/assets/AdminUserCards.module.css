@@ -78,8 +78,23 @@
 }
 
 :global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-body2),
-:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-caption) {
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiTypography-caption:not(.onlineStatusText)) {
   color: var(--admin-text-secondary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.onlineStatusText) {
+  color: #16a34a !important;
+  -webkit-text-fill-color: #16a34a !important;
+  font-weight: 650 !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .hui-assign-btn,
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .hui-assign-btn *,
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .hui-assign-btn :global(.MuiButton-startIcon),
+:global(html[data-admin-ui="on"][data-admin-theme="light"]) .hui-assign-btn :global(.MuiSvgIcon-root) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  fill: #ffffff !important;
 }
 
 :global(html[data-admin-ui="on"][data-admin-theme="light"]) .card :global(.MuiCardHeader-root .MuiSvgIcon-root) {

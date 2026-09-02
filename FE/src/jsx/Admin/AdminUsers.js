@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import AdminShell from "./theme/AdminShell";
 import AdminSkeleton from "./theme/AdminSkeleton";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
-import { FiberManualRecord as DotIcon } from '@mui/icons-material';
 
 import Log from "../../assets/images/img/log.jpg";
 import {
@@ -93,9 +92,8 @@ const UsersPager = ({ page, limit, total, pages, onChange, tone = "verified", pl
   const end = Math.min(page * limit, total);
   return (
     <div
-      className={`${usersStyles.bar} ${placement === "top" ? usersStyles.barTop : usersStyles.barBottom} ${
-        tone === "unverified" ? usersStyles.barUnverified : usersStyles.barVerified
-      }`}
+      className={`${usersStyles.bar} ${placement === "top" ? usersStyles.barTop : usersStyles.barBottom} ${tone === "unverified" ? usersStyles.barUnverified : usersStyles.barVerified
+        }`}
     >
       <p className={usersStyles.meta}>
         Showing <span className={usersStyles.num}>{start}–{end}</span> of{" "}
@@ -420,47 +418,58 @@ const UserCard = React.memo(({
               {kycStatus.label}
             </Link>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-            <Typography variant="h6" fontWeight="700" sx={{
-              background: 'linear-gradient(45deg, #64b5f6, #42a5f5)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              {user.firstName} {user.lastName}
-            </Typography>
-            {user.online ? (
-              <div style={{
-                color: 'green', backgroundColor: "green", width: "8px", height: "8px", borderRadius: "50%"
-                , boxShadow: '0 0 8px rgba(76, 175, 80, 0.7)', animation: 'pulse 2s infinite green'
-              }}
-              >
-              </div>
-            ) : ""}
+              <Typography variant="h6" fontWeight="700" sx={{
+                background: 'linear-gradient(45deg, #64b5f6, #42a5f5)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                {user.firstName} {user.lastName}
+              </Typography>
+              {user.online ? (
+                <Box
+                  component="span"
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: '#22c55e',
+                    boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.25), 0 0 6px #22c55e',
+                    animation: 'adminOnlinePulse 2s ease-in-out infinite',
+                    display: 'inline-block',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : null}
             </Box>
           </Box>
         }
         subheader={
-          <Box Box sx={{ mt: 1 }}>
+          <Box sx={{ mt: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <EmailIcon sx={{ fontSize: 16, mr: 1, color: 'grey.400' }} />
               <Typography variant="body2" color="grey.400" noWrap>
                 {user.email}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <CalendarIcon sx={{ fontSize: 14, mr: 1, color: 'grey.500' }} />
               <Typography variant="caption" color="grey.500">
                 Joined {new Date(user.createdAt).toLocaleDateString()}
               </Typography>
             </Box>
-            {user.online ?
-              <OnlineStatus isOnline={user.online || null} /> :
-
-              <Typography style={{ display: 'flex' }} variant="caption" color="grey.500">
-
-                Last Online:<OnlineStatus isOnline={user.online || null} lastOnline={user.lastOnline || null} />
-              </Typography>
-            }
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {user.online ? (
+                <OnlineStatus isOnline={user.online} />
+              ) : (
+                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="caption" color="grey.500">
+                    Last Online:
+                  </Typography>
+                  <OnlineStatus isOnline={false} lastOnline={user.lastOnline || null} />
+                </Box>
+              )}
+            </Box>
             {
               openedTicketsCount > 0 && (
                 <Chip
@@ -702,8 +711,8 @@ const UserCard = React.memo(({
             {canAssign && (
               <Button
                 className="hui-assign-btn"
-                variant="outlined"
-                startIcon={<PersonAddIcon />}
+                variant="contained"
+                startIcon={<PersonAddIcon sx={{ color: '#ffffff !important', fill: '#ffffff !important' }} />}
                 size="small"
                 disabled={Boolean(user.isShared)}
                 onClick={() => onAssign?.(user)}
@@ -715,10 +724,17 @@ const UserCard = React.memo(({
                   fontWeight: '600',
                   py: 1,
                   minHeight: '40px',
+                  backgroundColor: 'var(--admin-accent, #2563eb) !important',
+                  borderColor: 'var(--admin-accent, #2563eb) !important',
                   color: '#ffffff !important',
-                  borderColor: '#42a5f5 !important',
-                  '& .MuiButton-startIcon, & .MuiButton-startIcon *': {
+                  WebkitTextFillColor: '#ffffff !important',
+                  '&, & *, & .MuiButton-startIcon, & .MuiSvgIcon-root': {
                     color: '#ffffff !important',
+                    WebkitTextFillColor: '#ffffff !important',
+                    fill: '#ffffff !important',
+                  },
+                  '&:hover': {
+                    backgroundColor: 'var(--admin-accent-hover, #1d4ed8) !important',
                   },
                 }}
               >
@@ -745,21 +761,21 @@ const UserCard = React.memo(({
                   minHeight: '40px',
                   ...(user.isComplianceRestricted
                     ? {
-                        backgroundColor: 'success.dark',
-                        color: 'white',
-                        '&:hover': { backgroundColor: 'success.main', color:"white" },
-                      }
+                      backgroundColor: 'success.dark',
+                      color: 'white',
+                      '&:hover': { backgroundColor: 'success.main', color: "white" },
+                    }
                     : {
+                      borderWidth: 2,
+                      borderColor: '#8b0000',
+                      color: '#ef9a9a',
+                      '&:hover': {
                         borderWidth: 2,
-                        borderColor: '#8b0000',
-                        color: '#ef9a9a',
-                        '&:hover': {
-                          borderWidth: 2,
-                          backgroundColor: 'rgba(139, 0, 0, 0.2)',
-                          borderColor: '#ef5350',
-                          color:"white"
-                        },
-                      }),
+                        backgroundColor: 'rgba(139, 0, 0, 0.2)',
+                        borderColor: '#ef5350',
+                        color: "white"
+                      },
+                    }),
                 }}
               >
                 {user.isComplianceRestricted ? 'Remove Restriction' : 'Restrict Account'}
@@ -845,23 +861,44 @@ const formatLastOnline = (lastOnline) => {
 
 // Online Status Indicator Component
 const OnlineStatus = ({ isOnline, lastOnline }) => {
+  const online = isOnline === true || isOnline === "true";
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      <DotIcon
+    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, marginLeft: '5px' }}>
+      <Box
+        component="span"
         sx={{
-          fontSize: 12,
-          color: isOnline ? 'success.main' : 'grey.500',
-          filter: isOnline ? 'drop-shadow(0 0 4px rgba(76, 175, 80, 0.5))' : 'none'
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          bgcolor: online ? '#22c55e' : 'grey.500',
+          boxShadow: online
+            ? '0 0 0 2px rgba(34, 197, 94, 0.25), 0 0 6px #22c55e'
+            : 'none',
+          animation: online ? 'adminOnlinePulse 2s ease-in-out infinite' : 'none',
+          '@keyframes adminOnlinePulse': {
+            '0%, 100%': {
+              boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.3), 0 0 6px #22c55e',
+            },
+            '50%': {
+              boxShadow: '0 0 0 3.5px rgba(34, 197, 94, 0.15), 0 0 9px #22c55e',
+            },
+          },
+          display: 'inline-block',
+          flexShrink: 0,
         }}
       />
       <Typography
         variant="caption"
+        className={online ? "onlineStatusText" : undefined}
         sx={{
-          color: isOnline ? 'success.main' : 'grey.500',
-          fontWeight: isOnline ? 600 : 400
+          color: online ? '#16a34a !important' : 'grey.500',
+          WebkitTextFillColor: online ? '#16a34a !important' : undefined,
+          fontWeight: online ? 650 : 400,
+          letterSpacing: '0.01em',
         }}
       >
-        {isOnline ? 'Online' : formatLastOnline(lastOnline)}
+        {online ? 'Online' : formatLastOnline(lastOnline)}
       </Typography>
     </Box>
   );
@@ -1029,7 +1066,7 @@ const AdminUsers = () => {
     try {
       setLoadingUsers(true);
       const currentUser = currentAuthUser.user;
-      
+
       // For subadmin, fetch all (frontend filtering)
       if (isSubadmin) {
         const allUsers = await allUsersApi({});
@@ -1654,323 +1691,287 @@ const AdminUsers = () => {
 
   return (
     <AdminShell>
-    <div className="admin dark-new-ui">
-      <div className="bg-gray-900 min-h-screen">
-        <SideBar state={active} toggle={toggleBar} />
-        <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="Users Management" />
+      <div className="admin dark-new-ui">
+        <div className="bg-gray-900 min-h-screen">
+          <SideBar state={active} toggle={toggleBar} />
+          <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
+            <div className="mx-auto w-full max-w-7xl">
+              <AdminHeader toggle={toggleBar} pageName="Users Management" />
 
-            <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
-              {/* Stats Cards Row */}
-              <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <Card sx={{ 
-                    background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%)',
-                    border: '1px solid rgba(66, 165, 245, 0.2)',
-                    transition: 'transform 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' }
-                  }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
-                            Verified Users
-                          </Typography>
-                          <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
-                            {pagination.total}
-                          </Typography>
+              <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
+                {/* Stats Cards Row */}
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card sx={{
+                      background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%)',
+                      border: '1px solid rgba(66, 165, 245, 0.2)',
+                      transition: 'transform 0.2s',
+                      '&:hover': { transform: 'translateY(-4px)' }
+                    }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+                              Verified Users
+                            </Typography>
+                            <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
+                              {pagination.total}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(76, 175, 80, 0.2)' }}>
+                            <VerifiedIcon sx={{ fontSize: 32, color: 'success.light' }} />
+                          </Avatar>
                         </Box>
-                        <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(76, 175, 80, 0.2)' }}>
-                          <VerifiedIcon sx={{ fontSize: 32, color: 'success.light' }} />
-                        </Avatar>
-                      </Box>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card sx={{
+                      background: 'linear-gradient(135deg, #5f3a1e 0%, #8c5a2d 100%)',
+                      border: '1px solid rgba(255, 167, 38, 0.2)',
+                      transition: 'transform 0.2s',
+                      '&:hover': { transform: 'translateY(-4px)' }
+                    }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+                              Unverified Users
+                            </Typography>
+                            <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
+                              {unverifiedPagination.total}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(255, 152, 0, 0.2)' }}>
+                            <WarningIcon sx={{ fontSize: 32, color: 'warning.light' }} />
+                          </Avatar>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card sx={{
+                      background: 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'transform 0.2s',
+                      '&:hover': { transform: 'translateY(-4px)' }
+                    }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+                              Total Users
+                            </Typography>
+                            <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
+                              {pagination.total + unverifiedPagination.total}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(33, 150, 243, 0.2)' }}>
+                            <PersonIcon sx={{ fontSize: 32, color: 'primary.light' }} />
+                          </Avatar>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card sx={{
+                      background: loadingUsers
+                        ? 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%)'
+                        : searchQuery
+                          ? 'linear-gradient(135deg, #1e5f3a 0%, #2d8c5a 100%)'
+                          : 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'all 0.3s',
+                      '&:hover': { transform: 'translateY(-4px)' }
+                    }}>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+                              {loadingUsers ? 'Loading...' : searchQuery ? 'Active Search' : 'Status'}
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              fontWeight="600"
+                              sx={{
+                                color: 'white',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {loadingUsers ? 'Please wait' : searchQuery ? `"${searchQuery}"` : 'Ready'}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{
+                            width: 56,
+                            height: 56,
+                            bgcolor: loadingUsers ? 'rgba(33, 150, 243, 0.2)' : searchQuery ? 'rgba(76, 175, 80, 0.2)' : 'rgba(158, 158, 158, 0.2)'
+                          }}>
+                            {loadingUsers ? (
+                              <Box sx={{
+                                width: 32,
+                                height: 32,
+                                border: '3px solid rgba(255,255,255,0.3)',
+                                borderTopColor: 'white',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                '@keyframes spin': {
+                                  '0%': { transform: 'rotate(0deg)' },
+                                  '100%': { transform: 'rotate(360deg)' }
+                                }
+                              }} />
+                            ) : searchQuery ? (
+                              <SearchIcon sx={{ fontSize: 32, color: 'success.light' }} />
+                            ) : (
+                              <CheckIcon sx={{ fontSize: 32, color: 'grey.500' }} />
+                            )}
+                          </Avatar>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
-                  <Card sx={{ 
-                    background: 'linear-gradient(135deg, #5f3a1e 0%, #8c5a2d 100%)',
-                    border: '1px solid rgba(255, 167, 38, 0.2)',
-                    transition: 'transform 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' }
-                  }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
-                            Unverified Users
-                          </Typography>
-                          <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
-                            {unverifiedPagination.total}
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(255, 152, 0, 0.2)' }}>
-                          <WarningIcon sx={{ fontSize: 32, color: 'warning.light' }} />
-                        </Avatar>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={3}>
-                  <Card sx={{ 
-                    background: 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    transition: 'transform 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' }
-                  }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
-                            Total Users
-                          </Typography>
-                          <Typography variant="h3" fontWeight="700" sx={{ color: 'white' }}>
-                            {pagination.total + unverifiedPagination.total}
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(33, 150, 243, 0.2)' }}>
-                          <PersonIcon sx={{ fontSize: 32, color: 'primary.light' }} />
-                        </Avatar>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={3}>
-                  <Card sx={{ 
-                    background: loadingUsers 
-                      ? 'linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%)'
-                      : searchQuery 
-                        ? 'linear-gradient(135deg, #1e5f3a 0%, #2d8c5a 100%)'
-                        : 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    transition: 'all 0.3s',
-                    '&:hover': { transform: 'translateY(-4px)' }
-                  }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
-                            {loadingUsers ? 'Loading...' : searchQuery ? 'Active Search' : 'Status'}
-                          </Typography>
-                          <Typography 
-                            variant="body1" 
-                            fontWeight="600" 
-                            sx={{ 
-                              color: 'white',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {loadingUsers ? 'Please wait' : searchQuery ? `"${searchQuery}"` : 'Ready'}
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ 
-                          width: 56, 
-                          height: 56, 
-                          bgcolor: loadingUsers ? 'rgba(33, 150, 243, 0.2)' : searchQuery ? 'rgba(76, 175, 80, 0.2)' : 'rgba(158, 158, 158, 0.2)'
-                        }}>
-                          {loadingUsers ? (
-                            <Box sx={{ 
-                              width: 32, 
-                              height: 32, 
-                              border: '3px solid rgba(255,255,255,0.3)',
-                              borderTopColor: 'white',
-                              borderRadius: '50%',
-                              animation: 'spin 1s linear infinite',
-                              '@keyframes spin': {
-                                '0%': { transform: 'rotate(0deg)' },
-                                '100%': { transform: 'rotate(360deg)' }
-                              }
-                            }} />
-                          ) : searchQuery ? (
-                            <SearchIcon sx={{ fontSize: 32, color: 'success.light' }} />
-                          ) : (
-                            <CheckIcon sx={{ fontSize: 32, color: 'grey.500' }} />
-                          )}
-                        </Avatar>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-
-              {/* Search Bar */}
-              <Paper 
-                elevation={0}
-                sx={{ 
-                  p: 2.5,
-                  mb: 4, 
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 3,
-                  backdropFilter: 'blur(10px)'
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <TextField
-                    placeholder="Search users by name or email..."
-                    value={searchInput}
-                    onChange={handleSearchInputChange}
-                    onKeyPress={handleSearchKeyPress}
-                    size="medium"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon sx={{ color: 'primary.main' }} />
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        height: '44px !important'
-                      }
-                    }}
-                    sx={{
-                      flex: 1,
-                      minWidth: '250px',
-                      '& .MuiOutlinedInput-root': {
-                        color: 'grey.100',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 2,
-                        height: '44px !important',
-                        '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'primary.main',
-                          borderWidth: '2px'
-                        },
-                      },
-                    }}
-                  />
-                  
-                  {/* Online Status Filter */}
-                  <FormControl size="medium" sx={{ minWidth: 150 }}>
-                    <Select
-                      value={onlineFilter}
-                      onChange={(e) => {
-                        setOnlineFilter(e.target.value);
-                        setPagination(prev => ({ ...prev, page: 1 }));
-                        setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
-                      }}
-                      displayEmpty
-                      sx={{
-                        color: 'grey.100',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 2,
-                        height: '44px !important',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'primary.main',
-                          borderWidth: '2px'
-                        },
-                        '& .MuiSvgIcon-root': {
-                          color: 'grey.400',
+                {/* Search Bar */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    mb: 4,
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: 3,
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <TextField
+                      placeholder="Search users by name or email..."
+                      value={searchInput}
+                      onChange={handleSearchInputChange}
+                      onKeyPress={handleSearchKeyPress}
+                      size="medium"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: 'primary.main' }} />
+                          </InputAdornment>
+                        ),
+                        sx: {
+                          height: '44px !important'
                         }
                       }}
-                    >
-                      <MenuItem value="">All Status</MenuItem>
-                      <MenuItem value="online">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
-                          Online
-                        </Box>
-                      </MenuItem>
-                      <MenuItem value="offline">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'grey.500' }} />
-                          Offline
-                        </Box>
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-
-                  {/* Sort By Filter */}
-                  <FormControl size="medium" sx={{ minWidth: 180 }}>
-                    <Select
-                      value={sortBy}
-                      onChange={(e) => {
-                        setSortBy(e.target.value);
-                        setPagination(prev => ({ ...prev, page: 1 }));
-                        setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
-                      }}
                       sx={{
-                        color: 'grey.100',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: 2,
-                        height: '44px !important',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
+                        flex: 1,
+                        minWidth: '250px',
+                        '& .MuiOutlinedInput-root': {
+                          color: 'grey.100',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          borderRadius: 2,
+                          height: '44px !important',
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                            borderWidth: '2px'
+                          },
                         },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'primary.main',
-                          borderWidth: '2px'
-                        },
-                        '& .MuiSvgIcon-root': {
-                          color: 'grey.400',
-                        }
                       }}
-                    >
-                      <MenuItem value="createdAt">Sort by: Join Date</MenuItem>
-                      <MenuItem value="lastOnline">Sort by: Last Online</MenuItem>
-                    </Select>
-                  </FormControl>
+                    />
 
-                  <Button
-                    variant="contained"
-                    onClick={handleSearchClick}
-                    disabled={loadingUsers}
-                    startIcon={<SearchIcon />}
-                    sx={{
-                      px: '24px !important',
-                      py: '10px !important',
-                      height: '44px !important',
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      fontSize: '0.95rem',
-                      color: 'white !important',
-                      background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-                      boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
-                      '&:hover': {
-                        background: 'linear-gradient(45deg, #1565c0, #1e88e5)',
-                        boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
-                      },
-                      '&:disabled': {
-                        background: 'grey.800',
-                        boxShadow: 'none'
-                      }
-                    }}
-                  >
-                    Search
-                  </Button>
-                  {(searchInput || searchQuery || onlineFilter || sortBy !== 'createdAt') && (
+                    {/* Online Status Filter */}
+                    <FormControl size="medium" sx={{ minWidth: 150 }}>
+                      <Select
+                        value={onlineFilter}
+                        onChange={(e) => {
+                          setOnlineFilter(e.target.value);
+                          setPagination(prev => ({ ...prev, page: 1 }));
+                          setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
+                        }}
+                        displayEmpty
+                        sx={{
+                          color: 'grey.100',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          borderRadius: 2,
+                          height: '44px !important',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'primary.main',
+                            borderWidth: '2px'
+                          },
+                          '& .MuiSvgIcon-root': {
+                            color: 'grey.400',
+                          }
+                        }}
+                      >
+                        <MenuItem value="">All Status</MenuItem>
+                        <MenuItem value="online">
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
+                            Online
+                          </Box>
+                        </MenuItem>
+                        <MenuItem value="offline">
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'grey.500' }} />
+                            Offline
+                          </Box>
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+
+                    {/* Sort By Filter */}
+                    <FormControl size="medium" sx={{ minWidth: 180 }}>
+                      <Select
+                        value={sortBy}
+                        onChange={(e) => {
+                          setSortBy(e.target.value);
+                          setPagination(prev => ({ ...prev, page: 1 }));
+                          setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
+                        }}
+                        sx={{
+                          color: 'grey.100',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          borderRadius: 2,
+                          height: '44px !important',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'primary.main',
+                            borderWidth: '2px'
+                          },
+                          '& .MuiSvgIcon-root': {
+                            color: 'grey.400',
+                          }
+                        }}
+                      >
+                        <MenuItem value="createdAt">Sort by: Join Date</MenuItem>
+                        <MenuItem value="lastOnline">Sort by: Last Online</MenuItem>
+                      </Select>
+                    </FormControl>
+
                     <Button
-                      variant="outlined"
-                      onClick={() => {
-                        setSearchInput("");
-                        setSearchQuery("");
-                        setOnlineFilter("");
-                        setSortBy("createdAt");
-                        setPagination(prev => ({ ...prev, page: 1 }));
-                        setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
-                      }}
+                      variant="contained"
+                      onClick={handleSearchClick}
                       disabled={loadingUsers}
-                      startIcon={<CloseIcon />}
+                      startIcon={<SearchIcon />}
                       sx={{
                         px: '24px !important',
                         py: '10px !important',
@@ -1980,252 +1981,178 @@ const AdminUsers = () => {
                         fontWeight: 600,
                         fontSize: '0.95rem',
                         color: 'white !important',
-                        borderColor: 'rgba(255, 255, 255, 0.2) !important',
+                        background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                        boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
                         '&:hover': {
-                          borderColor: 'rgba(255, 255, 255, 0.4) !important',
-                          backgroundColor: 'rgba(255, 255, 255, 0.05) !important'
+                          background: 'linear-gradient(45deg, #1565c0, #1e88e5)',
+                          boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
+                        },
+                        '&:disabled': {
+                          background: 'grey.800',
+                          boxShadow: 'none'
                         }
                       }}
                     >
-                      Clear All
+                      Search
                     </Button>
-                  )}
-                </Box>
-              </Paper>
-
-              {/* Verified Users Section */}
-              <Box sx={{ mb: 6 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: { xs: 'flex-start', md: 'center' }, 
-                  mb: 4, 
-                  justifyContent: "space-between",
-                  flexWrap: 'wrap',
-                  gap: 2,
-                  pb: 3,
-                  borderBottom: '2px solid rgba(76, 175, 80, 0.3)'
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ 
-                      width: 48, 
-                      height: 48, 
-                      bgcolor: 'rgba(76, 175, 80, 0.15)',
-                      border: '2px solid rgba(76, 175, 80, 0.3)'
-                    }}>
-                      <VerifiedIcon sx={{ fontSize: 28, color: 'success.main' }} />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight="700" sx={{ color: 'grey.100', mb: 0.5 }}>
-                        Verified Users
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'grey.400' }}>
-                        {pagination.total} user{pagination.total !== 1 ? 's' : ''} with verified email
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
-                  {
-                    canAssignUsers ? <Button
-                        variant="contained"
-                        startIcon={<AssignmentIcon />}
-                        style={{ color: "white", background: "linear-gradient(45deg, #1976d2, #42a5f5)", paddingInline: "12px" }}
-                        onClick={openAssignModal}
+                    {(searchInput || searchQuery || onlineFilter || sortBy !== 'createdAt') && (
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          setSearchInput("");
+                          setSearchQuery("");
+                          setOnlineFilter("");
+                          setSortBy("createdAt");
+                          setPagination(prev => ({ ...prev, page: 1 }));
+                          setUnverifiedPagination(prev => ({ ...prev, page: 1 }));
+                        }}
+                        disabled={loadingUsers}
+                        startIcon={<CloseIcon />}
                         sx={{
-                          borderRadius: 3,
+                          px: '24px !important',
+                          py: '10px !important',
+                          height: '44px !important',
+                          borderRadius: 2,
                           textTransform: 'none',
-                          fontWeight: '600',
-                          py: 1,
-                          minHeight: '40px',
-                          background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-                          boxShadow: '0 4px 15px rgba(25, 118, 210, 0.3)',
+                          fontWeight: 600,
+                          fontSize: '0.95rem',
+                          color: 'white !important',
+                          borderColor: 'rgba(255, 255, 255, 0.2) !important',
                           '&:hover': {
-                            background: 'linear-gradient(45deg, #1565c0, #1e88e5)'
+                            borderColor: 'rgba(255, 255, 255, 0.4) !important',
+                            backgroundColor: 'rgba(255, 255, 255, 0.05) !important'
                           }
                         }}
                       >
-                      Assign User to Subadmins
-                    </Button> : ""
+                        Clear All
+                      </Button>
+                    )}
+                  </Box>
+                </Paper>
 
-                  }
-                  </Stack>
-                </Box>
+                {/* Verified Users Section */}
+                <Box sx={{ mb: 6 }}>
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: { xs: 'flex-start', md: 'center' },
+                    mb: 4,
+                    justifyContent: "space-between",
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    pb: 3,
+                    borderBottom: '2px solid rgba(76, 175, 80, 0.3)'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: 'rgba(76, 175, 80, 0.15)',
+                        border: '2px solid rgba(76, 175, 80, 0.3)'
+                      }}>
+                        <VerifiedIcon sx={{ fontSize: 28, color: 'success.main' }} />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h5" fontWeight="700" sx={{ color: 'grey.100', mb: 0.5 }}>
+                          Verified Users
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'grey.400' }}>
+                          {pagination.total} user{pagination.total !== 1 ? 's' : ''} with verified email
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+                      {
+                        canAssignUsers ? <Button
+                          variant="contained"
+                          startIcon={<AssignmentIcon />}
+                          style={{ color: "white", background: "linear-gradient(45deg, #1976d2, #42a5f5)", paddingInline: "12px" }}
+                          onClick={openAssignModal}
+                          sx={{
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontWeight: '600',
+                            py: 1,
+                            minHeight: '40px',
+                            background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                            boxShadow: '0 4px 15px rgba(25, 118, 210, 0.3)',
+                            '&:hover': {
+                              background: 'linear-gradient(45deg, #1565c0, #1e88e5)'
+                            }
+                          }}
+                        >
+                          Assign User to Subadmins
+                        </Button> : ""
 
-                {(canAssignUsers || isSuperAdmin) && (
-                  <div className={exportStyles.crmExportToolbar}>
-                    <div className={exportStyles.crmExportToolbarInner}>
-                      <div className={exportStyles.crmExportInfo}>
-                        <p className={exportStyles.crmExportTitle}>
-                          {canAssignUsers && isSuperAdmin
-                            ? "Assign or export selected users"
-                            : canAssignUsers
-                              ? "Assign selected users"
-                              : "Export to CRM"}
-                        </p>
-                        <p className={exportStyles.crmExportSubtitle}>
-                          {selectedUserIds.size} user{selectedUserIds.size === 1 ? '' : 's'} selected
-                        </p>
-                      </div>
-                      <div className={exportStyles.crmExportActions}>
-                        <CrmOutlineButton
-                          icon={<SelectAllIcon />}
-                          onClick={handleSelectAllVisibleUsers}
-                        >
-                          Select Visible
-                        </CrmOutlineButton>
-                        <CrmOutlineButton
-                          icon={<DeselectIcon />}
-                          onClick={handleClearUserSelection}
-                          disabled={selectedUserIds.size === 0}
-                          variant="neutral"
-                        >
-                          Clear
-                        </CrmOutlineButton>
-                        {canAssignUsers && (
-                          <button
-                            type="button"
-                            className={`${exportStyles.crmBtnBase} ${exportStyles.crmBtnAssign}`}
-                            onClick={openAssignModalForSelected}
-                            disabled={selectedUserIds.size === 0 || isAssigning}
-                            title="Assign selected users to one or more subadmins"
+                      }
+                    </Stack>
+                  </Box>
+
+                  {(canAssignUsers || isSuperAdmin) && (
+                    <div className={exportStyles.crmExportToolbar}>
+                      <div className={exportStyles.crmExportToolbarInner}>
+                        <div className={exportStyles.crmExportInfo}>
+                          <p className={exportStyles.crmExportTitle}>
+                            {canAssignUsers && isSuperAdmin
+                              ? "Assign or export selected users"
+                              : canAssignUsers
+                                ? "Assign selected users"
+                                : "Export to CRM"}
+                          </p>
+                          <p className={exportStyles.crmExportSubtitle}>
+                            {selectedUserIds.size} user{selectedUserIds.size === 1 ? '' : 's'} selected
+                          </p>
+                        </div>
+                        <div className={exportStyles.crmExportActions}>
+                          <CrmOutlineButton
+                            icon={<SelectAllIcon />}
+                            onClick={handleSelectAllVisibleUsers}
                           >
-                            <span className={exportStyles.crmBtnIcon}><PersonAddIcon /></span>
-                            Assign to Subadmins ({selectedUserIds.size})
-                          </button>
-                        )}
-                        {isSuperAdmin && (
-                          <CrmExportButton
-                            icon={<UploadIcon />}
-                            onClick={() => setExportConfirmOpen(true)}
-                            disabled={selectedUserIds.size === 0 || exportingToCrm}
-                            loading={exportingToCrm}
-                            title="Create CRM leads from selected wallet users"
+                            Select Visible
+                          </CrmOutlineButton>
+                          <CrmOutlineButton
+                            icon={<DeselectIcon />}
+                            onClick={handleClearUserSelection}
+                            disabled={selectedUserIds.size === 0}
+                            variant="neutral"
                           >
-                            Export to CRM ({selectedUserIds.size})
-                          </CrmExportButton>
-                        )}
+                            Clear
+                          </CrmOutlineButton>
+                          {canAssignUsers && (
+                            <button
+                              type="button"
+                              className={`${exportStyles.crmBtnBase} ${exportStyles.crmBtnAssign}`}
+                              onClick={openAssignModalForSelected}
+                              disabled={selectedUserIds.size === 0 || isAssigning}
+                              title="Assign selected users to one or more subadmins"
+                            >
+                              <span className={exportStyles.crmBtnIcon}><PersonAddIcon /></span>
+                              Assign to Subadmins ({selectedUserIds.size})
+                            </button>
+                          )}
+                          {isSuperAdmin && (
+                            <CrmExportButton
+                              icon={<UploadIcon />}
+                              onClick={() => setExportConfirmOpen(true)}
+                              disabled={selectedUserIds.size === 0 || exportingToCrm}
+                              loading={exportingToCrm}
+                              title="Create CRM leads from selected wallet users"
+                            >
+                              Export to CRM ({selectedUserIds.size})
+                            </CrmExportButton>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {!isSubadmin && pagination.total > 0 && (
-                  <UsersPager
-                    page={pagination.page}
-                    limit={pagination.limit}
-                    total={pagination.total}
-                    pages={pagination.pages}
-                    onChange={handleVerifiedPageChange}
-                    tone="verified"
-                    placement="top"
-                  />
-                )}
-
-                {loadingUsers ? (
-                  <Box sx={{ width: '100%', p: 4 }}>
-                    <AdminSkeleton variant="cards" rows={3} />
-                  </Box>
-                ) : (
-                  <>
-                    <Grid container spacing={3}>
-                      {Users.length > 0 ? (
-                        Users.map((user) => (
-                          <Grid item xs={12} sm={6} md={4} key={user._id}>
-                            <UserCard
-                              user={user}
-                              onDelete={onOpenModal}
-                              onVerify={bypassSingleUser}
-                              onRestrict={onOpenRestrictModal}
-                              onUpdateShared={updateUserIsShared}
-                              canViewClientDetails={isSubadmin ? subadminClientPermissions.canViewClientDetails : true}
-                              canEditClientProfile={isSubadmin ? subadminClientPermissions.canEditClientProfile : true}
-                              isSubadminViewer={isSubadmin}
-                              userTicketsCount={userTicketsCount}
-                              subadmins={subadmins}
-                              disabledIn={disabledIn}
-                              isUsers={isUsers}
-                              isRestricting={isRestricting}
-                              authUser={currentAuthUser.user}
-                              selectable={canAssignUsers || isSuperAdmin}
-                              selected={selectedUserIds.has(user._id)}
-                              onToggleSelect={toggleUserSelection}
-                              showCrmExport={isSuperAdmin}
-                              onExportToCrm={handleExportSingleUserToCrm}
-                              isExportingToCrm={exportingUserId === user._id}
-                              crmExportBusy={exportingToCrm}
-                              canAssign={canAssignUsers}
-                              onAssign={openAssignModalForUser}
-                              onUnassignFromSubadmin={requestUnassignFromSubadmin}
-                              unassigningKey={unassigningKey}
-                            />
-                          </Grid>
-                        ))
-                      ) : (
-                        <Grid item xs={12}>
-                          <Box sx={{ textAlign: 'center', py: 8 }}>
-                            <PersonIcon sx={{ fontSize: 64, color: 'grey.600', mb: 2 }} />
-                            <Typography variant="h6" sx={{ color: 'grey.400' }}>
-                              No verified users found
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'grey.500', mt: 1 }}>
-                              {searchQuery ? 'Try adjusting your search query' : 'No users to display'}
-                            </Typography>
-                          </Box>
-                        </Grid>
-                      )}
-                    </Grid>
-
-                    {!isSubadmin && pagination.total > 0 && (
-                      <UsersPager
-                        page={pagination.page}
-                        limit={pagination.limit}
-                        total={pagination.total}
-                        pages={pagination.pages}
-                        onChange={handleVerifiedPageChange}
-                        tone="verified"
-                        placement="bottom"
-                      />
-                    )}
-                  </>
-                )}
-              </Box>
-
-              {/* Unverified Users Section */}
-              {(unVerified.length > 0 || unverifiedPagination.total > 0) && (
-                <Box>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    mb: 4,
-                    pb: 3,
-                    borderBottom: '2px solid rgba(255, 152, 0, 0.3)'
-                  }}>
-                    <Avatar sx={{ 
-                      width: 48, 
-                      height: 48, 
-                      bgcolor: 'rgba(255, 152, 0, 0.15)',
-                      border: '2px solid rgba(255, 152, 0, 0.3)',
-                      mr: 2
-                    }}>
-                      <WarningIcon sx={{ fontSize: 28, color: 'warning.main' }} />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight="700" sx={{ color: 'grey.100', mb: 0.5 }}>
-                        Unverified Users
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'grey.400' }}>
-                        {unverifiedPagination.total} user{unverifiedPagination.total !== 1 ? 's' : ''} pending email verification
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {!isSubadmin && unverifiedPagination.total > 0 && (
+                  {!isSubadmin && pagination.total > 0 && (
                     <UsersPager
-                      page={unverifiedPagination.page}
-                      limit={unverifiedPagination.limit}
-                      total={unverifiedPagination.total}
-                      pages={unverifiedPagination.pages}
-                      onChange={handleUnverifiedPageChange}
-                      tone="unverified"
+                      page={pagination.page}
+                      limit={pagination.limit}
+                      total={pagination.total}
+                      pages={pagination.pages}
+                      onChange={handleVerifiedPageChange}
+                      tone="verified"
                       placement="top"
                     />
                   )}
@@ -2237,19 +2164,18 @@ const AdminUsers = () => {
                   ) : (
                     <>
                       <Grid container spacing={3}>
-                        {unVerified.length > 0 ? (
-                          unVerified.map((user) => (
+                        {Users.length > 0 ? (
+                          Users.map((user) => (
                             <Grid item xs={12} sm={6} md={4} key={user._id}>
                               <UserCard
                                 user={user}
-                                isUnverified={true}
                                 onDelete={onOpenModal}
                                 onVerify={bypassSingleUser}
                                 onRestrict={onOpenRestrictModal}
                                 onUpdateShared={updateUserIsShared}
                                 canViewClientDetails={isSubadmin ? subadminClientPermissions.canViewClientDetails : true}
-                              canEditClientProfile={isSubadmin ? subadminClientPermissions.canEditClientProfile : true}
-                              isSubadminViewer={isSubadmin}
+                                canEditClientProfile={isSubadmin ? subadminClientPermissions.canEditClientProfile : true}
+                                isSubadminViewer={isSubadmin}
                                 userTicketsCount={userTicketsCount}
                                 subadmins={subadmins}
                                 disabledIn={disabledIn}
@@ -2273,55 +2199,466 @@ const AdminUsers = () => {
                         ) : (
                           <Grid item xs={12}>
                             <Box sx={{ textAlign: 'center', py: 8 }}>
-                              <WarningIcon sx={{ fontSize: 64, color: 'grey.600', mb: 2 }} />
+                              <PersonIcon sx={{ fontSize: 64, color: 'grey.600', mb: 2 }} />
                               <Typography variant="h6" sx={{ color: 'grey.400' }}>
-                                No unverified users found
+                                No verified users found
                               </Typography>
                               <Typography variant="body2" sx={{ color: 'grey.500', mt: 1 }}>
-                                {searchQuery ? 'Try adjusting your search query' : 'All users are verified'}
+                                {searchQuery ? 'Try adjusting your search query' : 'No users to display'}
                               </Typography>
                             </Box>
                           </Grid>
                         )}
                       </Grid>
 
-                      {!isSubadmin && unverifiedPagination.total > 0 && (
+                      {!isSubadmin && pagination.total > 0 && (
                         <UsersPager
-                          page={unverifiedPagination.page}
-                          limit={unverifiedPagination.limit}
-                          total={unverifiedPagination.total}
-                          pages={unverifiedPagination.pages}
-                          onChange={handleUnverifiedPageChange}
-                          tone="unverified"
+                          page={pagination.page}
+                          limit={pagination.limit}
+                          total={pagination.total}
+                          pages={pagination.pages}
+                          onChange={handleVerifiedPageChange}
+                          tone="verified"
                           placement="bottom"
                         />
                       )}
                     </>
                   )}
                 </Box>
-              )}
-            </Box>
+
+                {/* Unverified Users Section */}
+                {(unVerified.length > 0 || unverifiedPagination.total > 0) && (
+                  <Box>
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      mb: 4,
+                      pb: 3,
+                      borderBottom: '2px solid rgba(255, 152, 0, 0.3)'
+                    }}>
+                      <Avatar sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: 'rgba(255, 152, 0, 0.15)',
+                        border: '2px solid rgba(255, 152, 0, 0.3)',
+                        mr: 2
+                      }}>
+                        <WarningIcon sx={{ fontSize: 28, color: 'warning.main' }} />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h5" fontWeight="700" sx={{ color: 'grey.100', mb: 0.5 }}>
+                          Unverified Users
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'grey.400' }}>
+                          {unverifiedPagination.total} user{unverifiedPagination.total !== 1 ? 's' : ''} pending email verification
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {!isSubadmin && unverifiedPagination.total > 0 && (
+                      <UsersPager
+                        page={unverifiedPagination.page}
+                        limit={unverifiedPagination.limit}
+                        total={unverifiedPagination.total}
+                        pages={unverifiedPagination.pages}
+                        onChange={handleUnverifiedPageChange}
+                        tone="unverified"
+                        placement="top"
+                      />
+                    )}
+
+                    {loadingUsers ? (
+                      <Box sx={{ width: '100%', p: 4 }}>
+                        <AdminSkeleton variant="cards" rows={3} />
+                      </Box>
+                    ) : (
+                      <>
+                        <Grid container spacing={3}>
+                          {unVerified.length > 0 ? (
+                            unVerified.map((user) => (
+                              <Grid item xs={12} sm={6} md={4} key={user._id}>
+                                <UserCard
+                                  user={user}
+                                  isUnverified={true}
+                                  onDelete={onOpenModal}
+                                  onVerify={bypassSingleUser}
+                                  onRestrict={onOpenRestrictModal}
+                                  onUpdateShared={updateUserIsShared}
+                                  canViewClientDetails={isSubadmin ? subadminClientPermissions.canViewClientDetails : true}
+                                  canEditClientProfile={isSubadmin ? subadminClientPermissions.canEditClientProfile : true}
+                                  isSubadminViewer={isSubadmin}
+                                  userTicketsCount={userTicketsCount}
+                                  subadmins={subadmins}
+                                  disabledIn={disabledIn}
+                                  isUsers={isUsers}
+                                  isRestricting={isRestricting}
+                                  authUser={currentAuthUser.user}
+                                  selectable={canAssignUsers || isSuperAdmin}
+                                  selected={selectedUserIds.has(user._id)}
+                                  onToggleSelect={toggleUserSelection}
+                                  showCrmExport={isSuperAdmin}
+                                  onExportToCrm={handleExportSingleUserToCrm}
+                                  isExportingToCrm={exportingUserId === user._id}
+                                  crmExportBusy={exportingToCrm}
+                                  canAssign={canAssignUsers}
+                                  onAssign={openAssignModalForUser}
+                                  onUnassignFromSubadmin={requestUnassignFromSubadmin}
+                                  unassigningKey={unassigningKey}
+                                />
+                              </Grid>
+                            ))
+                          ) : (
+                            <Grid item xs={12}>
+                              <Box sx={{ textAlign: 'center', py: 8 }}>
+                                <WarningIcon sx={{ fontSize: 64, color: 'grey.600', mb: 2 }} />
+                                <Typography variant="h6" sx={{ color: 'grey.400' }}>
+                                  No unverified users found
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'grey.500', mt: 1 }}>
+                                  {searchQuery ? 'Try adjusting your search query' : 'All users are verified'}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          )}
+                        </Grid>
+
+                        {!isSubadmin && unverifiedPagination.total > 0 && (
+                          <UsersPager
+                            page={unverifiedPagination.page}
+                            limit={unverifiedPagination.limit}
+                            total={unverifiedPagination.total}
+                            pages={unverifiedPagination.pages}
+                            onChange={handleUnverifiedPageChange}
+                            tone="unverified"
+                            placement="bottom"
+                          />
+                        )}
+                      </>
+                    )}
+                  </Box>
+                )}
+              </Box>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Delete Confirmation Modal - Dark Theme */}
-      <Modal open={open} onClose={onCloseModal} center styles={{ modal: { backgroundColor: '#1e1e1e', border: '1px solid #333' } }}>
-        <Box sx={{ p: 4, maxWidth: 400, textAlign: 'center' }}>
-          <WarningIcon sx={{ fontSize: 64, mb: 2, color: 'error.main' }} />
-          <Typography variant="h5" fontWeight="700" gutterBottom sx={{ color: 'grey.100' }}>
-            Confirm Deletion
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 3, color: 'grey.400' }}>
-            Are you sure you want to delete <strong style={{ color: 'grey.100' }}>{modalData.firstName} {modalData.lastName}</strong>? This action cannot be undone.
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        {/* Delete Confirmation Modal - Dark Theme */}
+        <Modal open={open} onClose={onCloseModal} center styles={{ modal: { backgroundColor: '#1e1e1e', border: '1px solid #333' } }}>
+          <Box sx={{ p: 4, maxWidth: 400, textAlign: 'center' }}>
+            <WarningIcon sx={{ fontSize: 64, mb: 2, color: 'error.main' }} />
+            <Typography variant="h5" fontWeight="700" gutterBottom sx={{ color: 'grey.100' }}>
+              Confirm Deletion
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: 'grey.400' }}>
+              Are you sure you want to delete <strong style={{ color: 'grey.100' }}>{modalData.firstName} {modalData.lastName}</strong>? This action cannot be undone.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button
+                variant="outlined"
+                onClick={onCloseModal}
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  color: 'grey.300',
+                  borderColor: 'grey.600',
+                  '&:hover': {
+                    borderColor: 'grey.400'
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ borderRadius: 2, px: 4 }}
+                onClick={() => deleteEachUser(modalData)}
+                disabled={isDisable}
+              >
+                {isDisable ? 'Deleting...' : 'Delete'}
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
+
+        {/* Compliance Restriction Modal */}
+        <Modal
+          open={restrictModalOpen}
+          onClose={onCloseRestrictModal}
+          center
+          styles={{ modal: { backgroundColor: '#1e1e1e', border: '1px solid #333', maxWidth: '480px' } }}
+        >
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            {restrictModalData.isComplianceRestricted ? (
+              <LockOpenIcon sx={{ fontSize: 64, mb: 2, color: 'success.main' }} />
+            ) : (
+              <GavelIcon sx={{ fontSize: 64, mb: 2, color: '#ef5350' }} />
+            )}
+            <Typography variant="h5" fontWeight="700" gutterBottom sx={{ color: 'grey.100' }}>
+              {restrictModalData.isComplianceRestricted ? 'Remove Compliance Restriction' : 'Restrict User Account'}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2, color: 'grey.400', textAlign: 'left' }}>
+              {restrictModalData.isComplianceRestricted ? (
+                <>
+                  Remove the compliance review status for{' '}
+                  <strong style={{ color: 'grey.100' }}>
+                    {restrictModalData.firstName} {restrictModalData.lastName}
+                  </strong>
+                  . The red account review banner will no longer appear on their dashboard.
+                </>
+              ) : (
+                <>
+                  Place{' '}
+                  <strong style={{ color: 'grey.100' }}>
+                    {restrictModalData.firstName} {restrictModalData.lastName}
+                  </strong>{' '}
+                  under compliance review. They will see a prominent red banner on every dashboard page with instructions to contact support.
+                </>
+              )}
+            </Typography>
+            {!restrictModalData.isComplianceRestricted && (
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: 'rgba(139, 0, 0, 0.15)',
+                  border: '1px solid rgba(239, 83, 80, 0.35)',
+                  textAlign: 'left',
+                }}
+              >
+                <Typography variant="caption" sx={{ color: '#ef9a9a', lineHeight: 1.6, display: 'block' }}>
+                  Banner message: account under review due to potential money laundering concerns, with a link to customer support.
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button
+                variant="outlined"
+                onClick={onCloseRestrictModal}
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  color: 'grey.300',
+                  borderColor: 'grey.600',
+                  '&:hover': { borderColor: 'grey.400' },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color={restrictModalData.isComplianceRestricted ? 'success' : 'error'}
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  ...(restrictModalData.isComplianceRestricted
+                    ? {}
+                    : { backgroundColor: '#8b0000', '&:hover': { backgroundColor: '#b71c1c' } }),
+                }}
+                onClick={() => handleComplianceRestriction(restrictModalData)}
+                disabled={isRestricting}
+              >
+                {isRestricting
+                  ? 'Updating...'
+                  : restrictModalData.isComplianceRestricted
+                    ? 'Remove Restriction'
+                    : 'Restrict Account'}
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
+
+        {/* Assign User to Subadmin Modal */}
+        <Dialog
+          open={assignModalOpen}
+          onClose={closeAssignModal}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            className: "hui-assign-dialog",
+            sx: {
+              backgroundColor: '#1e1e1e',
+              backgroundImage: 'none',
+              border: '1px solid #333',
+              borderRadius: 3,
+              overflow: 'hidden',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+            }
+          }}
+        >
+          <DialogTitle sx={{
+            bgcolor: 'grey.900',
+            borderBottom: '1px solid #333',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexShrink: 0,
+          }}>
+            <Typography variant="h6" fontWeight="600" sx={{ color: 'grey.100' }}>
+              {assignTarget.type === "bulk"
+                ? `Assign ${assignTarget.count} Users to Subadmins`
+                : assignTarget.type === "user"
+                  ? "Assign User to Subadmins"
+                  : "Assign User to Subadmins"}
+            </Typography>
+            <IconButton onClick={closeAssignModal} sx={{ color: 'grey.400' }}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent
+            sx={{
+              p: 3,
+              bgcolor: '#1e1e1e',
+              overflow: subadminPickerOpen ? 'hidden' : 'auto',
+              flex: '1 1 auto',
+              minHeight: 0,
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              {assignTarget.type === "bulk" ? (
+                <Box sx={{ p: 2, bgcolor: 'grey.800', borderRadius: 2, mt: 1 }}>
+                  <Typography variant="subtitle2" fontWeight="600" sx={{ color: 'grey.100' }}>
+                    {assignTarget.count} selected user{assignTarget.count === 1 ? "" : "s"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'grey.400', mt: 0.5 }}>
+                    Each selected user will be added to the subadmins you pick below.
+                  </Typography>
+                </Box>
+              ) : (
+                <Box>
+                  <TextField
+                    fullWidth
+                    label="User Email"
+                    value={assignEmail}
+                    onChange={(e) => setAssignEmail(e.target.value)}
+                    error={!!emailError}
+                    helperText={emailError || (assignTarget.type === "user" ? assignTarget.name : "")}
+                    InputProps={{
+                      readOnly: assignTarget.type === "user",
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        color: 'grey.100',
+                        '& fieldset': {
+                          borderColor: 'grey.600',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'grey.400',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'primary.main',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'grey.400',
+                        backgroundColor: '#1e1e1e',
+                        paddingX: '4px',
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: 'primary.main',
+                      },
+                      '& .MuiInputLabel-shrink': {
+                        backgroundColor: '#1e1e1e',
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+
+              <div>
+                <span className="hui-picker-label">Select subadmins</span>
+                <div className={`hui-picker${subadminPickerOpen ? " is-open" : ""}`}>
+                  <div className="hui-picker-selected">
+                    {selectedSubadmins.length === 0 ? (
+                      <span className="hui-picker-empty">None selected yet</span>
+                    ) : selectedSubadmins.map((id) => {
+                      const subadmin = filteredSubadmins.find((s) => s._id === id);
+                      const label = subadmin ? `${subadmin.firstName} ${subadmin.lastName}` : id;
+                      return (
+                        <span className="hui-picker-chip" key={id}>
+                          {label}
+                          <button
+                            type="button"
+                            aria-label={`Remove ${label}`}
+                            onClick={() => toggleSelectedSubadmin(id)}
+                          >
+                            <CloseIcon sx={{ fontSize: 12 }} />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    className="hui-picker-trigger"
+                    aria-expanded={subadminPickerOpen}
+                    aria-haspopup="listbox"
+                    onClick={() => setSubadminPickerOpen((open) => !open)}
+                  >
+                    <span className="hui-picker-trigger-value">
+                      {selectedSubadmins.length === 0
+                        ? "Choose subadmins"
+                        : `${selectedSubadmins.length} selected`}
+                    </span>
+                    <KeyboardArrowDownIcon className="hui-picker-caret" sx={{ fontSize: 22 }} />
+                  </button>
+                  {subadminPickerOpen && (
+                    <div className="hui-picker-list" role="listbox" aria-multiselectable="true">
+                      {filteredSubadmins.length === 0 ? (
+                        <p className="hui-picker-empty-list">No subadmins available</p>
+                      ) : filteredSubadmins.map((subadmin) => {
+                        const selected = selectedSubadmins.includes(subadmin._id);
+                        const initials = `${(subadmin.firstName || "S")[0] || ""}${(subadmin.lastName || "A")[0] || ""}`.toUpperCase();
+                        return (
+                          <button
+                            type="button"
+                            key={subadmin._id}
+                            role="option"
+                            aria-selected={selected}
+                            className={`hui-picker-row${selected ? " is-selected" : ""}`}
+                            onClick={() => toggleSelectedSubadmin(subadmin._id)}
+                          >
+                            <span className="hui-picker-check">
+                              {selected ? <SelectCheckIcon sx={{ fontSize: 14 }} /> : null}
+                            </span>
+                            <span className="hui-picker-avatar">{initials}</span>
+                            <span className="hui-picker-meta">
+                              <span className="hui-picker-name">{subadmin.firstName} {subadmin.lastName}</span>
+                              <span className="hui-picker-email">{subadmin.email}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {subadminError && (
+                    <p className="hui-picker-error">{subadminError}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Info Text */}
+              <Box sx={{ p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
+                <Typography variant="body2" sx={{ color: 'grey.300' }}>
+                  <strong>Note:</strong>{" "}
+                  {assignTarget.type === "bulk"
+                    ? "Selected users will be assigned to the subadmins you choose. Existing assignments are kept."
+                    : assignTarget.type === "user"
+                      ? "This user will be added to the selected subadmins without removing existing assignments."
+                      : "Enter the email of the user you want to assign, then select one or more subadmins. Assigning adds those subadmins without removing existing ones."}
+                </Typography>
+              </Box>
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ p: 3, bgcolor: 'grey.900', borderTop: '1px solid #333', flexShrink: 0 }}>
             <Button
-              variant="outlined"
-              onClick={onCloseModal}
+              onClick={closeAssignModal}
               sx={{
-                borderRadius: 2,
-                px: 4,
                 color: 'grey.300',
                 borderColor: 'grey.600',
                 '&:hover': {
@@ -2333,403 +2670,103 @@ const AdminUsers = () => {
             </Button>
             <Button
               variant="contained"
-              color="error"
-              sx={{ borderRadius: 2, px: 4 }}
-              onClick={() => deleteEachUser(modalData)}
-              disabled={isDisable}
+              onClick={handleAssignUser}
+              disabled={isAssigning}
+              startIcon={isAssigning ? null : <AssignmentIcon />}
+              sx={{
+                background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1565c0, #1e88e5)'
+                },
+                '&:disabled': {
+                  background: 'grey.600'
+                }
+              }}
             >
-              {isDisable ? 'Deleting...' : 'Delete'}
+              {isAssigning
+                ? 'Assigning...'
+                : assignTarget.type === "bulk"
+                  ? `Assign ${assignTarget.count} Users`
+                  : 'Assign User'}
             </Button>
-          </Box>
-        </Box>
-      </Modal>
+          </DialogActions>
+        </Dialog>
 
-      {/* Compliance Restriction Modal */}
-      <Modal
-        open={restrictModalOpen}
-        onClose={onCloseRestrictModal}
-        center
-        styles={{ modal: { backgroundColor: '#1e1e1e', border: '1px solid #333', maxWidth: '480px' } }}
-      >
-        <Box sx={{ p: 4, textAlign: 'center' }}>
-          {restrictModalData.isComplianceRestricted ? (
-            <LockOpenIcon sx={{ fontSize: 64, mb: 2, color: 'success.main' }} />
-          ) : (
-            <GavelIcon sx={{ fontSize: 64, mb: 2, color: '#ef5350' }} />
-          )}
-          <Typography variant="h5" fontWeight="700" gutterBottom sx={{ color: 'grey.100' }}>
-            {restrictModalData.isComplianceRestricted ? 'Remove Compliance Restriction' : 'Restrict User Account'}
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 2, color: 'grey.400', textAlign: 'left' }}>
-            {restrictModalData.isComplianceRestricted ? (
-              <>
-                Remove the compliance review status for{' '}
-                <strong style={{ color: 'grey.100' }}>
-                  {restrictModalData.firstName} {restrictModalData.lastName}
-                </strong>
-                . The red account review banner will no longer appear on their dashboard.
-              </>
-            ) : (
-              <>
-                Place{' '}
-                <strong style={{ color: 'grey.100' }}>
-                  {restrictModalData.firstName} {restrictModalData.lastName}
-                </strong>{' '}
-                under compliance review. They will see a prominent red banner on every dashboard page with instructions to contact support.
-              </>
-            )}
-          </Typography>
-          {!restrictModalData.isComplianceRestricted && (
-            <Box
-              sx={{
-                mb: 3,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: 'rgba(139, 0, 0, 0.15)',
-                border: '1px solid rgba(239, 83, 80, 0.35)',
-                textAlign: 'left',
-              }}
-            >
-              <Typography variant="caption" sx={{ color: '#ef9a9a', lineHeight: 1.6, display: 'block' }}>
-                Banner message: account under review due to potential money laundering concerns, with a link to customer support.
-              </Typography>
-            </Box>
-          )}
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button
-              variant="outlined"
-              onClick={onCloseRestrictModal}
-              sx={{
-                borderRadius: 2,
-                px: 4,
-                color: 'grey.300',
-                borderColor: 'grey.600',
-                '&:hover': { borderColor: 'grey.400' },
-              }}
-            >
+        <Dialog
+          open={Boolean(unassignConfirm)}
+          onClose={closeUnassignConfirm}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: {
+              backgroundColor: '#1e1e1e',
+              backgroundImage: 'none',
+              border: '1px solid #333',
+              borderRadius: 3
+            }
+          }}
+        >
+          <DialogTitle sx={{ bgcolor: 'grey.900', color: 'grey.100', fontWeight: 700 }}>
+            Unassign User
+          </DialogTitle>
+          <DialogContent sx={{ bgcolor: '#1e1e1e' }}>
+            <Typography variant="body1" sx={{ color: 'grey.300', mt: 1 }}>
+              Remove{" "}
+              <strong style={{ color: '#fff' }}>
+                {unassignConfirm?.user?.firstName} {unassignConfirm?.user?.lastName}
+              </strong>
+              {" "}from{" "}
+              <strong style={{ color: '#fff' }}>{unassignConfirm?.name}</strong>?
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, bgcolor: 'grey.900' }}>
+            <Button onClick={closeUnassignConfirm} disabled={Boolean(unassigningKey)} sx={{ color: 'grey.300' }}>
               Cancel
             </Button>
             <Button
               variant="contained"
-              color={restrictModalData.isComplianceRestricted ? 'success' : 'error'}
-              sx={{
-                borderRadius: 2,
-                px: 4,
-                ...(restrictModalData.isComplianceRestricted
-                  ? {}
-                  : { backgroundColor: '#8b0000', '&:hover': { backgroundColor: '#b71c1c' } }),
-              }}
-              onClick={() => handleComplianceRestriction(restrictModalData)}
-              disabled={isRestricting}
+              color="error"
+              onClick={confirmUnassignFromSubadmin}
+              disabled={Boolean(unassigningKey)}
             >
-              {isRestricting
-                ? 'Updating...'
-                : restrictModalData.isComplianceRestricted
-                  ? 'Remove Restriction'
-                  : 'Restrict Account'}
+              {unassigningKey ? 'Unassigning...' : 'Unassign'}
             </Button>
-          </Box>
-        </Box>
-      </Modal>
+          </DialogActions>
+        </Dialog>
 
-      {/* Assign User to Subadmin Modal */}
-      <Dialog
-        open={assignModalOpen}
-        onClose={closeAssignModal}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          className: "hui-assign-dialog",
-          sx: {
-            backgroundColor: '#1e1e1e',
-            backgroundImage: 'none',
-            border: '1px solid #333',
-            borderRadius: 3,
-            overflow: 'hidden',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-          }
-        }}
-      >
-        <DialogTitle sx={{
-          bgcolor: 'grey.900',
-          borderBottom: '1px solid #333',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexShrink: 0,
-        }}>
-          <Typography variant="h6" fontWeight="600" sx={{ color: 'grey.100' }}>
-            {assignTarget.type === "bulk"
-              ? `Assign ${assignTarget.count} Users to Subadmins`
-              : assignTarget.type === "user"
-                ? "Assign User to Subadmins"
-                : "Assign User to Subadmins"}
-          </Typography>
-          <IconButton onClick={closeAssignModal} sx={{ color: 'grey.400' }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent
-          sx={{
-            p: 3,
-            bgcolor: '#1e1e1e',
-            overflow: subadminPickerOpen ? 'hidden' : 'auto',
-            flex: '1 1 auto',
-            minHeight: 0,
-          }}
+        <Dialog
+          open={exportConfirmOpen}
+          onClose={() => !exportingToCrm && setExportConfirmOpen(false)}
+          maxWidth="sm"
+          fullWidth
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            {assignTarget.type === "bulk" ? (
-              <Box sx={{ p: 2, bgcolor: 'grey.800', borderRadius: 2, mt: 1 }}>
-                <Typography variant="subtitle2" fontWeight="600" sx={{ color: 'grey.100' }}>
-                  {assignTarget.count} selected user{assignTarget.count === 1 ? "" : "s"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'grey.400', mt: 0.5 }}>
-                  Each selected user will be added to the subadmins you pick below.
-                </Typography>
-              </Box>
-            ) : (
-              <Box>
-                <TextField
-                  fullWidth
-                  label="User Email"
-                  value={assignEmail}
-                  onChange={(e) => setAssignEmail(e.target.value)}
-                  error={!!emailError}
-                  helperText={emailError || (assignTarget.type === "user" ? assignTarget.name : "")}
-                  InputProps={{
-                    readOnly: assignTarget.type === "user",
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      color: 'grey.100',
-                      '& fieldset': {
-                        borderColor: 'grey.600',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'grey.400',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'primary.main',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: 'grey.400',
-                      backgroundColor: '#1e1e1e',
-                      paddingX: '4px',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: 'primary.main',
-                    },
-                    '& .MuiInputLabel-shrink': {
-                      backgroundColor: '#1e1e1e',
-                    },
-                  }}
-                />
-              </Box>
-            )}
-
-            <div>
-              <span className="hui-picker-label">Select subadmins</span>
-              <div className={`hui-picker${subadminPickerOpen ? " is-open" : ""}`}>
-                <div className="hui-picker-selected">
-                  {selectedSubadmins.length === 0 ? (
-                    <span className="hui-picker-empty">None selected yet</span>
-                  ) : selectedSubadmins.map((id) => {
-                    const subadmin = filteredSubadmins.find((s) => s._id === id);
-                    const label = subadmin ? `${subadmin.firstName} ${subadmin.lastName}` : id;
-                    return (
-                      <span className="hui-picker-chip" key={id}>
-                        {label}
-                        <button
-                          type="button"
-                          aria-label={`Remove ${label}`}
-                          onClick={() => toggleSelectedSubadmin(id)}
-                        >
-                          <CloseIcon sx={{ fontSize: 12 }} />
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-                <button
-                  type="button"
-                  className="hui-picker-trigger"
-                  aria-expanded={subadminPickerOpen}
-                  aria-haspopup="listbox"
-                  onClick={() => setSubadminPickerOpen((open) => !open)}
-                >
-                  <span className="hui-picker-trigger-value">
-                    {selectedSubadmins.length === 0
-                      ? "Choose subadmins"
-                      : `${selectedSubadmins.length} selected`}
-                  </span>
-                  <KeyboardArrowDownIcon className="hui-picker-caret" sx={{ fontSize: 22 }} />
-                </button>
-                {subadminPickerOpen && (
-                  <div className="hui-picker-list" role="listbox" aria-multiselectable="true">
-                    {filteredSubadmins.length === 0 ? (
-                      <p className="hui-picker-empty-list">No subadmins available</p>
-                    ) : filteredSubadmins.map((subadmin) => {
-                      const selected = selectedSubadmins.includes(subadmin._id);
-                      const initials = `${(subadmin.firstName || "S")[0] || ""}${(subadmin.lastName || "A")[0] || ""}`.toUpperCase();
-                      return (
-                        <button
-                          type="button"
-                          key={subadmin._id}
-                          role="option"
-                          aria-selected={selected}
-                          className={`hui-picker-row${selected ? " is-selected" : ""}`}
-                          onClick={() => toggleSelectedSubadmin(subadmin._id)}
-                        >
-                          <span className="hui-picker-check">
-                            {selected ? <SelectCheckIcon sx={{ fontSize: 14 }} /> : null}
-                          </span>
-                          <span className="hui-picker-avatar">{initials}</span>
-                          <span className="hui-picker-meta">
-                            <span className="hui-picker-name">{subadmin.firstName} {subadmin.lastName}</span>
-                            <span className="hui-picker-email">{subadmin.email}</span>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                {subadminError && (
-                  <p className="hui-picker-error">{subadminError}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Info Text */}
-            <Box sx={{ p: 1.5, bgcolor: 'grey.800', borderRadius: 2 }}>
-              <Typography variant="body2" sx={{ color: 'grey.300' }}>
-                <strong>Note:</strong>{" "}
-                {assignTarget.type === "bulk"
-                  ? "Selected users will be assigned to the subadmins you choose. Existing assignments are kept."
-                  : assignTarget.type === "user"
-                    ? "This user will be added to the selected subadmins without removing existing assignments."
-                    : "Enter the email of the user you want to assign, then select one or more subadmins. Assigning adds those subadmins without removing existing ones."}
-              </Typography>
-            </Box>
-          </Box>
-        </DialogContent>
-
-        <DialogActions sx={{ p: 3, bgcolor: 'grey.900', borderTop: '1px solid #333', flexShrink: 0 }}>
-          <Button
-            onClick={closeAssignModal}
-            sx={{
-              color: 'grey.300',
-              borderColor: 'grey.600',
-              '&:hover': {
-                borderColor: 'grey.400'
-              }
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAssignUser}
-            disabled={isAssigning}
-            startIcon={isAssigning ? null : <AssignmentIcon />}
-            sx={{
-              background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #1565c0, #1e88e5)'
-              },
-              '&:disabled': {
-                background: 'grey.600'
-              }
-            }}
-          >
-            {isAssigning
-              ? 'Assigning...'
-              : assignTarget.type === "bulk"
-                ? `Assign ${assignTarget.count} Users`
-                : 'Assign User'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={Boolean(unassignConfirm)}
-        onClose={closeUnassignConfirm}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            backgroundColor: '#1e1e1e',
-            backgroundImage: 'none',
-            border: '1px solid #333',
-            borderRadius: 3
-          }
-        }}
-      >
-        <DialogTitle sx={{ bgcolor: 'grey.900', color: 'grey.100', fontWeight: 700 }}>
-          Unassign User
-        </DialogTitle>
-        <DialogContent sx={{ bgcolor: '#1e1e1e' }}>
-          <Typography variant="body1" sx={{ color: 'grey.300', mt: 1 }}>
-            Remove{" "}
-            <strong style={{ color: '#fff' }}>
-              {unassignConfirm?.user?.firstName} {unassignConfirm?.user?.lastName}
-            </strong>
-            {" "}from{" "}
-            <strong style={{ color: '#fff' }}>{unassignConfirm?.name}</strong>?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, bgcolor: 'grey.900' }}>
-          <Button onClick={closeUnassignConfirm} disabled={Boolean(unassigningKey)} sx={{ color: 'grey.300' }}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={confirmUnassignFromSubadmin}
-            disabled={Boolean(unassigningKey)}
-          >
-            {unassigningKey ? 'Unassigning...' : 'Unassign'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={exportConfirmOpen}
-        onClose={() => !exportingToCrm && setExportConfirmOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: 700 }}>
-          Export Users to CRM Leads
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Import <strong>{selectedUserIds.size}</strong> wallet user{selectedUserIds.size === 1 ? '' : 's'} into the CRM leads database?
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Name, email, phone, country, and address will be copied. Users with an existing lead email or phone will be skipped.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setExportConfirmOpen(false)} disabled={exportingToCrm}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleExportUsersToCrm}
-            disabled={exportingToCrm}
-            startIcon={exportingToCrm ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />}
-          >
-            {exportingToCrm ? 'Exporting...' : 'Export to CRM'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+          <DialogTitle sx={{ fontWeight: 700 }}>
+            Export Users to CRM Leads
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Import <strong>{selectedUserIds.size}</strong> wallet user{selectedUserIds.size === 1 ? '' : 's'} into the CRM leads database?
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Name, email, phone, country, and address will be copied. Users with an existing lead email or phone will be skipped.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setExportConfirmOpen(false)} disabled={exportingToCrm}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleExportUsersToCrm}
+              disabled={exportingToCrm}
+              startIcon={exportingToCrm ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />}
+            >
+              {exportingToCrm ? 'Exporting...' : 'Export to CRM'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </AdminShell>
   );
 };

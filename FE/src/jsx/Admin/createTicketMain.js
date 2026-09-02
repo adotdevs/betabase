@@ -5,6 +5,7 @@ import { useAuthUser } from "react-auth-kit";
 import CreateTicket from "./createTicket.js";
 import SideBar from "../layouts/AdminSidebar/Sidebar";
 import AdminHeader from "./adminHeader";
+import ui from "./theme/AdminUI.module.css";
 
 const Supportpage = () => {
   const authUser = useAuthUser();
@@ -25,18 +26,18 @@ const Supportpage = () => {
   }, []);
 
   return (
-    <AdminShell><div className="admin dark-new-ui">
-      <div className="bg-gray-900 min-h-screen">
-        <SideBar state={Active} toggle={toggleBar} />
-
-        <div className="bg-gray-900 relative min-h-screen w-full overflow-x-hidden px-4 transition-all duration-300 xl:px-10 lg:max-w-[calc(100%_-_280px)] lg:ms-[280px]">
-          <div className="mx-auto w-full max-w-7xl">
-            <AdminHeader toggle={toggleBar} pageName="Create Ticket" />
-            <CreateTicket />
+    <AdminShell open={Active} onClose={toggleBar}>
+      <div>
+        <div className="min-h-screen pb-20">
+          <SideBar state={Active} toggle={toggleBar} />
+          <div className={ui.main}>
+            <div className={ui.content}>
+              <AdminHeader toggle={toggleBar} pageName="Create Ticket" />
+              <CreateTicket />
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </AdminShell>
   );
 };

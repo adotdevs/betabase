@@ -28,126 +28,126 @@
     font-weight: bold;
 }
 
-/* ReactQuill Dark Theme Styles */
-.dark-new-ui .ql-toolbar {
+/* ReactQuill Dark Theme Styles (only applied in dark theme or non-light surfaces) */
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar {
     background-color: #2d2d2d !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 8px 8px 0 0 !important;
 }
 
-.dark-new-ui .ql-container {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-container {
     background-color: #1e1e1e !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 0 0 8px 8px !important;
     color: #ddd !important;
 }
 
-.dark-new-ui .ql-editor {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor {
     color: #ddd !important;
     min-height: 100px;
     /* background-color: #4e4e4e; */
     /* border: 1px solid #ddd; */
 }
 
-.dark-new-ui .ql-editor.ql-blank::before {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor.ql-blank::before {
     color: rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Toolbar Icons Color */
-.dark-new-ui .ql-toolbar button,
-.dark-new-ui .ql-toolbar .ql-picker-label {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label {
     color: #64b5f6 !important;
 }
 
-.dark-new-ui .ql-toolbar button:hover,
-.dark-new-ui .ql-toolbar .ql-picker-label:hover {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button:hover,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label:hover {
     color: #90caf9 !important;
 }
 
-.dark-new-ui .ql-toolbar button.ql-active,
-.dark-new-ui .ql-toolbar .ql-picker-label.ql-active {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button.ql-active,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label.ql-active {
     color: #42a5f5 !important;
 }
 
 /* SVG Icons in Toolbar */
-.dark-new-ui .ql-toolbar button svg,
-.dark-new-ui .ql-toolbar .ql-picker-label svg {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button svg,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label svg {
     stroke: #64b5f6 !important;
 }
 
-.dark-new-ui .ql-toolbar button:hover svg,
-.dark-new-ui .ql-toolbar .ql-picker-label:hover svg {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button:hover svg,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label:hover svg {
     stroke: #90caf9 !important;
 }
 
-.dark-new-ui .ql-toolbar button.ql-active svg,
-.dark-new-ui .ql-toolbar .ql-picker-label.ql-active svg {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button.ql-active svg,
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-label.ql-active svg {
     stroke: #42a5f5 !important;
     fill: #42a5f5 !important;
 }
 
 /* Fill for specific icons */
-.dark-new-ui .ql-toolbar .ql-stroke {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-stroke {
     stroke: #64b5f6 !important;
 }
 
-.dark-new-ui .ql-toolbar .ql-fill {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-fill {
     fill: #64b5f6 !important;
 }
 
-.dark-new-ui .ql-toolbar button:hover .ql-stroke {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button:hover .ql-stroke {
     stroke: #90caf9 !important;
 }
 
-.dark-new-ui .ql-toolbar button:hover .ql-fill {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button:hover .ql-fill {
     fill: #90caf9 !important;
 }
 
-.dark-new-ui .ql-toolbar button.ql-active .ql-stroke {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button.ql-active .ql-stroke {
     stroke: #42a5f5 !important;
 }
 
-.dark-new-ui .ql-toolbar button.ql-active .ql-fill {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar button.ql-active .ql-fill {
     fill: #42a5f5 !important;
 }
 
 /* Picker Dropdown Styling */
-.dark-new-ui .ql-toolbar .ql-picker-options {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-options {
     background-color: #2d2d2d !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 4px !important;
 }
 
-.dark-new-ui .ql-toolbar .ql-picker-item {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-item {
     color: #ddd !important;
 }
 
-.dark-new-ui .ql-toolbar .ql-picker-item:hover {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-toolbar .ql-picker-item:hover {
     background-color: rgba(66, 165, 245, 0.2) !important;
     color: #64b5f6 !important;
 }
 
 /* Color Picker Styles */
-.dark-new-ui .ql-color-picker .ql-picker-options {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-color-picker .ql-picker-options {
     background-color: #2d2d2d !important;
     padding: 8px !important;
 }
 
 /* Scrollbar for editor */
-.dark-new-ui .ql-editor::-webkit-scrollbar {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor::-webkit-scrollbar {
     width: 8px;
 }
 
-.dark-new-ui .ql-editor::-webkit-scrollbar-track {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.dark-new-ui .ql-editor::-webkit-scrollbar-thumb {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor::-webkit-scrollbar-thumb {
     background: rgba(66, 165, 245, 0.3);
     border-radius: 4px;
 }
 
-.dark-new-ui .ql-editor::-webkit-scrollbar-thumb:hover {
+html:not([data-admin-theme="light"]) .dark-new-ui .ql-editor::-webkit-scrollbar-thumb:hover {
     background: rgba(66, 165, 245, 0.5);
 }
 
@@ -390,26 +390,26 @@
     height: 14px;
 }
 
-.dark-new-ui {
+html:not([data-admin-theme="light"]) .dark-new-ui {
     background-color: #333 !important;
 }
 
-.dark-new-ui h1 {
+html:not([data-admin-theme="light"]) .dark-new-ui h1 {
     color: #ddd !important;
 }
  
-.dark-new-ui #sidebar svg path,
-.dark-new-ui #sidebar .text-sm {
+html:not([data-admin-theme="light"]) .dark-new-ui #sidebar svg path,
+html:not([data-admin-theme="light"]) .dark-new-ui #sidebar .text-sm {
     color: #c1c1c1 ;
     fill: #c1c1c1 ;
     /* stroke: #c1c1c1 !important; */
 }
-.dark-new-ui #sidebar a:hover  svg path,
-.dark-new-ui #sidebar a:hover  span.text-sm{
+html:not([data-admin-theme="light"]) .dark-new-ui #sidebar a:hover  svg path,
+html:not([data-admin-theme="light"]) .dark-new-ui #sidebar a:hover  span.text-sm{
 
     color: black !important;
 
 }
-.dark-new-ui #sidebar {
+html:not([data-admin-theme="light"]) .dark-new-ui #sidebar {
     background-color: #212121 !important;
 }

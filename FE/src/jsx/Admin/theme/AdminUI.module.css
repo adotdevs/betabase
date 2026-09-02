@@ -203,6 +203,23 @@
   opacity: 1 !important;
 }
 
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .ql-toolbar) {
+  background: var(--admin-surface-2) !important;
+  border-color: var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .ql-container) {
+  background: var(--admin-surface-1) !important;
+  border-color: var(--admin-border-strong) !important;
+  color: var(--admin-text-primary) !important;
+}
+
+:global(html[data-admin-ui="on"][data-admin-theme="light"] .ql-editor) {
+  color: var(--admin-text-primary) !important;
+  -webkit-text-fill-color: var(--admin-text-primary) !important;
+}
+
 :global([data-admin-ui="true"] input::placeholder),
 :global([data-admin-ui="true"] textarea::placeholder) {
   color: var(--admin-text-muted) !important;
@@ -444,6 +461,16 @@
   padding: 8px 16px !important;
   min-height: 36px !important;
   line-height: 1.25 !important;
+}
+
+:global(html[data-admin-ui="on"] .hui-assign-btn),
+:global(html[data-admin-ui="on"] .MuiButton-root.hui-assign-btn),
+:global(html[data-admin-ui="on"] .hui-assign-btn *),
+:global(html[data-admin-ui="on"] .hui-assign-btn .MuiButton-startIcon),
+:global(html[data-admin-ui="on"] .hui-assign-btn .MuiSvgIcon-root) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  fill: #ffffff !important;
 }
 
 :global(html[data-admin-ui="on"] .MuiButton-sizeSmall) {

@@ -101,7 +101,7 @@ const CreateTicket = () => {
     : "Customer";
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.wrap} ${styles.page}`}>
       <header className={styles.header}>
         <button
           type="button"

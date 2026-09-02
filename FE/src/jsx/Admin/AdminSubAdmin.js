@@ -219,7 +219,7 @@ const AdminSubAdmin = () => {
       if (signleUser.success) {
         if (signleUser.signleUser.adminPermissions?.isSubManagement === false && signleUser.signleUser.role === "admin") {
           Navigate("/admin/dashboard")
-        }setsignedAdmin(signleUser.signleUser?.adminPermissions?.isEditSubManagementPermissions)
+        } setsignedAdmin(signleUser.signleUser?.adminPermissions?.isEditSubManagementPermissions)
       } else {
         toast.dismiss();
         toast.error(signleUser.msg);
@@ -352,10 +352,10 @@ const AdminSubAdmin = () => {
                               fontWeight: 'bold',
                               boxShadow: 2
                             }}>
-                              <Typography variant="body2" fontWeight={600}>
+                              <Typography variant="body2" fontWeight={600} sx={{ color: '#fff !important' }}>
                                 {userCounts[user._id] || 0} Users managed
                               </Typography>
-                              <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                              <Typography variant="caption" sx={{ color: '#fff !important', opacity: 0.85 }}>
                                 {dedicatedCounts?.[user._id] || 0} dedicated • {sharedCounts?.[user._id] || 0} shared
                               </Typography>
                             </Box>
