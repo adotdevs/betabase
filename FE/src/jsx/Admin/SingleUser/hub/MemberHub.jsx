@@ -128,10 +128,6 @@ const MemberHub = () => {
       try {
         setLoading(true);
         const current = authUser()?.user;
-        if (current?._id === id) {
-          Navigate("/admin/dashboard");
-          return;
-        }
         if (current?.role === "user") {
           Navigate("/dashboard");
           return;

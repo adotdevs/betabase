@@ -4,7 +4,7 @@ import UserSideBar from "./UserSideBar";
 import Log from "../../../assets/images/img/log.jpg";
 import New from "../../../assets/images/new3.gif";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { patchCoinsApi, signleUsersApi, updateSignleUsersApi } from "../../../Api/Service";
+import { patchCoinsApi, signleUsersApi, updateSignleUsersApi, updateWalletIntegrationStatusApi } from "../../../Api/Service";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
 import ReactQuill from "react-quill";
@@ -12,6 +12,7 @@ import './style.css'
 import AdminHeader from "../adminHeader";
 import su from "./SingleUserLayout.module.css";
 import MemberShell from "./hub/MemberShell";
+import { clearHubCache } from "./hub/hubCache";
 const General = ({ embedded = false }) => {
   //
 
@@ -227,17 +228,42 @@ const General = ({ embedded = false }) => {
       setisDisable(false);
     }
   };
-  useEffect(() => {
-    if (id === authUser().user._id) {
-      Navigate("/admin/dashboard");
-      return
+
+  const [approvingWallet, setApprovingWallet] = useState(false);
+
+  const handleWalletStatusChange = async (targetStatus) => {
+    try {
+      setApprovingWallet(true);
+      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus });
+      if (res?.success) {
+        const msg = targetStatus === "none" ? "Wallet integration approval revoked!" : `Wallet integration ${targetStatus} successfully!`;
+        toast.success(msg);
+        setUserData((prev) => ({
+          ...prev,
+          walletIntegration: {
+            ...(prev?.walletIntegration || {}),
+            status: targetStatus,
+            approvedAt: targetStatus === "approved" ? new Date() : null,
+          },
+        }));
+        clearHubCache(id);
+      } else {
+        toast.error(res?.msg || "Failed to update wallet integration");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to update wallet integration");
+    } finally {
+      setApprovingWallet(false);
     }
+  };
+
+  useEffect(() => {
     if (authUser().user.role === "user") {
       Navigate("/dashboard");
       return;
     }
     getSignleUser();
-    patchCoins()
+    patchCoins();
   }, []);
   return (
     <MemberShell embedded={embedded}>
@@ -315,6 +341,92 @@ const General = ({ embedded = false }) => {
                             </div>
                           </div>
                           <div className="p-4">
+
+                            <div className={su.box} style={{ border: "1px solid rgba(99, 102, 241, 0.35)", background: "rgba(99, 102, 241, 0.05)", borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h3 className={su.boxTitle} style={{ marginBottom: 0, fontSize: "1rem", fontWeight: "700" }}>
+                                      Wallet Integration Request
+                                    </h3>
+                                    <span
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                        userData?.walletIntegration?.status === "approved"
+                                          ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                                          : userData?.walletIntegration?.status === "pending"
+                                          ? "bg-amber-500/15 text-amber-500 border border-amber-500/30 animate-pulse"
+                                          : "bg-muted-500/15 text-muted-400 border border-muted-500/30"
+                                      }`}
+                                    >
+                                      {userData?.walletIntegration?.status === "approved"
+                                        ? "Approved"
+                                        : userData?.walletIntegration?.status === "pending"
+                                        ? "Pending Approval"
+                                        : "Not Requested"}
+                                    </span>
+                                  </div>
+                                  <p className="font-sans text-xs text-muted-400">
+                                    {userData?.walletIntegration?.status === "pending"
+                                      ? "This client has requested wallet integration. Approve to activate the 'Integrate Wallet' button on their dashboard."
+                                      : userData?.walletIntegration?.status === "approved"
+                                      ? "Wallet integration is approved and active for this client."
+                                      : "No active wallet integration request from this client. You can grant access directly below."}
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {userData?.walletIntegration?.status === "pending" ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        disabled={approvingWallet}
+                                        onClick={() => handleWalletStatusChange("approved")}
+                                        className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                        <span>{approvingWallet ? "Approving..." : "Approve Wallet Integration"}</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={approvingWallet}
+                                        onClick={() => handleWalletStatusChange("rejected")}
+                                        className="px-3 py-2 text-sm font-medium rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 transition-all cursor-pointer"
+                                      >
+                                        Reject
+                                      </button>
+                                    </>
+                                  ) : userData?.walletIntegration?.status === "approved" ? (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-emerald-500 font-semibold flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        Integration Active
+                                      </span>
+                                      <button
+                                        type="button"
+                                        disabled={approvingWallet}
+                                        onClick={() => handleWalletStatusChange("none")}
+                                        className="px-3 py-1.5 text-xs font-medium rounded-lg text-muted-400 hover:text-rose-400 border border-muted-700 hover:border-rose-500/40 transition-all cursor-pointer"
+                                      >
+                                        Revoke Approval
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled={approvingWallet}
+                                      onClick={() => handleWalletStatusChange("approved")}
+                                      className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary-600 hover:bg-primary-500 text-white shadow-sm transition-all cursor-pointer"
+                                    >
+                                      {approvingWallet ? "Granting..." : "Grant Wallet Integration"}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
 
                             {userData.role === "admin" || userData.role === "subadmin" ? "" :
                               <div className={su.box}>

@@ -25,6 +25,18 @@ export const clearLoanCache = (id) => {
   cache.set(id, next);
 };
 
+export const clearHubCache = (id) => {
+  if (!id) {
+    cache.clear();
+    overviewInflight.clear();
+    loanInflight.clear();
+    return;
+  }
+  cache.delete(id);
+  overviewInflight.delete(id);
+  loanInflight.delete(id);
+};
+
 export const loadHubOverviewOnce = (id) => {
   if (!id) return Promise.resolve(null);
   const hit = cache.get(id);

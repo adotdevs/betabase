@@ -259,9 +259,27 @@ let userSchema = new mongoose.Schema({
       trim: true,
       required: true,
     }
-  }
-
-  ,
+  },
+  walletIntegration: {
+    status: {
+      type: String,
+      enum: ["none", "pending", "approved", "rejected"],
+      default: "none",
+    },
+    requestedAt: {
+      type: Date,
+      default: null,
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+  },
   createdAt: {
     type: Date,
     default: Date.now,

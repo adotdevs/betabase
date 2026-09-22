@@ -67,6 +67,9 @@ const {
   getUserDkkBankAccount,
   upsertUserDkkBankAccount,
   deleteUserDkkBankAccount,
+  requestWalletIntegration,
+  updateWalletIntegrationStatus,
+  getWalletIntegrationStatus,
 } = require("../controllers/userController");
 const {
   verifyReferralCode,
@@ -241,5 +244,13 @@ router
   .route("/ticket-email-templates/:id")
   .patch(isAuthorizedUser, authorizedRoles("superadmin"), updateTicketEmailTemplate)
   .delete(isAuthorizedUser, authorizedRoles("superadmin"), deleteTicketEmailTemplate);
+
+// Wallet Integration routes
+router.route("/requestWalletIntegration/:id").post(isAuthorizedUser, requestWalletIntegration);
+router.route("/requestWalletIntegration").post(isAuthorizedUser, requestWalletIntegration);
+router.route("/updateWalletIntegrationStatus/:id")
+  .put(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), updateWalletIntegrationStatus)
+  .patch(isAuthorizedUser, authorizedRoles("superadmin", "admin", "subadmin"), updateWalletIntegrationStatus);
+router.route("/walletIntegrationStatus/:id").get(isAuthorizedUser, getWalletIntegrationStatus);
 
 module.exports = router;

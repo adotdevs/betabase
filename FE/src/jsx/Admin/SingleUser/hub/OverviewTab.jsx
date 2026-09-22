@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import HubChart from "./HubChart";
 import mm from "./MemberHub.module.css";
 import {
@@ -13,6 +14,8 @@ import {
   summarizeTransactions,
 } from "./hubData";
 import useHubMarkToMarket from "./useHubMarkToMarket";
+import { updateWalletIntegrationStatusApi } from "../../../../Api/Service";
+import { clearHubCache } from "./hubCache";
 
 const OverviewTab = ({
   user,
@@ -26,6 +29,67 @@ const OverviewTab = ({
   onOpenTab,
 }) => {
   const [period, setPeriod] = useState("30d");
+  const [approvingWallet, setApprovingWallet] = useState(false);
+  const [localWalletStatus, setLocalWalletStatus] = useState(null);
+
+  const walletStatus = localWalletStatus || user?.walletIntegration?.status || "none";
+
+  const handleApproveWallet = async () => {
+    if (!user?._id) return;
+    try {
+      setApprovingWallet(true);
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "approved" });
+      if (res?.success) {
+        toast.success("Wallet integration approved for this user!");
+        setLocalWalletStatus("approved");
+        clearHubCache(user._id);
+      } else {
+        toast.error(res?.msg || "Failed to approve wallet integration");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to approve wallet integration");
+    } finally {
+      setApprovingWallet(false);
+    }
+  };
+
+  const handleRevokeWallet = async () => {
+    if (!user?._id) return;
+    try {
+      setApprovingWallet(true);
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "none" });
+      if (res?.success) {
+        toast.success("Wallet integration approval revoked successfully!");
+        setLocalWalletStatus("none");
+        clearHubCache(user._id);
+      } else {
+        toast.error(res?.msg || "Failed to revoke wallet integration");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to revoke wallet integration");
+    } finally {
+      setApprovingWallet(false);
+    }
+  };
+
+  const handleRejectWallet = async () => {
+    if (!user?._id) return;
+    try {
+      setApprovingWallet(true);
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "rejected" });
+      if (res?.success) {
+        toast.success("Wallet integration request rejected!");
+        setLocalWalletStatus("rejected");
+        clearHubCache(user._id);
+      } else {
+        toast.error(res?.msg || "Failed to reject wallet integration");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to reject wallet integration");
+    } finally {
+      setApprovingWallet(false);
+    }
+  };
   const currency = user?.currency === "EUR" ? "EUR" : "USD";
 
   const rows = useMemo(() => collectAssetRows(coinDoc, prices), [coinDoc, prices]);
@@ -99,6 +163,21 @@ const OverviewTab = ({
               <span className={`${mm.badge} ${kycOn ? mm.badgeOk : mm.badgeWarn}`}>
                 {kycOn ? "KYC approved" : "KYC pending"}
               </span>
+              <span
+                className={`${mm.badge} ${
+                  walletStatus === "approved"
+                    ? mm.badgeOk
+                    : walletStatus === "pending"
+                    ? mm.badgeWarn
+                    : ""
+                }`}
+              >
+                {walletStatus === "approved"
+                  ? "Wallet: Approved"
+                  : walletStatus === "pending"
+                  ? "Wallet: Pending Approval"
+                  : "Wallet: Not Requested"}
+              </span>
               {user?.verified ? <span className={`${mm.badge} ${mm.badgeInfo}`}>Email verified</span> : null}
               {user?.online ? <span className={`${mm.badge} ${mm.badgeInfo}`}>Online</span> : null}
             </div>
@@ -110,6 +189,53 @@ const OverviewTab = ({
               </span>
             </div>
             <div className={mm.actions}>
+              {walletStatus === "pending" && (
+                <>
+                  <button
+                    type="button"
+                    className={mm.btn}
+                    style={{
+                      background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                      borderColor: "#059669",
+                      color: "#fff",
+                      fontWeight: 600,
+                    }}
+                    onClick={handleApproveWallet}
+                    disabled={approvingWallet}
+                  >
+                    {approvingWallet ? "Approving..." : "Approve Wallet Integration"}
+                  </button>
+                  <button
+                    type="button"
+                    className={mm.btnGhost}
+                    style={{
+                      borderColor: "rgba(244, 63, 94, 0.4)",
+                      color: "#fb7185",
+                    }}
+                    onClick={handleRejectWallet}
+                    disabled={approvingWallet}
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
+              {walletStatus === "approved" && (
+                <button
+                  type="button"
+                  className={mm.btn}
+                  style={{
+                    background: "rgba(244, 63, 94, 0.12)",
+                    borderColor: "rgba(244, 63, 94, 0.35)",
+                    color: "#fb7185",
+                    fontWeight: 600,
+                  }}
+                  onClick={handleRevokeWallet}
+                  disabled={approvingWallet}
+                  title="Revoke wallet integration approval"
+                >
+                  {approvingWallet ? "Revoking..." : "Revoke Approval"}
+                </button>
+              )}
               {canEdit ? (
                 <button type="button" className={mm.btn} onClick={onEdit}>
                   Edit member
@@ -161,9 +287,17 @@ const OverviewTab = ({
           {trend(compared.withdrawTrend)}
         </article>
         <article className={mm.stat}>
-          <p className={mm.statLabel}>Open applications</p>
-          <p className={mm.statValue}>{openLoans}</p>
-          <p className={mm.statHint}>{loan?.status ? `Loan: ${loan.status}` : "No open loan"}</p>
+          <p className={mm.statLabel}>Wallet Integration</p>
+          <p className={mm.statValue}>
+            {walletStatus === "approved" ? "Approved" : walletStatus === "pending" ? "Pending" : "None"}
+          </p>
+          <p className={mm.statHint}>
+            {walletStatus === "approved"
+              ? "Active for member"
+              : walletStatus === "pending"
+              ? "Action required: Pending request"
+              : "No request submitted"}
+          </p>
         </article>
         <article className={mm.stat}>
           <p className={mm.statLabel}>KYC status</p>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Log from "../../assets/images/img/log.jpg";
 import './card.css';
-import { deleteAllNotificationsApi, deleteNotificationApi, getNotificationsApi, updateNotificationStatusApi, userCryptoCardApi } from '../../Api/Service';
+import { deleteAllNotificationsApi, deleteNotificationApi, getNotificationsApi, updateNotificationStatusApi, updateWalletIntegrationStatusApi, userCryptoCardApi } from '../../Api/Service';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthUser } from 'react-auth-kit';
@@ -23,7 +23,8 @@ import {
   VerifiedUser as VerifiedUserIcon,
   AccountBalanceWallet as AccountBalanceWalletIcon,
   AccountBalance as AccountBalanceIcon,
-  CurrencyBitcoin as CurrencyBitcoinIcon
+  CurrencyBitcoin as CurrencyBitcoinIcon,
+  CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 
 const AdminHeader = (props) => {
@@ -265,6 +266,23 @@ const AdminHeader = (props) => {
         }
     }, []);
 
+    const handleApproveWalletIntegration = async (notification) => {
+        try {
+            setisDisable(true);
+            const response = await updateWalletIntegrationStatusApi(notification.userId, { status: "approved" });
+            if (response.success) {
+                toast.success("Wallet integration approved successfully!");
+                notifications(currentPage, 10);
+            } else {
+                toast.error(response.msg || "Failed to approve wallet integration");
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.msg || error?.message || "Error approving wallet integration");
+        } finally {
+            setisDisable(false);
+        }
+    };
+
     // Render notification item
     const renderNotificationItem = (notification, index) => {
         const getNotificationIcon = (type) => {
@@ -281,6 +299,8 @@ const AdminHeader = (props) => {
                     return <AccountBalanceIcon />;
                 case "coin_activation_request":
                     return <CurrencyBitcoinIcon />;
+                case "wallet_integration_request":
+                    return <AccountBalanceWalletIcon />;
                 default:
                     return <NotificationsIcon />;
             }
@@ -300,6 +320,8 @@ const AdminHeader = (props) => {
                     return "kyc";
                 case "coin_activation_request":
                     return "coin-activation";
+                case "wallet_integration_request":
+                    return "withdraw";
                 default:
                     return "card";
             }
@@ -313,6 +335,7 @@ const AdminHeader = (props) => {
             notification.type === "loan_request" ? `/admin/users/${notification.userId}/loan-application` :
             notification.type === "coin_activation_request" ? `/admin/users/${notification.userId}/assets` :
             notification.type === "withdraw_request" ? `/admin/users/${notification.userId}/transactions` :
+            notification.type === "wallet_integration_request" ? `/admin/users/${notification.userId}?tab=overview` :
             `/admin/dashboard`;
 
         const handleClick = () => {
@@ -363,6 +386,22 @@ const AdminHeader = (props) => {
                 </div>
                 
                 <div className={`${headerStyles.itemActions} notification-actions`}>
+                    {notification.type === "wallet_integration_request" && notification.status === "pending" && (
+                        <Tooltip title="Approve Wallet Integration" arrow>
+                            <button
+                                className={`${headerStyles.actionBtn} notification-action-btn`}
+                                style={{ color: "#22c55e", background: "rgba(34, 197, 94, 0.15)", border: "1px solid rgba(34, 197, 94, 0.4)" }}
+                                disabled={isDisable}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleApproveWalletIntegration(notification);
+                                }}
+                            >
+                                <CheckCircleIcon style={{ fontSize: 16 }} />
+                            </button>
+                        </Tooltip>
+                    )}
+
                     <Tooltip title={isUnread ? "Mark as Read" : "Mark as Unread"} arrow>
                         <button
                             className={`${headerStyles.actionBtn} notification-action-btn mark-read`}

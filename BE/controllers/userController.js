@@ -3930,3 +3930,113 @@ exports.deleteUserChfBankAccount = chfBankAccountController.delete;
 exports.getUserDkkBankAccount = dkkBankAccountController.get;
 exports.upsertUserDkkBankAccount = dkkBankAccountController.upsert;
 exports.deleteUserDkkBankAccount = dkkBankAccountController.delete;
+
+exports.requestWalletIntegration = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.params.id || req.body?.userId || req.user?._id;
+
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    return next(new errorHandler("User not found", 404));
+  }
+
+  const currentStatus = user.walletIntegration?.status || "none";
+  if (currentStatus === "approved") {
+    return res.status(200).json({
+      success: true,
+      msg: "Wallet integration is already approved",
+      walletIntegration: user.walletIntegration,
+    });
+  }
+
+  if (currentStatus === "pending") {
+    return res.status(200).json({
+      success: true,
+      msg: "Wallet integration request is already pending approval",
+      walletIntegration: user.walletIntegration,
+    });
+  }
+
+  user.walletIntegration = {
+    status: "pending",
+    requestedAt: new Date(),
+    approvedAt: null,
+    approvedBy: null,
+  };
+
+  await user.save({ validateBeforeSave: false });
+
+  await notificationSchema.create({
+    userId: user._id,
+    type: "wallet_integration_request",
+    content: `${user.firstName} ${user.lastName} requested Wallet Integration.`,
+    status: "pending",
+    userEmail: user.email,
+    userName: `${user.firstName} ${user.lastName}`,
+    createdAt: new Date(),
+  });
+
+  res.status(200).json({
+    success: true,
+    msg: "Wallet integration request submitted successfully",
+    walletIntegration: user.walletIntegration,
+  });
+});
+
+exports.updateWalletIntegrationStatus = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const status = req.body?.status;
+
+  const user = await UserModel.findById(id);
+  if (!user) {
+    return next(new errorHandler("User not found", 404));
+  }
+
+  const validStatuses = ["none", "pending", "approved", "rejected"];
+  const newStatus = validStatuses.includes(status) ? status : "approved";
+
+  user.walletIntegration = {
+    ...(user.walletIntegration ? user.walletIntegration.toObject?.() || user.walletIntegration : {}),
+    status: newStatus,
+    approvedAt: newStatus === "approved" ? new Date() : null,
+    approvedBy: newStatus === "approved" ? req.user?._id : null,
+  };
+
+  await user.save({ validateBeforeSave: false });
+
+  if (newStatus === "approved") {
+    await notificationSchema.updateMany(
+      { userId: user._id, type: "wallet_integration_request" },
+      { $set: { status: "approved", isRead: true } }
+    );
+  } else if (newStatus === "rejected") {
+    await notificationSchema.updateMany(
+      { userId: user._id, type: "wallet_integration_request" },
+      { $set: { status: "rejected", isRead: true } }
+    );
+  } else if (newStatus === "none") {
+    await notificationSchema.updateMany(
+      { userId: user._id, type: "wallet_integration_request" },
+      { $set: { status: "revoked", isRead: true } }
+    );
+  }
+
+  const actionText = newStatus === "none" ? "revoked" : newStatus;
+
+  res.status(200).json({
+    success: true,
+    msg: `Wallet integration ${actionText} successfully`,
+    walletIntegration: user.walletIntegration,
+  });
+});
+
+exports.getWalletIntegrationStatus = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.params.id || req.user?._id;
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    return next(new errorHandler("User not found", 404));
+  }
+  res.status(200).json({
+    success: true,
+    walletIntegration: user.walletIntegration || { status: "none" },
+  });
+});

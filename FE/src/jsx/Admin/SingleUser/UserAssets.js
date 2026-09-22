@@ -13,7 +13,8 @@ import {
   getCoinsApi,
   patchCoinsApi,
   signleUsersApi,
-  updateCoinAddressApi, updateNewCoinAddressApi
+  updateCoinAddressApi, updateNewCoinAddressApi,
+  updateWalletIntegrationStatusApi
 } from "../../../Api/Service";
 import { FIAT_CURRENCIES, getFiatCurrencyByName, isFiatCoin, isFiatTrxNameForAdmin } from "../../../utils/euroCoinUtils";
 import { getTransactionsForCoin } from "../../pages/report/assets/coinConfig";
@@ -24,6 +25,7 @@ import AdminHeader from "../adminHeader";
 import su from "./SingleUserLayout.module.css";
 import assetUi from "./UserAssets.module.css";
 import MemberShell from "./hub/MemberShell";
+import { clearHubCache } from "./hub/hubCache";
 const UserAssets = ({ embedded = false }) => {
   const [modal1, setModal1] = useState(false);
 
@@ -58,6 +60,35 @@ const UserAssets = ({ embedded = false }) => {
     coinSymbol: "",  // Currently selected coin symbol
     address: {},     // Object to store addresses for each coin
   });
+
+  const [approvingWallet, setApprovingWallet] = useState(false);
+
+  const handleUpdateWalletIntegration = async (targetStatus) => {
+    try {
+      setApprovingWallet(true);
+      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus });
+      if (res?.success) {
+        const msg = targetStatus === "none" ? "Wallet integration approval revoked!" : `Wallet integration ${targetStatus} successfully!`;
+        toast.success(msg);
+        setUserData((prev) => ({
+          ...prev,
+          walletIntegration: {
+            ...(prev?.walletIntegration || {}),
+            status: targetStatus,
+            approvedAt: targetStatus === "approved" ? new Date() : null,
+          },
+        }));
+        clearHubCache(id);
+        getSignleUser();
+      } else {
+        toast.error(res?.msg || "Failed to update wallet integration");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to update wallet integration");
+    } finally {
+      setApprovingWallet(false);
+    }
+  };
 
 
   const [subAdminPermissions, setsubAdminPermissions] = useState({
@@ -625,6 +656,86 @@ const UserAssets = ({ embedded = false }) => {
                         <AdminSkeleton variant="list" rows={6} />
                       ) : (
                         <div className="pt-6">
+                          {/* Wallet Integration Management Card */}
+                          <div className="mb-6 p-4 rounded-xl border border-muted-200 dark:border-muted-700 bg-white dark:bg-muted-900/60 shadow-sm">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div className="flex items-start sm:items-center gap-3">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 text-primary-500">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h3 className="text-base font-semibold text-muted-800 dark:text-muted-100">
+                                      Wallet Integration
+                                    </h3>
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                      userData?.walletIntegration?.status === "approved"
+                                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                                        : userData?.walletIntegration?.status === "pending"
+                                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
+                                        : "bg-muted-500/15 text-muted-400 border border-muted-500/30"
+                                    }`}>
+                                      {userData?.walletIntegration?.status === "approved"
+                                        ? "Approved"
+                                        : userData?.walletIntegration?.status === "pending"
+                                        ? "Pending Approval"
+                                        : "Not Requested"}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-muted-500 dark:text-muted-400 mt-0.5">
+                                    {userData?.walletIntegration?.status === "pending"
+                                      ? "User has submitted a request for wallet integration. Approve this request to activate the 'Integrate Wallet' button on their dashboard."
+                                      : userData?.walletIntegration?.status === "approved"
+                                      ? "Wallet integration is approved and active for this user."
+                                      : "User has not submitted a wallet integration request yet. You can grant access below."}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {userData?.walletIntegration?.status === "pending" ? (
+                                  <>
+                                    <button
+                                      type="button"
+                                      disabled={approvingWallet}
+                                      onClick={() => handleUpdateWalletIntegration("approved")}
+                                      className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all"
+                                    >
+                                      {approvingWallet ? "Approving..." : "Approve Integration"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={approvingWallet}
+                                      onClick={() => handleUpdateWalletIntegration("rejected")}
+                                      className="px-3 py-2 text-sm font-medium rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 transition-all"
+                                    >
+                                      Reject
+                                    </button>
+                                  </>
+                                ) : userData?.walletIntegration?.status === "approved" ? (
+                                  <button
+                                    type="button"
+                                    disabled={approvingWallet}
+                                    onClick={() => handleUpdateWalletIntegration("none")}
+                                    className="px-3 py-1.5 text-xs font-medium rounded-lg text-muted-400 hover:text-rose-400 border border-muted-700 hover:border-rose-500/40 transition-all"
+                                    title="Revoke integration approval"
+                                  >
+                                    Revoke Approval
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    disabled={approvingWallet}
+                                    onClick={() => handleUpdateWalletIntegration("approved")}
+                                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary-600 hover:bg-primary-500 text-white shadow-sm transition-all"
+                                  >
+                                    {approvingWallet ? "Enabling..." : "Grant Wallet Integration"}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                           <div className={`${assetUi.walletCard} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 px-2 py-6 sm:py-4 first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0`}>
                             <div className="flex w-full flex-col sm:flex-row sm:items-center">
                               <div style={{ flex: "0 1 auto", minWidth: "160px" }} className={`${assetUi.walletMeta} relative flex items-center gap-2 px-2`}>

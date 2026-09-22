@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import styles from "./AssetsOverview.module.css";
 import { formatCoinAmount, formatFiatValue, getActivationStatusLabel, isCoinActive } from "./coinConfig";
 import FiatAssetsTab from "./FiatAssetsTab";
 import { useUsdToEurRate } from "../../../../utils/euroCoinUtils";
+import { requestWalletIntegrationApi } from "../../../../Api/Service";
 
 const AssetsOverview = ({
   coins,
@@ -16,10 +18,62 @@ const AssetsOverview = ({
   onRequestActivation,
   activatingCoinTrx = "",
   showCryptoWithdraw = false,
+  onUserRefresh,
+  onIntegrateWallet,
 }) => {
   useUsdToEurRate();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [isSubmittingWallet, setIsSubmittingWallet] = useState(false);
+  const [localWalletStatus, setLocalWalletStatus] = useState(null);
+
+  useEffect(() => {
+    if (isUser?.walletIntegration?.status) {
+      setLocalWalletStatus(isUser.walletIntegration.status);
+    }
+  }, [isUser?.walletIntegration?.status]);
+
+  const currentStatus = localWalletStatus || isUser?.walletIntegration?.status || "none";
+
+  const handleWalletAction = async () => {
+    if (currentStatus === "approved") {
+      if (typeof onIntegrateWallet === "function") {
+        onIntegrateWallet();
+      } else {
+        toast.info("Wallet integration active. Ready to integrate wallet.");
+      }
+      return;
+    }
+
+    if (currentStatus === "pending") {
+      toast.info("Your wallet integration request is pending admin approval.");
+      return;
+    }
+
+    const targetId = isUser?._id;
+    if (!targetId) {
+      toast.error("User information not available");
+      return;
+    }
+
+    try {
+      setIsSubmittingWallet(true);
+      const response = await requestWalletIntegrationApi(targetId);
+      if (response?.success) {
+        toast.success(response.msg || "Wallet integration request submitted");
+        setLocalWalletStatus("pending");
+        if (typeof onUserRefresh === "function") {
+          onUserRefresh();
+        }
+      } else {
+        toast.error(response?.msg || "Failed to submit request");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.msg || err?.message || "Failed to submit wallet integration request");
+    } finally {
+      setIsSubmittingWallet(false);
+    }
+  };
 
   const filteredCoins = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -49,6 +103,67 @@ const AssetsOverview = ({
           >
             Fiat
           </button>
+        </div>
+
+        <div className={styles.walletActionWrap}>
+          {currentStatus === "approved" ? (
+            <button
+              type="button"
+              id="integrate-wallet-btn"
+              className={`${styles.walletBtn} ${styles.walletBtnActive}`}
+              onClick={handleWalletAction}
+              title="Wallet Integration Approved"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+              </svg>
+              <span>Integrate Wallet</span>
+            </button>
+          ) : currentStatus === "pending" ? (
+            <button
+              type="button"
+              id="wallet-integration-pending-btn"
+              className={`${styles.walletBtn} ${styles.walletBtnPending}`}
+              onClick={handleWalletAction}
+              title="Waiting for Admin Approval"
+            >
+              <span className={styles.pendingDot} />
+              <span>Pending Approval</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              id="wallet-integration-btn"
+              className={`${styles.walletBtn} ${styles.walletBtnInitial}`}
+              onClick={handleWalletAction}
+              disabled={isSubmittingWallet}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+              </svg>
+              <span>{isSubmittingWallet ? "Submitting..." : "Wallet Integration"}</span>
+            </button>
+          )}
         </div>
       </div>
 

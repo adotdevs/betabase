@@ -7,7 +7,109 @@
 .topBar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.walletBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  letter-spacing: 0.01em;
+  user-select: none;
+  position: relative;
+  white-space: nowrap;
+}
+
+.walletBtn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.walletBtn:hover svg {
+  transform: scale(1.08);
+}
+
+.walletBtnInitial {
+  background: linear-gradient(135deg, #4f7df3 0%, #7c5cff 50%, #9333ea 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(124, 92, 255, 0.45);
+  font-weight: 600;
+}
+
+.walletBtnInitial:hover {
+  background: linear-gradient(135deg, #3d6ae8 0%, #6b46ff 50%, #7e22ce 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  box-shadow: 0 6px 22px rgba(124, 92, 255, 0.6);
+  transform: translateY(-1.5px);
+}
+
+.walletBtnInitial:active {
+  transform: translateY(0);
+}
+
+.walletBtnPending {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.2);
+  cursor: not-allowed;
+  opacity: 0.95;
+  font-weight: 600;
+}
+
+.pendingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #fbbf24;
+  display: inline-block;
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.6);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0);
+  }
+}
+
+.walletBtnActive {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45), 0 0 0 1px rgba(6, 182, 212, 0.25);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.walletBtnActive:hover {
+  background: linear-gradient(135deg, #059669 0%, #0891b2 50%, #2563eb 100%);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.6), 0 0 0 2px rgba(6, 182, 212, 0.35);
+  transform: translateY(-1.5px);
+  color: #ffffff;
+}
+
+.walletBtnActive:active {
+  transform: translateY(0);
 }
 
 .tabs {

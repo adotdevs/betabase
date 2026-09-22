@@ -275,6 +275,7 @@ const DashboardAssetsWallets = () => {
                 onRequestActivation={handleRequestActivation}
                 activatingCoinTrx={activatingCoinTrx}
                 showCryptoWithdraw
+                onUserRefresh={getsignUser}
               />
             </div>
           )}

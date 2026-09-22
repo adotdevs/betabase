@@ -804,6 +804,7 @@ const Orders = () => {
                 onFiatWithdraw={openFiatWithdraw}
                 onRequestActivation={handleRequestActivation}
                 activatingCoinTrx={activatingCoinTrx}
+                onUserRefresh={getsignUser}
             />
         );
     };
