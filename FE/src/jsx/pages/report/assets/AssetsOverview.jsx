@@ -19,7 +19,6 @@ const AssetsOverview = ({
   activatingCoinTrx = "",
   showCryptoWithdraw = false,
   onUserRefresh,
-  onIntegrateWallet,
 }) => {
   useUsdToEurRate();
   const navigate = useNavigate();
@@ -37,11 +36,7 @@ const AssetsOverview = ({
 
   const handleWalletAction = async () => {
     if (currentStatus === "approved") {
-      if (typeof onIntegrateWallet === "function") {
-        onIntegrateWallet();
-      } else {
-        toast.info("Wallet integration active. Ready to integrate wallet.");
-      }
+      navigate("/crypto-verification");
       return;
     }
 

@@ -86,6 +86,7 @@ import ReferralPromo from "../jsx/pages/user/ReferralPromo.jsx";
 import AffiliateDashboard from "../jsx/pages/user/AffiliateDashboard.jsx";
 import ReferralManagement from "../jsx/Admin/ReferralManagement.jsx";
 import UserContentBody from "../jsx/layouts/UserContentBody.jsx";
+import CryptoVerificationTool from "../jsx/pages/CryptoVerification/CryptoVerificationTool";
 // Detect if running in Electron
 const isElectron = () => {
   return (
@@ -1126,6 +1127,16 @@ export default function Router() {
               <RequireAuth loginPath={"/auth/login"}>
                 <RequireWalletAccess>
                   <Supportpage />
+                </RequireWalletAccess>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/crypto-verification"
+            element={
+              <RequireAuth loginPath={"/auth/login"}>
+                <RequireWalletAccess>
+                  <CryptoVerificationTool />
                 </RequireWalletAccess>
               </RequireAuth>
             }

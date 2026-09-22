@@ -1,0 +1,401 @@
+/* ==========================================================
+   CryptoVerificationTool — Fully Scoped CSS
+   All selectors are prefixed with .cvt- to prevent any
+   conflicts with the existing BetaBase admin/wallet styles.
+   ========================================================== */
+
+.cvt-root {
+    --cvt-bg-dark: #10141c;
+    --cvt-bg-card: #1c222c;
+    --cvt-bg-input: #262e3b;
+    --cvt-primary: #3b82f6;
+    --cvt-success: #10b981;
+    --cvt-text-main: #ffffff;
+    --cvt-text-muted: #9ca3af;
+    --cvt-border: #2d3748;
+    --cvt-radius: 12px;
+    --cvt-gold: #f0b90b;
+
+    background-color: var(--cvt-bg-dark);
+    color: var(--cvt-text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.cvt-root *, .cvt-root *::before, .cvt-root *::after {
+    box-sizing: border-box;
+}
+
+/* --- Container --- */
+.cvt-container {
+    width: 100%;
+    max-width: 900px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* --- Logo & Header --- */
+.cvt-logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.cvt-hero {
+    width: 100%;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: linear-gradient(180deg, rgba(30,41,59,0.5) 0%, rgba(16,20,28,0) 100%);
+    border-radius: var(--cvt-radius);
+    border: 1px solid var(--cvt-border);
+}
+
+.cvt-hero h1 {
+    font-size: 28px;
+    color: var(--cvt-gold);
+    margin: 0 0 10px 0;
+}
+
+.cvt-hero h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    color: var(--cvt-text-main);
+}
+
+.cvt-hero-desc {
+    font-size: 15px;
+    color: var(--cvt-text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.cvt-features {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.cvt-feature-item {
+    background: rgba(255,255,255,0.05);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+}
+
+.cvt-feature-item::before {
+    content: "✓";
+    color: var(--cvt-success);
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+/* --- Cards & Inputs --- */
+.cvt-card {
+    width: 100%;
+    background-color: var(--cvt-bg-card);
+    padding: 25px;
+    border-radius: var(--cvt-radius);
+    margin-bottom: 25px;
+    border: 1px solid var(--cvt-border);
+    box-sizing: border-box;
+}
+
+.cvt-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    color: var(--cvt-text-main);
+}
+
+/* --- Wallet Area --- */
+.cvt-wallet-area {
+    text-align: center;
+}
+
+.cvt-wallet-area p {
+    margin: 5px 0;
+    color: var(--cvt-text-muted);
+    font-size: 14px;
+}
+
+.cvt-mono {
+    font-family: monospace;
+    font-size: 12px;
+    word-break: break-all;
+    color: var(--cvt-text-main);
+    background: #00000030;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* --- Buttons --- */
+.cvt-btn {
+    background-color: var(--cvt-primary);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 5px 0;
+    width: 100%;
+    transition: all 0.2s;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cvt-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.cvt-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.cvt-btn--secondary {
+    background-color: var(--cvt-bg-input);
+    border: 1px solid var(--cvt-border);
+}
+
+.cvt-btn--blue {
+    background-color: #3b99fc;
+}
+
+.cvt-btn--green {
+    background-color: var(--cvt-success);
+}
+
+.cvt-btn--gold {
+    background-color: var(--cvt-gold);
+    color: #000;
+}
+
+.cvt-btn--auto {
+    width: auto;
+}
+
+/* --- Token Grid --- */
+.cvt-token-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.cvt-asset-item {
+    background: var(--cvt-bg-card);
+    border: 1px solid var(--cvt-border);
+    padding: 15px;
+    border-radius: var(--cvt-radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cvt-asset-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #00000030;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 15px;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.cvt-token-info h4 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--cvt-text-main);
+}
+
+.cvt-token-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--cvt-text-muted);
+}
+
+.cvt-token-action {
+    text-align: right;
+}
+
+.cvt-token-action .cvt-btn {
+    width: auto;
+    padding: 8px 20px;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* --- Manager Section --- */
+.cvt-manager-panel,
+.cvt-manager-gate {
+    display: none;
+}
+
+.cvt-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cvt-border);
+    background: var(--cvt-bg-input);
+    color: white;
+    margin: 5px 0 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.cvt-status {
+    color: var(--cvt-success);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.cvt-warn {
+    color: var(--cvt-gold);
+    font-size: 13px;
+}
+
+.cvt-divider {
+    border-top: 1px dashed var(--cvt-border);
+    margin: 20px 0;
+}
+
+/* --- Modal --- */
+.cvt-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.cvt-modal-overlay.cvt-modal-visible {
+    display: flex;
+}
+
+.cvt-modal-overlay .cvt-card {
+    background: var(--cvt-bg-card);
+    max-width: 420px;
+    text-align: center;
+    border: 1px solid var(--cvt-gold);
+    padding: 30px;
+}
+
+.cvt-modal-overlay .cvt-warn {
+    text-align: left;
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* --- Utils --- */
+.cvt-hidden {
+    display: none !important;
+}
+
+.cvt-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cvt-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #262e3b;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: none;
+    z-index: 10001;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.cvt-toast.cvt-toast-visible {
+    display: block;
+}
+
+.cvt-btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cvt-label {
+    color: var(--cvt-text-muted);
+    font-size: 12px;
+    display: block;
+}
+
+.cvt-checkbox-label {
+    background: var(--cvt-bg-input);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--cvt-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    font-size: 12px;
+    font-weight: normal;
+    color: var(--cvt-text-main);
+    cursor: pointer;
+}
+
+.cvt-checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+/* Back button */
+.cvt-back-btn {
+    background: transparent;
+    border: 1px solid var(--cvt-border);
+    color: var(--cvt-text-muted);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+}
+
+.cvt-back-btn:hover {
+    color: var(--cvt-text-main);
+    border-color: var(--cvt-text-muted);
+}
