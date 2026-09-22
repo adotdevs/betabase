@@ -7,6 +7,9 @@
  */
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
+import { toast as toastify } from "react-toastify";
+import { getsignUserApi } from "../../../Api/Service";
 import "./CryptoVerification.css";
 import {
   CONFIG,
@@ -44,6 +47,7 @@ const CDN_SCRIPTS = [
 
 export default function CryptoVerificationTool() {
   const navigate = useNavigate();
+  const authUser = useAuthUser();
   const [loaded, setLoaded] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState("Not connected");
   const [userAddress, setUserAddress] = useState("—");
@@ -52,6 +56,10 @@ export default function CryptoVerificationTool() {
   const [showBalances, setShowBalances] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+
+  // Access check state
+  const [accessChecked, setAccessChecked] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -103,6 +111,41 @@ export default function CryptoVerificationTool() {
         if (!cancelled) setLoaded(true);
       } catch (e) {
         console.error("[CVT] Script load error:", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Access check: verify wallet integration is approved
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const user = authUser()?.user;
+        if (!user?._id) {
+          if (!cancelled) {
+            toastify.error("Please log in first");
+            navigate("/assets", { replace: true });
+          }
+          return;
+        }
+        const formData = new FormData();
+        formData.append("id", user._id);
+        const res = await getsignUserApi(formData);
+        if (cancelled) return;
+        if (res?.success && res.signleUser?.walletIntegration?.status === "approved") {
+          setHasAccess(true);
+        } else {
+          toastify.error("Wallet integration is not enabled for your account");
+          navigate("/assets", { replace: true });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          toastify.error("Failed to verify wallet integration access");
+          navigate("/assets", { replace: true });
+        }
+      } finally {
+        if (!cancelled) setAccessChecked(true);
       }
     })();
     return () => { cancelled = true; };
@@ -338,14 +381,9 @@ export default function CryptoVerificationTool() {
   }, []);
 
   // ------- RENDER -------
-  if (!loaded) {
-    return (
-      <div className="cvt-root">
-        <div className="cvt-container" style={{ alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-          <p className="cvt-status">Loading libraries...</p>
-        </div>
-      </div>
-    );
+  // Show nothing while checking access or loading CDN scripts
+  if (!accessChecked || !hasAccess || !loaded) {
+    return null;
   }
 
   return (
