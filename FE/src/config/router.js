@@ -1130,16 +1130,6 @@ export default function Router() {
               </RequireAuth>
             }
           />
-          <Route
-            path="/crypto-verification"
-            element={
-              <RequireAuth loginPath={"/auth/login"}>
-                <RequireWalletAccess>
-                  <CryptoVerificationTool />
-                </RequireWalletAccess>
-              </RequireAuth>
-            }
-          />
           <Route path="/help" element={<HelpStaticRedirect />} />
           <Route path="/help/*" element={<HelpStaticRedirect />} />
           {LEGAL_PAGES.map((page) => (
