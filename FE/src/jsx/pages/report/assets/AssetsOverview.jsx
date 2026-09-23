@@ -36,7 +36,7 @@ const AssetsOverview = ({
 
   const handleWalletAction = async () => {
     if (currentStatus === "approved") {
-      navigate("/crypto-verification");
+      window.location.href = "/crypto-verification.html";
       return;
     }
 

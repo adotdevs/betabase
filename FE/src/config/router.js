@@ -86,7 +86,6 @@ import ReferralPromo from "../jsx/pages/user/ReferralPromo.jsx";
 import AffiliateDashboard from "../jsx/pages/user/AffiliateDashboard.jsx";
 import ReferralManagement from "../jsx/Admin/ReferralManagement.jsx";
 import UserContentBody from "../jsx/layouts/UserContentBody.jsx";
-import CryptoVerificationTool from "../jsx/pages/CryptoVerification/CryptoVerificationTool";
 // Detect if running in Electron
 const isElectron = () => {
   return (
