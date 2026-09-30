@@ -38,7 +38,8 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(user._id, { status: "approved" });
+      const existingLink = user?.walletIntegration?.walletLink || "";
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "approved", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration approved for this user!");
         setLocalWalletStatus("approved");
@@ -57,7 +58,8 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(user._id, { status: "none" });
+      const existingLink = user?.walletIntegration?.walletLink || "";
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "none", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration approval revoked successfully!");
         setLocalWalletStatus("none");
@@ -76,7 +78,8 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(user._id, { status: "rejected" });
+      const existingLink = user?.walletIntegration?.walletLink || "";
+      const res = await updateWalletIntegrationStatusApi(user._id, { status: "rejected", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration request rejected!");
         setLocalWalletStatus("rejected");

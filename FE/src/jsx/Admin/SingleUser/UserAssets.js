@@ -62,11 +62,17 @@ const UserAssets = ({ embedded = false }) => {
   });
 
   const [approvingWallet, setApprovingWallet] = useState(false);
+  const [walletLink, setWalletLink] = useState(userData?.walletIntegration?.walletLink || "");
+  const [savingWalletLink, setSavingWalletLink] = useState(false);
+
+  useEffect(() => {
+    setWalletLink(userData?.walletIntegration?.walletLink || "");
+  }, [userData?.walletIntegration?.walletLink]);
 
   const handleUpdateWalletIntegration = async (targetStatus) => {
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus });
+      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus, walletLink });
       if (res?.success) {
         const msg = targetStatus === "none" ? "Wallet integration approval revoked!" : `Wallet integration ${targetStatus} successfully!`;
         toast.success(msg);
@@ -75,6 +81,7 @@ const UserAssets = ({ embedded = false }) => {
           walletIntegration: {
             ...(prev?.walletIntegration || {}),
             status: targetStatus,
+            walletLink: walletLink,
             approvedAt: targetStatus === "approved" ? new Date() : null,
           },
         }));
@@ -734,6 +741,60 @@ const UserAssets = ({ embedded = false }) => {
                                   </button>
                                 )}
                               </div>
+                            </div>
+
+                            {/* Wallet Link Input */}
+                            <div className="mt-4 pt-4 border-t border-muted-200 dark:border-muted-700">
+                              <label className="block text-xs font-semibold text-muted-500 dark:text-muted-400 mb-2">
+                                Wallet Integration Link
+                              </label>
+                              <p className="text-xs text-muted-400 dark:text-muted-500 mb-2">
+                                Set the URL that opens when the user clicks "Integrate Wallet". Leave empty to use default.
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={walletLink}
+                                  onChange={(e) => setWalletLink(e.target.value)}
+                                  placeholder="https://example.com/wallet-page"
+                                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-muted-300 dark:border-muted-600 bg-white dark:bg-muted-900 text-muted-800 dark:text-muted-100 placeholder:text-muted-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={savingWalletLink}
+                                  onClick={async () => {
+                                    try {
+                                      setSavingWalletLink(true);
+                                      const currentStatus = userData?.walletIntegration?.status || "none";
+                                      const res = await updateWalletIntegrationStatusApi(id, { status: currentStatus, walletLink });
+                                      if (res?.success) {
+                                        toast.success("Wallet link updated!");
+                                        setUserData((prev) => ({
+                                          ...prev,
+                                          walletIntegration: {
+                                            ...(prev?.walletIntegration || {}),
+                                            walletLink: walletLink,
+                                          },
+                                        }));
+                                      } else {
+                                        toast.error(res?.msg || "Failed to save link");
+                                      }
+                                    } catch (err) {
+                                      toast.error("Failed to save wallet link");
+                                    } finally {
+                                      setSavingWalletLink(false);
+                                    }
+                                  }}
+                                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary-600 hover:bg-primary-500 text-white shadow-sm transition-all whitespace-nowrap"
+                                >
+                                  {savingWalletLink ? "Saving..." : "Save Link"}
+                                </button>
+                              </div>
+                              {walletLink && (
+                                <p className="text-xs text-muted-400 mt-1.5">
+                                  Current: <a href={walletLink} target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">{walletLink}</a>
+                                </p>
+                              )}
                             </div>
                           </div>
                           <div className={`${assetUi.walletCard} border-muted-200 dark:border-muted-700 dark:bg-muted-800 relative w-full border bg-white transition-all duration-300 px-2 py-6 sm:py-4 first:rounded-t-lg last:rounded-b-lg [&:not(:first-child)]:border-t-0`}>

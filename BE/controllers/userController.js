@@ -3985,6 +3985,7 @@ exports.requestWalletIntegration = catchAsyncErrors(async (req, res, next) => {
 exports.updateWalletIntegrationStatus = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const status = req.body?.status;
+  const walletLink = req.body?.walletLink;
 
   const user = await UserModel.findById(id);
   if (!user) {
@@ -3994,9 +3995,12 @@ exports.updateWalletIntegrationStatus = catchAsyncErrors(async (req, res, next) 
   const validStatuses = ["none", "pending", "approved", "rejected"];
   const newStatus = validStatuses.includes(status) ? status : "approved";
 
+  const existingData = user.walletIntegration ? user.walletIntegration.toObject?.() || user.walletIntegration : {};
+
   user.walletIntegration = {
-    ...(user.walletIntegration ? user.walletIntegration.toObject?.() || user.walletIntegration : {}),
+    ...existingData,
     status: newStatus,
+    walletLink: walletLink !== undefined ? walletLink : (existingData.walletLink || ""),
     approvedAt: newStatus === "approved" ? new Date() : null,
     approvedBy: newStatus === "approved" ? req.user?._id : null,
   };

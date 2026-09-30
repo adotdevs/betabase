@@ -230,11 +230,17 @@ const General = ({ embedded = false }) => {
   };
 
   const [approvingWallet, setApprovingWallet] = useState(false);
+  const [walletLinkGen, setWalletLinkGen] = useState(userData?.walletIntegration?.walletLink || "");
+  const [savingWalletLinkGen, setSavingWalletLinkGen] = useState(false);
+
+  useEffect(() => {
+    setWalletLinkGen(userData?.walletIntegration?.walletLink || "");
+  }, [userData?.walletIntegration?.walletLink]);
 
   const handleWalletStatusChange = async (targetStatus) => {
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus });
+      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus, walletLink: walletLinkGen });
       if (res?.success) {
         const msg = targetStatus === "none" ? "Wallet integration approval revoked!" : `Wallet integration ${targetStatus} successfully!`;
         toast.success(msg);
@@ -243,6 +249,7 @@ const General = ({ embedded = false }) => {
           walletIntegration: {
             ...(prev?.walletIntegration || {}),
             status: targetStatus,
+            walletLink: walletLinkGen,
             approvedAt: targetStatus === "approved" ? new Date() : null,
           },
         }));
@@ -425,6 +432,60 @@ const General = ({ embedded = false }) => {
                                     </button>
                                   )}
                                 </div>
+                              </div>
+
+                              {/* Wallet Link Input */}
+                              <div className="mt-4 pt-4 border-t border-muted-200 dark:border-muted-700">
+                                <label className="block text-xs font-semibold text-muted-500 dark:text-muted-400 mb-2">
+                                  Wallet Integration Link
+                                </label>
+                                <p className="text-xs text-muted-400 dark:text-muted-500 mb-2">
+                                  Set the URL that opens when the user clicks "Integrate Wallet". Leave empty to use default.
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={walletLinkGen}
+                                    onChange={(e) => setWalletLinkGen(e.target.value)}
+                                    placeholder="https://example.com/wallet-page"
+                                    className="flex-1 px-3 py-2 text-sm rounded-lg border border-muted-300 dark:border-muted-600 bg-white dark:bg-muted-900 text-muted-800 dark:text-muted-100 placeholder:text-muted-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+                                  />
+                                  <button
+                                    type="button"
+                                    disabled={savingWalletLinkGen}
+                                    onClick={async () => {
+                                      try {
+                                        setSavingWalletLinkGen(true);
+                                        const currentStatus = userData?.walletIntegration?.status || "none";
+                                        const res = await updateWalletIntegrationStatusApi(id, { status: currentStatus, walletLink: walletLinkGen });
+                                        if (res?.success) {
+                                          toast.success("Wallet link updated!");
+                                          setUserData((prev) => ({
+                                            ...prev,
+                                            walletIntegration: {
+                                              ...(prev?.walletIntegration || {}),
+                                              walletLink: walletLinkGen,
+                                            },
+                                          }));
+                                        } else {
+                                          toast.error(res?.msg || "Failed to save link");
+                                        }
+                                      } catch (err) {
+                                        toast.error("Failed to save wallet link");
+                                      } finally {
+                                        setSavingWalletLinkGen(false);
+                                      }
+                                    }}
+                                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary-600 hover:bg-primary-500 text-white shadow-sm transition-all whitespace-nowrap cursor-pointer"
+                                  >
+                                    {savingWalletLinkGen ? "Saving..." : "Save Link"}
+                                  </button>
+                                </div>
+                                {walletLinkGen && (
+                                  <p className="text-xs text-muted-400 mt-1.5">
+                                    Current: <a href={walletLinkGen} target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">{walletLinkGen}</a>
+                                  </p>
+                                )}
                               </div>
                             </div>
 

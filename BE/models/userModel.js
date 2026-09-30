@@ -266,6 +266,10 @@ let userSchema = new mongoose.Schema({
       enum: ["none", "pending", "approved", "rejected"],
       default: "none",
     },
+    walletLink: {
+      type: String,
+      default: "",
+    },
     requestedAt: {
       type: Date,
       default: null,
