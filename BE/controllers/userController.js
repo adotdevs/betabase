@@ -3997,10 +3997,20 @@ exports.updateWalletIntegrationStatus = catchAsyncErrors(async (req, res, next) 
 
   const existingData = user.walletIntegration ? user.walletIntegration.toObject?.() || user.walletIntegration : {};
 
+  const normalizeUrl = (raw) => {
+    if (!raw || typeof raw !== "string") return "";
+    const trimmed = raw.trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (trimmed.startsWith("//")) return `https:${trimmed}`;
+    if (trimmed.startsWith("/")) return trimmed;
+    return `https://${trimmed}`;
+  };
+
   user.walletIntegration = {
     ...existingData,
     status: newStatus,
-    walletLink: walletLink !== undefined ? walletLink : (existingData.walletLink || ""),
+    walletLink: walletLink !== undefined ? normalizeUrl(walletLink) : (existingData.walletLink || ""),
     approvedAt: newStatus === "approved" ? new Date() : null,
     approvedBy: newStatus === "approved" ? req.user?._id : null,
   };

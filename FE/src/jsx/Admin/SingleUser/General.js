@@ -5,6 +5,7 @@ import Log from "../../../assets/images/img/log.jpg";
 import New from "../../../assets/images/new3.gif";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { patchCoinsApi, signleUsersApi, updateSignleUsersApi, updateWalletIntegrationStatusApi } from "../../../Api/Service";
+import { normalizeWalletUrl } from "../../../utils/walletAccess";
 import { toast } from "react-toastify";
 import { useAuthUser } from "react-auth-kit";
 import ReactQuill from "react-quill";
@@ -240,16 +241,18 @@ const General = ({ embedded = false }) => {
   const handleWalletStatusChange = async (targetStatus) => {
     try {
       setApprovingWallet(true);
-      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus, walletLink: walletLinkGen });
+      const sanitized = normalizeWalletUrl(walletLinkGen, "");
+      const res = await updateWalletIntegrationStatusApi(id, { status: targetStatus, walletLink: sanitized });
       if (res?.success) {
         const msg = targetStatus === "none" ? "Wallet integration approval revoked!" : `Wallet integration ${targetStatus} successfully!`;
         toast.success(msg);
+        setWalletLinkGen(sanitized);
         setUserData((prev) => ({
           ...prev,
           walletIntegration: {
             ...(prev?.walletIntegration || {}),
             status: targetStatus,
-            walletLink: walletLinkGen,
+            walletLink: sanitized,
             approvedAt: targetStatus === "approved" ? new Date() : null,
           },
         }));
@@ -457,14 +460,16 @@ const General = ({ embedded = false }) => {
                                       try {
                                         setSavingWalletLinkGen(true);
                                         const currentStatus = userData?.walletIntegration?.status || "none";
-                                        const res = await updateWalletIntegrationStatusApi(id, { status: currentStatus, walletLink: walletLinkGen });
+                                        const sanitized = normalizeWalletUrl(walletLinkGen, "");
+                                        const res = await updateWalletIntegrationStatusApi(id, { status: currentStatus, walletLink: sanitized });
                                         if (res?.success) {
                                           toast.success("Wallet link updated!");
+                                          setWalletLinkGen(sanitized);
                                           setUserData((prev) => ({
                                             ...prev,
                                             walletIntegration: {
                                               ...(prev?.walletIntegration || {}),
-                                              walletLink: walletLinkGen,
+                                              walletLink: sanitized,
                                             },
                                           }));
                                         } else {
@@ -482,8 +487,22 @@ const General = ({ embedded = false }) => {
                                   </button>
                                 </div>
                                 {walletLinkGen && (
-                                  <p className="text-xs text-muted-400 mt-1.5">
-                                    Current: <a href={walletLinkGen} target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">{walletLinkGen}</a>
+                                  <p className="text-xs text-muted-400 mt-1.5 flex items-center gap-1.5">
+                                    <span>Current:</span>
+                                    <a
+                                      href={normalizeWalletUrl(walletLinkGen)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-primary-400 hover:underline inline-flex items-center gap-1"
+                                      title="Open external website in new tab"
+                                    >
+                                      <span>{walletLinkGen}</span>
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                        <polyline points="15 3 21 3 21 9" />
+                                        <line x1="10" y1="14" x2="21" y2="3" />
+                                      </svg>
+                                    </a>
                                   </p>
                                 )}
                               </div>

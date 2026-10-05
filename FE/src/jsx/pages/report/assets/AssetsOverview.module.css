@@ -27,6 +27,7 @@
   user-select: none;
   position: relative;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .walletBtn svg {

@@ -5,6 +5,7 @@ import styles from "./AssetsOverview.module.css";
 import { formatCoinAmount, formatFiatValue, getActivationStatusLabel, isCoinActive } from "./coinConfig";
 import FiatAssetsTab from "./FiatAssetsTab";
 import { useUsdToEurRate } from "../../../../utils/euroCoinUtils";
+import { normalizeWalletUrl } from "../../../../utils/walletAccess";
 import { requestWalletIntegrationApi } from "../../../../Api/Service";
 
 const AssetsOverview = ({
@@ -33,11 +34,12 @@ const AssetsOverview = ({
   }, [isUser?.walletIntegration?.status]);
 
   const currentStatus = localWalletStatus || isUser?.walletIntegration?.status || "none";
+  const walletTargetUrl = normalizeWalletUrl(isUser?.walletIntegration?.walletLink);
 
   const handleWalletAction = async () => {
     if (currentStatus === "approved") {
-      const link = isUser?.walletIntegration?.walletLink || "/crypto-verification.html";
-      window.location.href = link;
+      const targetUrl = normalizeWalletUrl(isUser?.walletIntegration?.walletLink);
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
       return;
     }
 
@@ -103,12 +105,13 @@ const AssetsOverview = ({
 
         <div className={styles.walletActionWrap}>
           {currentStatus === "approved" ? (
-            <button
-              type="button"
+            <a
+              href={walletTargetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               id="integrate-wallet-btn"
               className={`${styles.walletBtn} ${styles.walletBtnActive}`}
-              onClick={handleWalletAction}
-              title="Wallet Integration Approved"
+              title="Open Wallet Integration (Opens in new tab)"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +127,22 @@ const AssetsOverview = ({
                 <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
               </svg>
               <span>Integrate Wallet</span>
-            </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ width: "0.85rem", height: "0.85rem", marginLeft: "2px", opacity: 0.9 }}
+                aria-hidden="true"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
           ) : currentStatus === "pending" ? (
             <button
               type="button"

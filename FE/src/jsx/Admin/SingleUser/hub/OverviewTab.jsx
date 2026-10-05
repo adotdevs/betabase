@@ -15,6 +15,7 @@ import {
 } from "./hubData";
 import useHubMarkToMarket from "./useHubMarkToMarket";
 import { updateWalletIntegrationStatusApi } from "../../../../Api/Service";
+import { normalizeWalletUrl } from "../../../../utils/walletAccess";
 import { clearHubCache } from "./hubCache";
 
 const OverviewTab = ({
@@ -38,7 +39,7 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const existingLink = user?.walletIntegration?.walletLink || "";
+      const existingLink = normalizeWalletUrl(user?.walletIntegration?.walletLink || "", "");
       const res = await updateWalletIntegrationStatusApi(user._id, { status: "approved", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration approved for this user!");
@@ -58,7 +59,7 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const existingLink = user?.walletIntegration?.walletLink || "";
+      const existingLink = normalizeWalletUrl(user?.walletIntegration?.walletLink || "", "");
       const res = await updateWalletIntegrationStatusApi(user._id, { status: "none", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration approval revoked successfully!");
@@ -78,7 +79,7 @@ const OverviewTab = ({
     if (!user?._id) return;
     try {
       setApprovingWallet(true);
-      const existingLink = user?.walletIntegration?.walletLink || "";
+      const existingLink = normalizeWalletUrl(user?.walletIntegration?.walletLink || "", "");
       const res = await updateWalletIntegrationStatusApi(user._id, { status: "rejected", walletLink: existingLink });
       if (res?.success) {
         toast.success("Wallet integration request rejected!");
@@ -301,6 +302,24 @@ const OverviewTab = ({
               ? "Action required: Pending request"
               : "No request submitted"}
           </p>
+          {user?.walletIntegration?.walletLink && (
+            <p className={mm.statHint} style={{ marginTop: "4px" }}>
+              Link: <a
+                href={normalizeWalletUrl(user.walletIntegration.walletLink)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#38bdf8", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "3px" }}
+                title="Open external website in new tab"
+              >
+                <span>External Wallet</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </a>
+            </p>
+          )}
         </article>
         <article className={mm.stat}>
           <p className={mm.statLabel}>KYC status</p>

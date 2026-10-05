@@ -121,3 +121,56 @@ export function getWalletDeniedRedirectPath(user) {
 
   return hasCrmAccess ? '/admin/dashboard/crm' : '/';
 }
+
+/**
+ * Normalize and format a wallet integration link.
+ * Ensures external links (e.g. "binance.com", "metamask.io") have "https://"
+ * so they open the external website rather than resolving as relative paths inside our website.
+ * 
+ * @param {string} link - The raw URL input
+ * @param {string} defaultFallback - Fallback path if empty
+ * @returns {string} - Properly formatted URL
+ */
+export function normalizeWalletUrl(link, defaultFallback = "/crypto-verification.html") {
+  if (!link || typeof link !== "string") {
+    return defaultFallback;
+  }
+  const trimmed = link.trim();
+  if (!trimmed) {
+    return defaultFallback;
+  }
+  // Already has http:// or https://
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  // Protocol-relative (//example.com)
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
+  // Internal relative path (starts with / or ./)
+  if (trimmed.startsWith("/") || trimmed.startsWith("./")) {
+    return trimmed;
+  }
+  // Otherwise treat as external domain (e.g. "metamask.io" -> "https://metamask.io")
+  return `https://${trimmed}`;
+}
+
+/**
+ * Determine if a wallet URL points to an external website.
+ * @param {string} link 
+ * @returns {boolean}
+ */
+export function isExternalWalletUrl(link) {
+  if (!link || typeof link !== "string") return false;
+  const trimmed = link.trim();
+  if (!trimmed) return false;
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    try {
+      const url = new URL(trimmed.startsWith("//") ? `https:${trimmed}` : trimmed);
+      return url.origin !== window.location.origin;
+    } catch {
+      return true;
+    }
+  }
+  return !trimmed.startsWith("/") && !trimmed.startsWith("./");
+}
